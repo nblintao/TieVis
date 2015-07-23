@@ -4,3 +4,9 @@
 /doc
 /Related Work
 /LOG.txt
+
+writing/document.aux
+writing/document.blg
+/writing/document.bbl
+/writing/document.log
+/writing/document.synctex.gz
