@@ -1,0 +1,72 @@
+\documentclass{article}
+\title{Report 2015/7/23}
+\author{Tao LIN}
+
+\begin{document}
+
+\maketitle
+
+\section{Related Work}
+
+\subsection{Large Graph Layout}
+
+Many graph layout algorithms have been created over the past decades. 
+GRIP\cite{gajer2000fast,gajer2001grip} is a hierarchical force-directed method for drawing large graphs.
+OpenOrd\cite{martin2011openord} has both serial and parallel implementation of large graph layout.
+Tikhonova et al.\cite{tikhonova2008scalable} presented a scalable parallel graph layout algorithm with good performance, scalability and the visual quality.
+
+Comparing is essential for deciding the most suitable algorithms for the specific scenario. Gibson et al.\cite{gibson2013survey} discussed a range of two-dimensional graph layout techniques for information visualization. Hachul et al.\cite{hachul2006experimental} compared several large graph drawing algorithms by the differences in drawing qualities and running times.
+ 
+
+
+\subsection{Level-of-Detail and Adaptive Techniques for Large Graph}
+
+Even it is available to layout large graphs in real time, it is difficult to obtain useful information from the visualization, since the size of display devices and users' cognition abilities are limited. Hence, the simplification should be considered.
+
+Level-of-detail techniques are able to simplify the large graphs by applying graph clustering and summarization. ASK-GraphView\cite{abello2006ask} is a graph visualization system that allows clustering and interactive
+navigation of large graphs with interactive rates by the scalable architecture and sophisticated clustering algorithms.
+HiMap\cite{shi2009himap} is another system that visualizes by clustered graph via hierarchical grouping and summarization, but employed a novel adaptive data loading technique considering the visual density of the graph view.
+
+Also, the visual design should be improved considering the levels of detail.
+Balzer et al.\cite{balzer2007level} presents level-of-detail techniques for visualizing large and complex clustered graph layouts with implicit surfaces.
+We propose a technique that allows straight-line graph drawings to be rendered interactively with adjustable level of detail.
+Zinsmaier et al.\cite{zinsmaier2012interactive} proposes a combination of edge cumulation with density-based node aggregation for large graphs without precomputed hierarchies.
+
+%Gibson et al.\cite{gibson2011node} showed an optimization for small-world network layout by using attributes to layout the graph in high-dimensional data space.
+
+\subsection{Parallel Computation in Information Visualization}
+
+
+Liu et al.\cite{liu2013immens} put up a combination of multivariate data tiles and parallel query processing for real-time interacive querying large data sets.
+
+
+Shen et al.\cite{shen2012visual} introduced a two-tier visual analytics system, which incorporates a Hadoop-based parallel data processing platform to handle queries of massive web session data.
+\subsection{Web-based Information Visualization}
+
+
+Bender et al.\cite{bender2000functional} presented a framework which allows the easy and efficient implementation of general Web-based visualization systems which can either follow the fat server, the fat client, or a hybrid approach.
+
+
+
+The web offers many possibilities for system architectures, ranging from thin clients running natively in the browser [9, 20] 
+
+Web-based visualization technologies make more people capable of performing complex analysis tasks conveniently. Many of them employed different system architectures, which could be classified in three categories\cite{bostock2009protovis}: thin client, fat server and hybrid approaches.
+
+ Eick et al.\cite{eick2007thin} developed a thin client visualization framework that provides a rich user experience that is completely browser based.
+ To develop the performance of client visualization, Johnson et al.\cite{johnson2008scalability} contrasted several web-native information visualization methods (SVG, HTML5's Canvas, native HTML) at different data scales.
+ 
+ 
+to “fat servers” where most computation occurs on the server,
+
+ and hybrid approaches in-between [2, 38]
+A functional framework for web-based information visualization systems
+A web services architecture for visualization
+
+
+%Pike et al.\cite{pike2009scalable} introduced the scalable reasoning system (SRS), which provides web-based and mobile interfaces for visual analysis.
+
+
+\bibliographystyle{ieeetr}
+\bibliography{references}
+\end{document}
+
