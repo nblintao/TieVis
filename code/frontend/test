@@ -1,0 +1,86 @@
+webgl
+(index):127 start timing
+(index):143 2 ms(before makeCircle)
+(index):153 1131 ms(after makeCircle)
+(index):157 1947 ms
+
+webgl
+(index):127 start timing
+(index):143 2 ms(before makeCircle)
+(index):153 1131 ms(after makeCircle)
+(index):157 1969 ms
+
+svg
+?type=svg:127 start timing
+?type=svg:143 2 ms(before makeCircle)
+?type=svg:153 1152 ms(after makeCircle)
+?type=svg:157 1706 ms
+
+svg
+?type=svg:127 start timing
+?type=svg:143 1 ms(before makeCircle)
+?type=svg:153 1149 ms(after makeCircle)
+?type=svg:157 1673 ms
+
+canvas
+?type=canvas:127 start timing
+?type=canvas:143 2 ms(before makeCircle)
+?type=canvas:153 1177 ms(after makeCircle)
+?type=canvas:157 1693 ms
+
+canvas
+?type=canvas:127 start timing
+?type=canvas:143 2 ms(before makeCircle)
+?type=canvas:153 1118 ms(after makeCircle)
+?type=canvas:157 1575 ms
+
+Resolution 8-->3
+canvas
+?type=canvas:127 start timing
+?type=canvas:143 2 ms(before makeCircle)
+?type=canvas:155 658 ms(after makeCircle)
+?type=canvas:159 893 ms
+
+Resolution 2
+canvas
+?type=canvas:127 start timing
+?type=canvas:143 1 ms(before makeCircle)
+?type=canvas:155 570 ms(after makeCircle)
+?type=canvas:159 783 ms
+
+Resolution 4
+canvas
+?type=canvas:127 start timing
+?type=canvas:143 2 ms(before makeCircle)
+?type=canvas:155 759 ms(after makeCircle)
+?type=canvas:159 1025 ms
+
+
+Resolution 4
+(index):115 webgl
+(index):127 start timing
+(index):143 2 ms(before makeCircle)
+(index):198 754 ms(after makeCircle)
+(index):202 1667 ms
+
+straight Reso4
+webgl
+(index):127 start timing
+(index):143 2 ms(before makeCircle)
+(index):198 717 ms(after makeCircle)
+(index):202 1091 ms
+
+straight Reso8
+webgl
+(index):127 start timing
+(index):143 2 ms(before makeCircle)
+(index):198 1232 ms(after makeCircle)
+(index):202 1748 ms
+
+Resolution 4
+webgl
+(index):127 start timing
+(index):143 2 ms(before makeCircle)
+(index):200 1185 ms(after makeCircle)
+(index):209 1203 ms(after move)
+(index):216 2230 ms(after render)
