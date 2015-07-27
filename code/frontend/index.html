@@ -142,33 +142,78 @@ var maxx = Math.max.apply(null,xcoord),
 
 console.log(new Date() - start + ' ms(before makeCircle)');
 
-// var circleList = [];
-icoord.map(function(d){
-    var circle = two.makeCircle(scax*(d[0]-minx),scay*(d[1]-miny),5);
-    // dat.push(scax*(d[0]-minx));
-    circle.fill = '#FF8000';
-    // circleList.push(circle)
-});
-// console.log(Math.max.apply(null,dat));
-// console.log(Math.min.apply(null,dat));
-// console.log(new Date() - start + ' ms(before second makeCircle)');
+function generate(amount) {
+	var r = Math.random() * radius + radius / 2;
+	return _.map(_.range(amount), function(i) {
+	  var pct = i / amount;
+	  var angle = pct * Math.PI * 2;
+	  var x = r * Math.cos(angle);
+	  var y = r * Math.sin(angle);
+	  var anchor = new Two.Anchor(x, y);
+	  anchor.origin = new Two.Vector().copy(anchor);
+	  vertices++;
+	  return anchor;
+	});
+}
 
+Two.Resolution = 4;
+
+var makeStraightCircle = function(ox, oy, r) {
+    return makeStraightEllipse(ox, oy, r, r);
+}
+
+var makeStraightEllipse = function(ox, oy, width, height) {
+
+      var amount = Two.Resolution;
+
+      var points = _.map(_.range(amount), function(i) {
+        var pct = i / amount;
+        var theta = pct * Math.PI*2;
+        var x = width * Math.cos(theta);
+        var y = height * Math.sin(theta);
+        return new Two.Anchor(x, y);
+      }, this);
+
+      var ellipse = new Two.Polygon(points, true, false);
+      ellipse.translation.set(ox, oy);
+
+      two.scene.add(ellipse);
+
+      return ellipse;
+}
+
+var offset = 200;
+var circleList = [];
+for (var i = 0; i < 3000; i++) {
+    var circle = two.makeCircle(-offset,-offset,5);
+    circle.fill = '#FF8000';
+    circleList.push(circle);
+};
 // icoord.map(function(d){
 //     var circle = two.makeCircle(scax*(d[0]-minx),scay*(d[1]-miny),5);
+//     // var circle = makeStraightCircle(scax*(d[0]-minx),scay*(d[1]-miny),5);
 //     // dat.push(scax*(d[0]-minx));
 //     circle.fill = '#FF8000';
+//     // circleList.push(circle)
 // });
-
-// for (var i = circleList.length - 1; i >= 0; i--) {
-//     var circle = circleList[i];
-
-// };
 
 console.log(new Date() - start + ' ms(after makeCircle)');
 
+
+for (var i = icoord.length - 1; i >= 0; i--) {
+    var d = icoord[i];
+    circleList[i].translation.set(scax*(d[0]-minx),scay*(d[1]-miny));
+};
+
+
+console.log(new Date() - start + ' ms(after move)');
+
+
+
+
 two.update();
 
-console.log(new Date() - start + ' ms');
+console.log(new Date() - start + ' ms(after render)');
 
 // // Bind a function to scale and rotate the group
 // // to the animation loop.
