@@ -15,3 +15,5 @@ code/ParallGraph.sublime-workspace
 /code/frontend/js/zrender-2.1.0
 /code/frontend/js/require.min.js
 /code/frontend/js/zrender.js
+*.sublime-workspace
+code/ParallGraph.sublime-workspace
