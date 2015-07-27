@@ -99,7 +99,13 @@
 })();
 
 // use webgl by default
-var type = /(canvas|webgl|svg)/.test(url.type) ? url.type : 'webgl';
+// var type = /(canvas|webgl|svg)/.test(url.type) ? url.type : 'webgl';
+var type = url.type;
+type = /canvas/.test(type) ? 'canvas' : 
+       /svg/.test(type) ? 'svg':
+       'webgl';
+
+// console.log(type);
 
 // if the browser does not support webgl
 // use svg insteal
