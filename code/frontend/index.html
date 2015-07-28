@@ -195,6 +195,8 @@ var circleList = [];
 for (var i = 0; i < 3000; i++) {
     var circle = two.makeCircle(-offset,-offset,5);
     circle.fill = '#FF8000';
+    // circle.noStroke();
+    circle.stroke = 'grey';
     circleList.push(circle);
     frontGroup.add(circle);
 };
@@ -207,6 +209,19 @@ for (var i = 0; i < 3000; i++) {
 // });
 
 TimerPoint('Build Circles');
+
+
+/*************************************************/
+
+var lineInitialLength = 100;
+var lineList = [];
+for (var i = 0; i < 10000; i++) {
+    var line = two.makeLine(-lineInitialLength*2,0,-lineInitialLength,0);
+    backGroup.add(line);
+    lineList.push(line)
+};
+
+TimerPoint('Build Lines');
 
 /*************************************************/
 
@@ -223,16 +238,28 @@ var maxx = Math.max.apply(null,xcoord),
 // console.log(two.width);
 TimerPoint('Get Scale');
 
+
+
 /*************************************************/
 
 for (var i = iedges.length - 1; i >= 0; i--) {
     var d = iedges[i];
-    var line = two.makeLine(
-        scax*(icoord[d[0]][0]-minx),scay*(icoord[d[0]][1]-miny),
-        scax*(icoord[d[1]][0]-minx),scay*(icoord[d[1]][1]-miny));
-    backGroup.add(line);
+    var line = lineList[i];
+    var x1 = scax*(icoord[d[0]][0]-minx),
+        y1 = scay*(icoord[d[0]][1]-miny),
+        x2 = scax*(icoord[d[1]][0]-minx),
+        y2 = scay*(icoord[d[1]][1]-miny);
+    var lineLength = Math.sqrt((x2-x1)*(x2-x1)+(y2-y1)*(y2-y1));
+    line.scale = lineLength/lineInitialLength;
+    // calculating the rotation is quite subtle here
+    // rotation in two is clockwith
+    // reg in atan2 is anticlockwith
+    line.rotation = -Math.atan2(y1-y2, x2-x1);
+    line.translation.x = (x1+x2)/2;
+    line.translation.y = (y1+y2)/2;
+
 };
-TimerPoint('Build & Move Lines');
+TimerPoint('Move Lines');
 
 /*************************************************/
 
