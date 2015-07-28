@@ -131,6 +131,14 @@ console.log(type);
 // group.translation.set(two.width / 2, two.height / 2);
 // group.scale = 0;
 // group.noStroke();
+
+var backGroup = two.makeGroup(),
+    frontGroup = two.makeGroup();
+
+
+/*************************************************/
+
+
 var start=new Date();
 console.log("start timing");
 
@@ -188,6 +196,7 @@ for (var i = 0; i < 3000; i++) {
     var circle = two.makeCircle(-offset,-offset,5);
     circle.fill = '#FF8000';
     circleList.push(circle);
+    frontGroup.add(circle);
 };
 // icoord.map(function(d){
 //     var circle = two.makeCircle(scax*(d[0]-minx),scay*(d[1]-miny),5);
@@ -221,6 +230,7 @@ for (var i = iedges.length - 1; i >= 0; i--) {
     var line = two.makeLine(
         scax*(icoord[d[0]][0]-minx),scay*(icoord[d[0]][1]-miny),
         scax*(icoord[d[1]][0]-minx),scay*(icoord[d[1]][1]-miny));
+    backGroup.add(line);
 };
 TimerPoint('Build & Move Lines');
 
