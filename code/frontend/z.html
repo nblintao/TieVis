@@ -2,479 +2,280 @@
 <html>
 <head>
     <title>Large Graphs Visualizer</title>
-<script type="text/javascript" src="js/require.min.js"></script>
-<script type="text/javascript" src="js/zrender.js"></script>
+<script type="text/javascript" src="js/esl.js"></script>
+<!-- <script type="text/javascript" src="js/zrender.js"></script> -->
 <script type="text/javascript" src="data/icoord.js"></script>
+<script type="text/javascript" src="data/iedges.js"></script>
 </script>
 </head>
 <body>
-
+<div id="Main" style="width:600px;height:400px;"></div>
 <script>
 
-var zrender = require(['zrender']);
-var zr = zrender.init(document.getElementById('main'));
 
-zr.clear();
-var color = require('zrender/tool/color');
-var colorIdx = 0;
-var width = Math.ceil(zr.getWidth());
-var height = Math.ceil(zr.getHeight());
+require.config({
+    packages: [
+        {
+            name: 'zrender',
+            location: 'js/zrender',
+            main: 'zrender'
+        }
+    ]
+});
 
-var CircleShape = require('zrender/shape/Circle');
-var SectorShape = require('zrender/shape/Sector');
-var RingShape = require('zrender/shape/Ring');
-var EllipseShape = require('zrender/shape/Ellipse');
-var HeartShape = require('zrender/shape/Heart');
-var DropletShape = require('zrender/shape/Droplet');
-var PolygonShape = require('zrender/shape/Polygon');
-var RectangleShape = require('zrender/shape/Rectangle');
-var PolylineShape = require('zrender/shape/Polyline');
-var LineShape = require('zrender/shape/Line');
-var BezierCurveShape = require('zrender/shape/BezierCurve');
-var TextShape = require('zrender/shape/Text');
-var ImageShape = require('zrender/shape/Image');
-var PathShape = require('zrender/shape/Path');
-var TrochoidShape = require('zrender/shape/Trochoid');
-var RoseShape = require('zrender/shape/Rose');
-var StarShape = require('zrender/shape/Star');
-var IsogonShape = require('zrender/shape/Isogon');
+var w = window.innerWidth - 16;
+var h = window.innerHeight - 16;
+var pi = Math.PI;
+var main = document.getElementById('Main');
 
-// 圆形
-zr.addShape(new CircleShape({
-    style : {
-        x : 100,
-        y : 100,
-        r : 50,
-        brushType : 'both',
-        color : 'rgba(220, 20, 60, 0.8)',          // rgba supported
-        strokeColor : color.getColor(colorIdx++),  // getColor from default palette
-        lineWidth : 5,
-        text :'circle',
-        textPosition :'inside'
-    },
-    hoverable : true,   // default true
-    draggable : true,   // default false
-    clickable : true,   // default false
+main.style.width = w + 'px';
+main.style.height = h + 'px';
 
-    // 可自带任何有效自定义属性
-    _name : 'Hello~',
-    onclick: function(params){
-        alert(params.target._name);
-    },
+require(['zrender','zrender/shape/Circle','zrender/shape/Line'], function(zrender,CircleShape,LineShape){
+    var zr = zrender.init( main );
 
-    // 响应事件并动态修改图形元素
-    onmousewheel: function(params){
-        var eventTool = require('zrender/tool/event');
-        var delta = eventTool.getDelta(params.event);
-        var r = params.target.style.r;
-        r += (delta > 0 ? 1 : -1) * 10;
-        if (r < 10) {
-            r = 10;
-        };
-        zr.modShape(params.target.id, {style: {r: r}})
-        zr.refresh();
-        eventTool.stop(params.event);
-    }
-    /* 封装支持事件，见shape/base, config.EVENT
-    onmousemove : function(e){console.log('onmousemove',e)},
-    onmouseover : function(e){console.log('onmouseover',e)},
-    onmouseout  : function(e){console.log('onmouseout',e)},
-    onmousedown : function(e){console.log('onmousedown',e)},
-    onmouseup   : function(e){console.log('onmouseup',e)},
-    ondragstart : function(e){console.log('ondragstart',e)},
-    ondragend   : function(e){console.log('ondragend',e)},
-    ondragenter : function(e){console.log('ondragenter',e)},
-    ondragover  : function(e){console.log('ondragover',e)},
-    ondragleave : function(e){console.log('ondragleave',e)},
-    ondrop      : function(e){console.log('ondrop',e)}
-    */
-}));
+var getMyLine = function(xStart,yStart,xEnd,yEnd){
+    var l = new LineShape({
+        style : {
+            xStart : xStart,
+            yStart : yStart,
+            xEnd : xEnd,
+            yEnd : yEnd,
+            strokeColor : 'gray',
+            lineWidth : 2
+            // lineType : 'dashed',    // default solid
+            // text : 'line'
+        },
+        zlevel: -1,
+        draggable:true
+    });
+    return l;
+}
+var getMyCircle = function(px,py,rad){
+    var c = new CircleShape({
+        style : {
+            x : px,
+            y : py,
+            r : rad,
+            // brushType : 'both',
+            color : 'rgba(220, 20, 60, 0.8)',          // rgba supported
+            // strokeColor : color.getColor(colorIdx++),  // getColor from default palette
+            // lineWidth : 5,
+            // text :'circle',
+            // textPosition :'inside'
+        },
+        hoverable : true,   // default true
+        draggable : true,   // default false
+        clickable : true   // default false
 
-// 扇形
-zr.addShape(new SectorShape({
-    style : {
-        x : width - 250,
-        y : 150,
-        r : 100,
-        // r0 : 50,
-        startAngle : 30,
-        endAngle : 90,
-        brushType : 'both',
-        color : color.getColor(colorIdx++),
-        strokeColor : color.getColor(colorIdx++),
-        lineWidth : 8,
-        lineJoin : 'round',
-        text:'sector'
-    },
-    draggable : true
-}));
+        // // 可自带任何有效自定义属性
+        // _name : 'Hello~',
+        // onclick: function(params){
+        //     alert(params.target._name);
+        // },
 
-// 圆环
-zr.addShape(new RingShape({
-    style : {
-        x : width / 2,
-        y : height / 2,
-        r : 100,
-        r0 : 50,
-        brushType : 'both',
-        color : color.getColor(colorIdx++),
-        strokeColor : color.getColor(colorIdx++),
-        lineWidth : 3,
-        text : 'ring'
-    },
-    draggable : true
-}));
+        // // 响应事件并动态修改图形元素
+        // onmousewheel: function(params){
+        //     var eventTool = require('zrender/tool/event');
+        //     var delta = eventTool.getDelta(params.event);
+        //     var r = params.target.style.r;
+        //     r += (delta > 0 ? 1 : -1) * 10;
+        //     if (r < 10) {
+        //         r = 10;
+        //     };
+        //     zr.modShape(params.target.id, {style: {r: r}})
+        //     zr.refresh();
+        //     eventTool.stop(params.event);
+        // }
+        /* 封装支持事件，见shape/base, config.EVENT
+        onmousemove : function(e){console.log('onmousemove',e)},
+        onmouseover : function(e){console.log('onmouseover',e)},
+        onmouseout  : function(e){console.log('onmouseout',e)},
+        onmousedown : function(e){console.log('onmousedown',e)},
+        onmouseup   : function(e){console.log('onmouseup',e)},
+        ondragstart : function(e){console.log('ondragstart',e)},
+        ondragend   : function(e){console.log('ondragend',e)},
+        ondragenter : function(e){console.log('ondragenter',e)},
+        ondragover  : function(e){console.log('ondragover',e)},
+        ondragleave : function(e){console.log('ondragleave',e)},
+        ondrop      : function(e){console.log('ondrop',e)}
+        */
+    });
+
+    return c;
+}
 
 
-// 椭圆
-zr.addShape(new EllipseShape({
-    style : {
-        x : 350,
-        y : 100,
-        a : 70,
-        b : 30,
-        brushType : 'both',
-        color : color.getColor(colorIdx++),
-        strokeColor : color.getColor(colorIdx++),
-        lineWidth : 8,
-        text:'ellipse',
-        textPosition:'inside'
-    },
-    draggable : true
-}));
-
-// 心形
-zr.addShape(new HeartShape({
-    style : {
-        x : width - 350,
-        y : 100,
-        a : 50,
-        b : 70,
-        brushType : 'both',
-        color : color.getColor(colorIdx++),
-        strokeColor : color.getColor(colorIdx++),
-        lineWidth : 8,
-        text:'heart',
-        textPosition:'inside'
-    },
-    draggable : true
-}));
-
-// 水滴
-zr.addShape(new DropletShape({
-    style : {
-        x : 380,
-        y : 300,
-        a : 50,
-        b : 70,
-        brushType : 'both',
-        color : color.getColor(colorIdx++),
-        strokeColor : color.getColor(colorIdx++),
-        lineWidth : 8,
-        text:'droplet',
-        textPosition:'inside'
-    },
-    draggable : true
-}));
-
-// 多边形
-zr.addShape(new PolygonShape({
-    style : {
-        pointList : [[310, 120], [360, 120], [348, 230], [250, 340], [146, 200]],
-        brushType : 'both',
-        color : color.getColor(colorIdx++),
-        strokeColor : color.getColor(colorIdx++),
-        lineWidth : 10,
-        text : 'polygon',
-        textPosition : 'inside'     // default top
-    },
-    draggable:true
-}));
-
-// 矩形
-zr.addShape(new RectangleShape({
-    style : {
-        x : width - 350,
-        y : 210,
-        width : 300,
-        height: 100,
-        radius: [20, 50],
-        brushType : 'both',
-        color : color.getColor(colorIdx++),
-        strokeColor : color.getColor(colorIdx++),
-        lineWidth : 15,
-        lineJoin : 'round',
-        text : 'rectangle'
-    },
-    draggable : true
-}));
-
-// 折线
-zr.addShape(new PolylineShape({
-    style : {
-        pointList : [[10, 10], [60, 100], [148, 130], [250, 40], [446, 100]],
-        strokeColor : color.getColor(colorIdx++),
-        lineWidth : 3,
-        text : 'polyline'
-    },
-    draggable:true
-}));
-
-// 直线
-zr.addShape(new LineShape({
-    style : {
-        xStart : 0,
-        yStart : 0,
-        xEnd : width,
-        yEnd : height,
-        strokeColor : color.getColor(colorIdx++),
-        lineWidth : 2,
-        lineType : 'dashed',    // default solid
-        text : 'line'
-    },
-    draggable:true
-}));
-
-// 贝塞尔曲线
-zr.addShape(new BezierCurveShape({
-    style : {
-        xStart : width,
-        yStart : 0,
-        cpX1 : width / 2,
-        cpY1 : 0,
-        cpX2 : width / 2,
-        cpY2 : height,
-        xEnd : 0,
-        yEnd : height,
-        strokeColor : color.getColor(colorIdx++),
-        lineWidth : 2,
-        text : 'beziercurve'
-    },
-    draggable:true
-}));
-
-// 文本
-zr.addShape(new TextShape({
-    style : {
-        x : width / 2,
-        y : 10,
-        brushType : 'fill',
-        color : color.getColor(colorIdx++),
-        shadowColor : 'yellow',
-        shadowBlur : 10,
-        lineWidth : 3,
-        text : 'zrender',
-        textFont : 'normal 50px verdana',
-        textAlign : 'center',
-        textBaseline : 'top'
-    },
-    draggable : true
-}));
-
-// 图片
-zr.addShape(new ImageShape({
-    style : {
-        x : 0,
-        y : 0,
-        image : "../asset/ico/favicon.png",
-        width : 20,
-        height : 20
-    },
-    draggable : true
-}));
-
-// 路径
-zr.addShape(new PathShape({
-    style : {
-        //path : 'M 0 0 L 0 100 L 100 100 Z',
-        path : 'M66,10, L23,127, L122,50, L10,49, L109,127 z',
-        x : 20,
-        y : 200,
-        brushType : 'both',
-        color : color.getColor(colorIdx++),
-        strokeColor : color.getColor(colorIdx++),
-        lineWidth : 10,
-        text : 'path',
-        textPosition : 'bottom'
-    },
-    draggable : true
-}));
-
-// 内旋轮线
-zr.addShape(new TrochoidShape({
-    style : {
-        x : 200,
-        y : 100,
-        r:50,
-        r0:35,
-        d:50,
-        strokeColor : color.getColor(colorIdx++),   // getColor from default palette
-        lineWidth : 2,
-        text :'内旋轮曲线',
-        textPosition :'inside'
-    },
-    hoverable : true,   // default true
-    draggable : true
-}));
-
-// 外旋轮曲线
-zr.addShape(new TrochoidShape({
-    style : {
-        x: 450,
-        y: 200,
-        r:50,
-        r0:35,
-        d:30,
-        location : 'out',
-        strokeColor : color.getColor(colorIdx++),   // getColor from default palette
-        lineWidth : 2,
-        text :'外旋轮曲线',
-        textPosition :'inside'
-    },
-    hoverable : true,   // default true
-    draggable : true
-}));
-
-// 玫瑰线
-zr.addShape(new RoseShape({
-    style : {
-        x : 300,
-        y : 100,
-        r : [35],
-        k : 7,
-        n : 4,
-        strokeColor : color.getColor(colorIdx++),   // getColor from default palette
-        lineWidth : 2,
-        textPosition :'inside'
-    },
-    hoverable : true,   // default true
-    draggable : true
-}));
-
-// n角星
-zr.addShape(new StarShape({
-    style : {
-        x : width / 2 + 100,
-        y : 320,
-        r : 70,
-        // r0: 27,
-        n : 7,
-        lineJoin : 'round',
-        brushType : 'both',
-        color : color.getColor(colorIdx++),
-        strokeColor : color.getColor(colorIdx++),   // getColor from default palette
-        lineWidth : 10,
-        text :'n角星',
-        textPosition :'inside'
-    },
-    hoverable : true,   // default true
-    draggable : true
-}));
-
-// 正n边形
-zr.addShape(new IsogonShape({
-    style : {
-        x : 300,
-        y : 320,
-        r : 70,
-        n : 9,
-        brushType : 'both',
-        color : color.getColor(colorIdx++),          // rgba supported
-        strokeColor : color.getColor(colorIdx++),   // getColor from default palette
-        lineWidth : 9,
-        text :'正n边形',
-        textPosition :'inside'
-    },
-    hoverable : true,   // default true
-    draggable : true
-}));
-
-// 绘画
-zr.render();
-
-/* 除了在shape上绑定事件，可以挂接全局事件
-zr.on('click',      function(e){console.log('onclick',e,'global')});
-zr.on('mousewheel', function(e){console.log('onmousewheel',e,'global')});
-zr.on('mousemove',  function(e){console.log('onmousemove',e,'global')});
-zr.on('mouseover',  function(e){console.log('onmouseover',e,'global')});
-zr.on('mouseout',   function(e){console.log('onmouseout',e,'global')});
-zr.on('mousedown',  function(e){console.log('onmousedown',e,'global')});
-zr.on('mouseup',    function(e){console.log('onmouseup',e,'global')});
-zr.on('dragstart',  function(e){console.log('ondragstart',e,'global')});
-zr.on('dragend',    function(e){console.log('ondragend',e,'global')});
-zr.on('dragenter',  function(e){console.log('ondragenter',e,'global')});
-zr.on('dragover',   function(e){console.log('ondragover',e,'global')});
-zr.on('dragleave',  function(e){console.log('ondragleave',e,'global')});
-zr.on('drop',       function(e){console.log('ondrop',e,'global')});
-*/
-                    
-
-
-
-
-
-
-
-var start=new Date()
+var start=new Date();
 console.log("start timing");
 
-// icoord = [[1,1],[2,2],[3,3],[4,4],[5,5]];
-xcoord = icoord.map(function(d){return d[0]});
+function TimerPoint(desc){
+    var now = new Date();
+    console.log(desc + ': ' + (now - start) + ' ms');
+    start = now;
+}
 
+/*************************************************/
+
+// var offset = 200;
+// var circleList = [];
+// for (var i = 0; i < 3000; i++) {
+//     var circle = two.makeCircle(-offset,-offset,5);
+//     circle.fill = '#FF8000';
+//     // circle.noStroke();
+//     circle.stroke = 'grey';
+//     circleList.push(circle);
+//     frontGroup.add(circle);
+// };
+
+// TimerPoint('Build Circles');
+
+
+/*************************************************/
+
+xcoord = icoord.map(function(d){return d[0]});
 ycoord = icoord.map(function(d){return d[1]});
 // console.log(xcoord,ycoord);
 var maxx = Math.max.apply(null,xcoord),
     minx = Math.min.apply(null,xcoord),
-    scax = two.width/(maxx - minx),
+    scax = w/(maxx - minx),
     maxy = Math.max.apply(null,ycoord),
     miny = Math.min.apply(null,ycoord),
-    scay = two.height/(maxy - miny);
+    scay = h/(maxy - miny);
 
 // console.log(two.width);
+TimerPoint('Get Scale');
 
-console.log(new Date() - start + ' ms(before makeCircle)');
 
-// var circleList = [];
-icoord.map(function(d){
-    var circle = two.makeCircle(scax*(d[0]-minx),scay*(d[1]-miny),5);
-    // dat.push(scax*(d[0]-minx));
-    circle.fill = '#FF8000';
-    // circleList.push(circle)
-});
-// console.log(Math.max.apply(null,dat));
-// console.log(Math.min.apply(null,dat));
-// console.log(new Date() - start + ' ms(before second makeCircle)');
+/*************************************************/
 
-// icoord.map(function(d){
-//     var circle = two.makeCircle(scax*(d[0]-minx),scay*(d[1]-miny),5);
-//     // dat.push(scax*(d[0]-minx));
-//     circle.fill = '#FF8000';
-// });
+for (var i = icoord.length - 1; i >= 0; i--) {
+    var d = icoord[i];
+    // circleList[i].translation.set(scax*(d[0]-minx),scay*(d[1]-miny));
 
-// for (var i = circleList.length - 1; i >= 0; i--) {
-//     var circle = circleList[i];
+zr.addShape(getMyCircle(scax*(d[0]-minx),scay*(d[1]-miny),5));
 
-// };
 
-console.log(new Date() - start + ' ms(after makeCircle)');
+};
+TimerPoint('Move Circles');
 
-two.update();
+/*************************************************/
 
-console.log(new Date() - start + ' ms');
 
-// // Bind a function to scale and rotate the group
-// // to the animation loop.
-// two.bind('update', function(frameCount) {
-//   // This code is called everytime two.update() is called.
-//   // Effectively 60 times per second.
-//   if (group.scale > 0.9999) {
-//     group.scale = group.rotation = 0;
-//   }
-//   var t = (1 - group.scale) * 0.125;
-//   group.scale += t;
-//   group.rotation += t * 4 * Math.PI;
-// }).play();  // Finally, start the animation loop
+for (var i = iedges.length - 1; i >= 0; i--) {
+    var d = iedges[i];
+    // var line = lineList[i];
+    var x1 = scax*(icoord[d[0]][0]-minx),
+        y1 = scay*(icoord[d[0]][1]-miny),
+        x2 = scax*(icoord[d[1]][0]-minx),
+        y2 = scay*(icoord[d[1]][1]-miny);
 
+    zr.addShape(getMyLine(x1,y1,x2,y2));
+};
+TimerPoint('Move Lines');
+/*************************************************/
+
+zr.render();
+TimerPoint('Update');
+
+/*************************************************/
+
+    // var N = 10;
+    // var color = require('zrender/tool/color');
+    // var colorId = 0;
+
+    // for (var i = 0; i < N ; i ++) {
+    //     createShape(i);
+    // }  
+    // zr.render();
+
+    // function createShape(i) {
+    //     var id = require('zrender/tool/guid')();
+    //     var ShapeClass = ( i % 5 == 0 ) ? TrocholdShape : RoseShape;
+    //     var r = ( i % 5 == 0 ) ? random(50, 20) : [random(100, 30)];
+        
+    //     var shape = new ShapeClass({
+    //         id : id,
+    //         position : [random(w), random(h)],
+    //         style : {
+    //             x : 0,
+    //             y : 0,
+    //             r : r,
+    //             r0 : random(20, 10),
+    //             d : random(100),
+    //             k : random(10),
+    //             n : random(5),
+    //             location : ['in', 'out'][i % 2],
+    //             lineWidth : 1,
+    //             strokeColor :  color.getColor(colorId ++)
+    //         },
+    //         rotation : [pi * 2 / random(360), 0, 0],
+    //         hoverable : false,
+    //         draggable : false
+    //     });
+    //     zr.addShape(shape);
+    //     animate(id, shape.type);
+    // }
+
+    // function animate(id, shape) {
+    //     var time = random(1000, 100);
+    //     var type = shape =='rose' ? random(6) : random(3);
+    //     var easing = [
+    //         'Linear', 'QuadraticIn', 'QuadraticOut', 'QuadraticInOut', 
+    //         'CubicIn', 'CubicOut', 'CubicInOut', 'QuarticIn', 'QuarticOut', 
+    //         'QuarticInOut', 'QuinticIn', 'QuinticOut', 'QuinticInOut',  'SinusoidalIn', 
+    //         'SinusoidalOut', 'SinusoidalInOut', 'ExponentialIn', 'ExponentialOut', 
+    //         'ExponentialInOut', 'CircularIn', 'CircularOut', 'CircularInOut', 
+    //         'ElasticIn', 'ElasticOut', 'ElasticInOut', 'BackIn', 'BackOut', 
+    //         'BackInOut', 'BounceIn', 'BounceOut', 'BounceInOut'
+    //         ][0]//[random(30)];
+
+    //     var move = zr.animate(id, '');
+
+    //     switch (type) {
+    //         case 0 :
+    //             move.when(time, {
+    //                 scale : [random(3, 1), random(3, 1)]
+    //             });
+    //             break;
+    //         case 1 :
+    //             move.when(time, {
+    //                 position : [random(w), random(h)]
+    //             });
+    //             break;
+    //         case 2 :
+    //             move.when(time, {
+    //                 rotation : [pi * 2 * random(10, 1), 0, 0]
+    //             });
+    //             break;
+    //         case 3 : 
+    //             move = zr.animate(id, 'style').when(time, {
+    //                 r : [random(100, 30)]
+    //             });
+    //             break;
+    //         case 4 : 
+    //             move = zr.animate(id, 'style').when(time, {
+    //                 k : random(10)
+    //             });
+    //             break;
+    //         case 5 : 
+    //             move = zr.animate(id, 'style').when(time, {
+    //                 n : random(5)
+    //             });
+    //             break;
+    //     }
+
+    //     move.done(function() {
+    //             animate(id, shape);
+    //         })
+    //         .start(easing);
+    // }
+})
+
+function random(max, min) {
+    var min = min || 0;
+    return Math.floor(Math.random() * (max - min)) % (max - min) + min;
+}
 
 </script>
 </body>
