@@ -1,3 +1,6 @@
+day = '12-17'
+# '12-17','12-18','12-19','12-20','12-21','12-22'
+
 __author__ = "Tao LIN (nblintao@126.com)"
 
 from pyspark import SparkContext, SparkConf
@@ -68,12 +71,11 @@ def cal_path(reco):
 #         return []
 
 
-file = sc.textFile("hdfs://ubuntu:9000/user/zhang/mobile/wenzhou/02-04/aa02040018/*/*")
+#file = sc.textFile("hdfs://ubuntu:9000/user/zhang/mobile/wenzhou/02-04/aa02040018/*/*")
 
 sericalnumber = datetime.datetime.now().strftime('%y%m%d_%H%M%S')
 
-
-file = sc.textFile("hdfs://ubuntu:9000/user/zhang/mobile/newdec/*/*/*WZH*_vlr_report.txt")
+file = sc.textFile("hdfs://ubuntu:9000/user/zhang/mobile/newdec/"+day+"/*/*WZH*_vlr_report.txt")
 # file = sc.textFile("hdfs://ubuntu:9000/user/zhang/mobile/newdec/12-18/aa12182223/3_WZHGS9_m16_vlr_report.txt")
 
 lines = file.flatMap(lambda t: t.split("|"))
@@ -83,7 +85,7 @@ path_record = uidgroup.flatMap(cal_path)
 # path_record = uidgroup.flatMap(cal_path)
 
 # path_record.saveAsTextFile('hdfs://ubuntu:9000/user/zhang/tao/'+sericalnumber+'_'+part+'_path_'+day)
-path_record.saveAsTextFile('hdfs://ubuntu:9000/user/zhang/tao/'+sericalnumber)
+path_record.saveAsTextFile('hdfs://ubuntu:9000/user/zhang/tao/'+sericalnumber+'_new_path_'+day)
 
 
 # # for day in ['02-04','02-05','02-06','02-07','02-08','02-09','02-10']:
