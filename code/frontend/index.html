@@ -3,6 +3,7 @@
 <head>
     <title>Large Graphs Visualizer</title>
 <script type="text/javascript" src="js/two.min.js"></script>
+<script type="text/javascript" src="js/jquery.min.js"></script>
 <script type="text/javascript" src="data/icoord.js"></script>
 <script type="text/javascript" src="data/iedges.js"></script>
 </script>
@@ -200,28 +201,64 @@ for (var i = 0; i < 3000; i++) {
     circleList.push(circle);
     frontGroup.add(circle);
 };
-// icoord.map(function(d){
-//     var circle = two.makeCircle(scax*(d[0]-minx),scay*(d[1]-miny),5);
-//     // var circle = makeStraightCircle(scax*(d[0]-minx),scay*(d[1]-miny),5);
-//     // dat.push(scax*(d[0]-minx));
-//     circle.fill = '#FF8000';
-//     // circleList.push(circle)
-// });
 
 TimerPoint('Build Circles');
+/*************************************************/
+// Update the renderer in order to generate corresponding DOM Elements.
+two.update();
+
+for (var i = 0; i < 3000; i++) {
+    $(circleList[i]._renderer.elem)
+    .css('cursor', 'pointer')
+    .click(function(e) {
+      console.log(e);
+    });
+};
+
 
 
 /*************************************************/
 
+
+var makeLineWithoutAdd = function(x1, y1, x2, y2) {
+
+  var width = x2 - x1;
+  var height = y2 - y1;
+
+  var w2 = width / 2;
+  var h2 = height / 2;
+
+  var points = [
+    new Two.Anchor(- w2, - h2),
+    new Two.Anchor(w2, h2)
+  ];
+
+  // Center line and translate to desired position.
+
+  var line = new Two.Polygon(points).noFill();
+  line.translation.set(x1 + w2, y1 + h2);
+
+  // this.scene.add(line);
+  return line;
+
+};
+
 var lineInitialLength = 100;
 var lineList = [];
 for (var i = 0; i < 10000; i++) {
-    var line = two.makeLine(-lineInitialLength*2,0,-lineInitialLength,0);
-    backGroup.add(line);
+    // var line = two.makeLine(-lineInitialLength*2,0,-lineInitialLength,0);
+    var line = makeLineWithoutAdd(-lineInitialLength*2,0,-lineInitialLength,0);
+    // backGroup.add(line);
     lineList.push(line)
 };
 
 TimerPoint('Build Lines');
+
+// for (var i = 0; i < 10000; i++) {
+//     backGroup.add(lineList[i]);
+// };
+// TimerPoint('Add Lines');
+
 
 /*************************************************/
 
@@ -258,6 +295,7 @@ for (var i = iedges.length - 1; i >= 0; i--) {
     line.translation.x = (x1+x2)/2;
     line.translation.y = (y1+y2)/2;
 
+    backGroup.add(line);
 };
 TimerPoint('Move Lines');
 
