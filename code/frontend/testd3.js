@@ -22,8 +22,8 @@ var d3render = function (d3, icoord, iedges) {
 	}
 	/*************************************************/
 
-	var xcoord = icoord.map(function (d) { return d[0] });
-	var ycoord = icoord.map(function (d) { return d[1] });
+	var xcoord = icoord.map(function (d) { return d[0]; });
+	var ycoord = icoord.map(function (d) { return d[1]; });
 	// console.log(xcoord,ycoord);
 	var maxx = Math.max.apply(null, xcoord),
 		minx = Math.min.apply(null, xcoord),
@@ -43,10 +43,10 @@ var d3render = function (d3, icoord, iedges) {
 		.enter().append("line")
 		.attr("class", "link")
 	// .style("stroke-width", function (d) { return Math.sqrt(d.value); });
-		.attr('x1', function (d) { return scax * (icoord[d[0]][0] - minx) })
-		.attr('y1', function (d) { return scay * (icoord[d[0]][1] - miny) })
-		.attr('x2', function (d) { return scax * (icoord[d[1]][0] - minx) })
-		.attr('y2', function (d) { return scay * (icoord[d[1]][1] - miny) });
+		.attr('x1', function (d) { return scax * (icoord[d[0]][0] - minx); })
+		.attr('y1', function (d) { return scay * (icoord[d[0]][1] - miny); })
+		.attr('x2', function (d) { return scax * (icoord[d[1]][0] - minx); })
+		.attr('y2', function (d) { return scay * (icoord[d[1]][1] - miny); });
 
 	TimerPoint('Move Lines');
 	/*************************************************/
@@ -56,8 +56,8 @@ var d3render = function (d3, icoord, iedges) {
 		.attr("class", "node")
 		.attr("r", 5)
 		.style("fill", "red")
-		.attr("cx", function (d) { return scax * (d[0] - minx) })
-		.attr("cy", function (d) { return scay * (d[1] - miny) });
+		.attr("cx", function (d) { return scax * (d[0] - minx); })
+		.attr("cy", function (d) { return scay * (d[1] - miny); });
 
 
 	TimerPoint('Move Circles');
@@ -66,4 +66,4 @@ var d3render = function (d3, icoord, iedges) {
 	TimerPoint('Update');
 
 
-}
+};
