@@ -17,7 +17,7 @@ var d3render = function (d3, icoord, iedges) {
 
 	function TimerPoint(desc) {
 		var now = new Date();
-		console.log(desc + ': ' + (now - start) + ' ms');
+		console.log(desc + ': ' + (now.getTime() - start.getTime()) + ' ms');
 		start = now;
 	}
 	/*************************************************/
