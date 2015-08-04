@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+    
+    <head>
+        <title>Large Graphs Visualizer</title>
+        <style>
+            .node {
+              stroke: #fff;
+              stroke-width: 0px;
+              opacity: 0.5;
+            }
+            
+            .link {
+              stroke: #999;
+              stroke-opacity: .6;
+            }
+        </style>
+        <script type="text/javascript" src="data/icoord.js"></script>
+        <script type="text/javascript" src="data/iedges.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
+        <script src="testd3.js"></script>
+    </head>
+    
+    <body>
+        <!--<div id="Main" style="width:600px;height:400px;"></div>-->
+        <script>
+        d3render(d3,icoord,iedges);
+        </script>
+    </body>
+
+</html>
