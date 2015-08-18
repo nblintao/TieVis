@@ -1,0 +1,91 @@
+CONTENTS
+------------------------
+Section 1: GRAPH FORMAT AND OPTIONS
+Section 2: DISPLAY OPTIONS
+Section 3: ALGORITHM TYPES AND OPTIONS
+Section 4: RUNNING THE PROGRAM
+Section 5: DRAWING WINDOW CONTROLS
+
+
+
+Section 1: GRAPH FORMAT AND OPTIONS
+
+	The GUIDE system accepts graphs in two formats.  The graph format can be selected via the Graph Format panel.  The first type consists of graphs generated internally by the program and stored as adjacency lists.  There are twelve different graphs currently implemented, each of which requires different input parameters.  The "Graph Type" field  allows selection of one of the following types of graphs: cycle, path, tree, cube, torus and twisted torus, meshes of degree 4 & 6, cylinder, moebius band, Sierpinski graph and a random graph.  The parameters for each graph are entered in the Graph Options panel, which dynamically adjusts to the selected type of the graph.  The meaning of each parameter is discussed below.
+  
+	CYCLES and PATHS are the simplest graph types. They only require one input parameter which specifies the number of vertices.  In a path, each vertex except for the endpoints has degree of 2.  The endpoints have degree of 1.  The ideal drawing of a path is a straight line that spans all the vertices.  A cycle is a path where the two endpoints are connected yielding a circular drawing.
+
+	TREES require two parameters: depth and base.  The depth specifies the height, or the number of levels, of the tree.  The base specifies the branching factor for each subtree.  For example, specifying depth = 10 and base = 2 will produce a binary tree with 10 levels and 29=512 leaf nodes.  In this case the total number of vertices is 1023.
+
+	The CUBE graph produces a hypercube of specified dimension.  The dimension here is not synonymous with the dimension of the drawing on the screen , but specifies the structure of the hypercube.  So, a 2-dimensional hypercube would produce a planar square, while a 3-dimensional hypercube will produce a regular cube.  As the number of dimensions increases, the graph becomes more difficult to represent on a 2D screen and even with a 3D representation.
+
+	A CYLINDER is represented by its height and width.  The height to the height of the tube and the width specifies the number of vertices along one of the rings of the cylinder.  The total number of vertices in the graph is w * h.
+
+	A TORUS has a similar structure to a cylinder with the exception that all of its vertices have a degree of 4.  This means that the outer circles of the cylinder are connected to each other giving the graph a donut-like shape.  The parameters for torus are also width and height.  For twisted torus there are two additional parameters, twistX and twisty.  They specify the degree of twisting of a regular torus in X and Y directions respectively.
+
+	There are two types of MESH graphs implemented in the GUIDE system.  The square mesh, or mesh of degree 4, takes as input the height and produces a square graph of height2 vertices .  The triangular mesh is a mesh of degree 6 which takes the same parameter and produces a triangular graph with the given height and (height + 1)height/2 number of vertices.
+
+	The MOEBIUS band draws a circular band with a single twist.  The graph requires two parameters: length and thickness.  The length specifies the circumference of the band in terms of vertices and the thickness denotes number of vertices that span the width of the band.  The total number of vertices is defined by the product of length and thickness.
+
+	The SIERPINSKI graph is an instance of a fractal graph.  It draws a pyramid, which is recursively subdivided into 4 equilateral pyramids and has the middle one removed.  For this graph,  the user needs to specify the recursion depth and dimensionality.   The recursion depth specifies how many times the above recursion is to be performed.  The dimensionality specifies whether the graph should be the Sierpinski triangle (0) or the Sierpinski pyramid (1).
+
+	The RANDOM graph contains randomly connected vertices.  The height specifies the number of vertices in the graph.  The random graph is created by first generating a base 2 tree with height number of vertices. Then vertices are randomly added to the graph up to density specified by width.
+
+	Graphs that are read in GML (graph modeling language) format must have two properties specified by the user.  The first is the file name containing the encoding of the graph.  The second is the split components flag, which indicates whether the graph should be split up into disconnected components, each of which would be processed separately by the algorithm, or the whole graph should beprocessed as a whole.  Processing of each component separately tends to produce more appealing drawings.  This flag does not affect connected graphs.
+
+
+Section 2: DISPLAY OPTIONS
+
+	The display options modify the visual properties of the drawing produced by GUIDE.  These are static properties that are set before the display of the drawing occurs. The drawing window has its own set of controls that will be covered in section 5.  Each of the static display options is covered below.
+
+	The Interactive Display toggle switch specifies whether the drawing should be shown progressively after each stage of processing or display should be suppressed until all stages have been completed.  If interactive display is turned off, there will be a slight performance improvement due to avoiding the time cost of reading in the graph configuration and rendering it on the screen.
+
+	Each of the color selections provides three flexible interfaces for selecting a color.  The color can be entered in hexadecimal format, omitting "0x", in the entry box provided, or a common color can be selected from the drop down menu.  If a desired color is not listed in the selection menu, choosing "Other" will pop up a custom color panel and once a selection has been made, the hexadecimal value will be stored in the display color option.  If no selection has been made for the color and a default value is kept, then the hex value for the default will not be displayed but will be set internally by GUIDE.  The default background color is black and default foreground color is green.
+
+	The Display Speed control will only affect an interactively displayed graph.  This option specifies whether a delay should occur in between drawing of different stages of the algorithm.  Since the movement of vertices through each stage will occur fairly quickly, this option is useful for observing the vertex movements in slow motion.
+
+	The Dimension slider allows the user to select how many dimensions the drawing should have.  Note that this will not only affect the rendering of the graph on the screen but will be used by the algorithm to produce optimal placement of vertices.  The values currently supported are 2, 3 and 4.  Four-dimensional drawings are projected down into 3 dimensions.
+
+	The Read GML Graphics control is only applicable to the GML graph format.  Enabling this control will make sure that any graphics properties specified in the GML file are read in and used in the rendering of the graph.  Such properties include direction of edges, self-loops and colors specified for vertices and edges.  Note that selection of the Foreground Color in the Display Options  does not override the GML color properties.  It is also important to note that if the GML file does not specify a color for some vertices/edges then they will be drawn in the Foreground Color if one is selected, or the default color if no selection has been made.  
+
+
+Section 3: ALGORITHM TYPES AND OPTIONS
+
+There are two algorithms for force-directed graph drawing implemented in the GUIDE system: the GRIP algorithm and the Fruchterman-Reingold algorithm.  Each algorithm has a set of options that a user can select
+. 
+	There are six configurations for fine-tuning the GRIP algorithm.  The filtration technique derives the number of processing stages in the algorithm.  The default is the MIS filtration but a Random filtration is faster and tends to result in a  few more levels.  The number of initial vertices indicates how many vertices will be plotted in the first stage of the algorithm. 
+
+	There are two refinement algorithms used in GRIP: Kamada-Kawai approximates vertex positions and Fruchterman-Reingold refines the vertex placement. The refinement algorithm option refers to the second algorithm used for a localized refinement of vertices.  By default, GRIP uses the localized Fruchterman-Reingold algorithm, which only looks a few neighbors of a particular vertex to decide its final position.  However, GUIDE also makes use of the original Fruchterman-Reingold algorithm, where all vertices already plotted are examined to decide the position of a vertex.  The original FR algorithm is more computationally expensive but produces smoother drawings.  The user can also specify the number of levels at which the refinement algorithm is applied using the number of refinement levels parameter.
+
+	The number of initial rounds parameter is the number of iterations of the refinement stages in the beginning of the program, while number of final rounds is the number of iterations of GRIP towards the end of the algorithm.  The number of iterations in the intermediate stages is determined by a scheduling function that derives values between number of initial rounds and number of final rounds.  Typically an increase in the number of initial rounds will place vertices more precisely in the beginning stages, and therefore the number of rounds toward the end can be significantly lowered.  GRIP can provide a good drawing for most graphs with number of initial rounds between 10 and 20 and number of final rounds between 5 and 30.
+
+	The Fruchterman-Reingold algorithm utilizes three parameters. Note that in contrast to the use of a modified version of this algorithm in GRIP, here no filtrations are constructed and the algorithm is applied to all vertices at each stage.  The first two options are used for temperature calculations. The cooling/heating speed corresponds to  the variable s in the cooling function.  The maximum possible increase/decrease in the temperature of a vertex is directly proportional to this value.  The cooling/heating speed linearly decreases at each stage from the value specified by the user and levels out at 1.0.  Therefore any value below 1.0 will be internally adjusted to 1.0.
+
+	The initial heat to edge ratio is a decimal value that indicates a relationship between the initial temperature of each vertex and the ideal edge length.  The ideal edge length is multiplied by this value to determine the initial temperature with the reasoning that as the ideal edge length increases so must the temperature to allow farther displacement by vertices.
+
+	The number of final rounds parameter has a similar function to that in the GRIP algorithm, however, the range of its values must be higher.  The typical value is 100 but as many as 500 rounds maybe needed to draw more complex drawings.  The high range of values comes from the way the cooling function works, where it takes several dozens of rounds to move the vertices out of their random positions and closer to the optimal positions.  
+
+
+Section 4: RUNNING THE PROGRAM
+
+	The graphical user interface has a set of controls consisting of 3 buttons.  The Reset button will reset all values, including display options to the default values used at the start up of the interface.  The Help button opens the GUIDE help file.  The Quit button will close the Tcl/Tk interface but it will not quit out of the drawing window, which has a separate set of controls that will be described below.  The Run button executes the program producing a new window with the rendering of the drawing.  When the drawing window is closed, the output from the program is logged in the output panel shown.  
+
+	The first line starting with "./main" is the actual command line interface command issued to the operating system.  Each of the flags corresponds to an option chosen from the GUI.  Then the number of vertices is displayed.  This information is important since for graphs such as meshes, the user can't specify the number of vertices but rather a parameter that is used to calculate the total number of vertices.  The last piece of information is the size of each filtration level.  It is displayed as "misf[0]=36" where 0 is the number of the level and 36 is the number of vertices at that level.  The number of vertices at level 0 will always equal the total number of vertices.  This information will be displayed for graphs drawn with GRIP.  In addition, if the graph is run with Interactive Display off, the time that the algorithm took to run excluding the drawing process will be displayed.  This can only be done with Interactive Display off because the rendering of intermediate stages of the graph will occupy CPU time and it would be difficult to distinguish between the time taken by the algorithm and the drawing process.  When the program is being run, a drawing window pops up that contains the actual drawing.
+
+
+Section 5: DRAWING WINDOW CONTROLS
+
+	The graph is displayed using OpenGL and using capabilities of OpenGL a series of controls are provided in the drawing window.   All the commands are case sensitive.
+
+	There are several commands for manipulating the viewing angle of the drawing.  The drawing can be rotated in all 3 directions (x, y and z).  Rotation along the x-axis can be accomplished by pressing X for clockwise rotation or x for counter-clockwise rotation.  The left and right arrow keys are analogous to X and x respectively.  To rotate along the z-axis, the user can use the Z key on the keyboard (or z for counter-clockwise rotation), or up and down arrows similar to above.  Rotation along the y-axis can only be accomplished by pressing the Y and y keys depending on desired direction of rotation.  Note that rotation is continuous and can only be stopped by pressing S (for stop).  Rotation does not work in two dimensions.
+
+	The drawing window also has zooming capabilities.  Pressing F (for forward) will zoom in on the object.  Pressing B (for backward) will zoom out.  Zooming is not continuous which means performing above commands will only zoom in/out by a little bit.  For continuous zoom, the user must hold down the appropriate key until desired level of zoom is achieved.
+
+	The drawing interface provides the capability for moving vertices from the plotted location after all the stages of the algorithm have completed.  To do so, the user must click on the vertex (or in close proximity) and while holding down the left mouse button drag the vertex to the desired location.  Releasing the mouse button will move the vertex to its new location.  We must note that vertex movement can be performed after zoom is performed but cannot be performed after rotation. It only makes sense to move vertcies in two dimensions.  Doing so will provide unpredictable results and the vertex will be displaced in a random direction. 
+
+	The S key is also functional during the intermediate stages of the drawing process. Pressing S will stop the algorithm after the current processing stage has completed and the result has been displayed.  This is useful for observing properties of the graph in the middle of the algorithm.  To continue the algorithm execution, the user must press the R (for resume) key.  This option can be performed numerous times during the execution of the program, however, if the user wants to pause after every stage then the Display Speed should be set to 1 from the Tcl/Tk interface.
+
+	To quit the program and close the drawing window at any time during execution or after the final drawing is rendered, the Q key must be pressed.  It is important that the program is always exited in this way rather than closing the window by pressing the X in the top right corner.  Pressing Q ensures that all the memory used by the program is freed before the program exits.
+
+
+
+

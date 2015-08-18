@@ -1,0 +1,26 @@
+GUIDE Readme file
+==================
+
+System Requirements
+======================
+The GUIDE system has been tested and run on a PIII-500 MHZ system with 384 
+MB of RAM. It requires little system memory and should be able to run on 
+any PII-300 MHZ and up. Testing has not been conducted in such 
+environments, however, so there might be deterioration in peformace.
+
+   O/S and Compiler
+=======================
+The operating system that GUIDE was written on and compiled under :
+Red Hat Linux 7.0 release 2.4.2.  
+The compiler used is:
+gcc version 2.96 20000731
+as shown by issuing 'gcc -v'.
+GUIDE has not been tested under Windows but should run under any Unix type 
+system.
+
+Installation Instructions
+===========================
+To install GUIDE run 'make' to compile all the files and then run 'wish 
+graph.tcl' to start the user interface.  Note that compilation only needs 
+to be performed once but the second command should be used to start the 
+application every time.
