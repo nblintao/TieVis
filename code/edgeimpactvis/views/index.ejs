@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html ng-app="dyGraphVis" xmlns="http://www.w3.org/1999/html">
+<head lang="en">
+    <meta charset="UTF-8">
+    <link href="/javascripts/lib/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src = "/javascripts/lib/angular/angular.js"></script>
+    <script src = "/javascripts/lib/angular/ui-bootstrap.js"></script>
+    <script src = "/javascripts/lib/d3/d3.v3.js"></script>
+    <script src = "/javascripts/lib/underscore/underscore-min.js"></script>
+    <script src = "/javascripts/lib/jquery/dist/jquery.js"></script>
+    <script src = "/javascripts/lib/tinycolor/tinycolor.js"></script>
+    <script src = "/javascripts/lib/matrix.js"></script>
+    <script src = "/javascripts/lib/graph.js"></script>
+    <script src = "/javascripts/lib/geom.js"></script>
+    <script src = "/javascripts/lib/config.js"></script>
+    <script src = "/javascripts/lib/react/react-with-addons.js"></script>
+    <script src = "/javascripts/lib/science.js/science.v1.js"></script>
+    <script src = "/javascripts/lib/colorbrewer/colorbrewer.js"></script>
+    <script src = "/javascripts/angularApp.js"></script>
+    <script src = "/javascripts/d3Service.js"></script>
+    <script src = "/javascripts/d3EdgeFlow.js"></script>
+    <script src = "/javascripts/reactService.js"></script>
+    <script src = "/javascripts/funcs.js"></script>
+    <script src = "/javascripts/calFuncs.js"></script>
+    <script src = "/javascripts/segmentor.js"></script>
+    <script src = "/javascripts/matrixService.js"></script>
+    <script src = "/javascripts/d3Matrix.js"></script>
+    <script src = "/javascripts/matViewFuncs.js"></script>
+    <script src = "/javascripts/configService.js"></script>
+    <script src = "/javascripts/query.js"></script>
+    <script src = "/javascripts/pipService.js"></script>
+    <title></title>
+    <style type="text/css">
+        #edgeImpactView {
+            float:left
+        }
+        #matrixView {
+            float:left
+        }
+        .axis text {
+            font: 10px sans-serif;
+        }
+
+        .axis path,
+        .axis line {
+            fill: none;
+            stroke: #000;
+            shape-rendering: crispEdges;
+        }
+
+        .x.axis path {
+            display: none;
+        }
+        .y.axis path {
+            display: none;
+        }
+        .grid .tick {
+            stroke: lightgrey;
+            opacity: 0.7;
+        }
+        .grid path {
+            stroke-width: 0;
+        }
+        div .scroll {
+            background-color: #FFFFFF;
+            width: 1400px;
+            height: 800px;
+            overflow: auto;
+        }
+        .extent {
+            fill: #000;
+            fill-opacity: .125;
+            stroke: #fff;
+        }
+
+    </style>
+</head>
+<body>
+
+<div ng-controller="QueryCtrl">
+    <nav class="navbar navbar-default">
+        <div class="col-xs-2">
+            <h2>Edge Impact Vis</h2>
+        </div>
+        <div class="col-xs-2">
+            <label class="control-label">Dateset:</label>
+            <select class="form-control" ng-model="dataset" ng-options="data for data in options.dataset"></select>
+        </div>
+    </nav>
+    <div class = "row">
+        <div class = "col-xs-12 col-md-8">
+            <div class = "row">
+                <div class="col-xs-3">
+                    <label class="control-label">Search:</label>
+                    <input type="text" ng-model="queryName" placeholder="Search" typeahead="name for name in getNames($viewValue)" typeahead-loading="loadingLocations" class="form-control">
+
+                </div>
+            </div>
+            <div class = "row">
+                <div query-name="queryName" dataset = "dateset" d3-edge-flow bar-height="20" bar-padding="5" id = "edgeImpactView" ng-controller="ImpactCtrl" class = "scroll"></div>
+            </div>
+
+        </div>
+        <div class = "col-xs-6 col-md-4">
+            <div class = "row">
+                <div class="col-xs-3">
+                    <div class = "row">
+                        <label class="control-label">Mode:</label>
+                    </div>
+                    <div class = "row">
+                        <div class="btn-group">
+                            <label class="btn btn-default" ng-model="detailMode" btn-radio="'Matrix'" uncheckable>Matrix</label>
+                            <label class="btn btn-default" ng-model="detailMode" btn-radio="'Node-Link'" uncheckable>Node-Link</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class = "row">
+                <div d3-matrix-view id = "matrixView" show-year="showYear" detail-mode = "detailMode"></div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+
+</body>
+</html>
