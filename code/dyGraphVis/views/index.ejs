@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html ng-app="dyGraphVis" xmlns="http://www.w3.org/1999/html">
+<head lang="en">
+    <meta charset="UTF-8">
+    <link href="/javascripts/lib/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src = "/javascripts/lib/angular/angular.js"></script>
+    <script src = "/javascripts/lib/angular/ui-bootstrap.js"></script>
+    <script src = "/javascripts/lib/d3/d3.v3.js"></script>
+    <script src = "/javascripts/lib/underscore/underscore-min.js"></script>
+    <script src = "/javascripts/lib/jquery/dist/jquery.js"></script>
+    <script src = "/javascripts/lib/tinycolor/tinycolor.js"></script>
+    <script src = "/javascripts/lib/matrix.js"></script>
+    <script src = "/javascripts/lib/graph.js"></script>
+    <script src = "/javascripts/lib/geom.js"></script>
+    <script src = "/javascripts/lib/config.js"></script>
+    <script src = "/javascripts/lib/react/react-with-addons.js"></script>
+    <script src = "/javascripts/lib/science.js/science.v1.js"></script>
+    <script src = "/javascripts/lib/colorbrewer/colorbrewer.js"></script>
+    <script src = "/javascripts/angularApp.js"></script>
+    <script src = "/javascripts/d3Service.js"></script>
+    <script src = "/javascripts/d3EdgeFlow.js"></script>
+    <script src = "/javascripts/reactService.js"></script>
+    <script src = "/javascripts/funcs.js"></script>
+    <script src = "/javascripts/calFuncs.js"></script>
+    <script src = "/javascripts/segmentor.js"></script>
+    <script src = "/javascripts/matrixService.js"></script>
+    <script src = "/javascripts/d3Matrix.js"></script>
+    <script src = "/javascripts/matViewFuncs.js"></script>
+    <script src = "/javascripts/configService.js"></script>
+    <script src = "/javascripts/query.js"></script>
+    <script src = "/javascripts/pipService.js"></script>
+    <script src = "/javascripts/lib/colResizable/js/colResizable-1.5.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="/bower_components/angular-multirange-slider/dist/multirange-slider.css">
+    <script type="text/javascript" src="/bower_components/angular-multirange-slider/dist/multirange-slider.js"></script>
+    <link rel="stylesheet" type="text/css" href="/javascripts/lib/colResizable/css/main.css" />
+    <title></title>
+    <style type="text/css">
+        #edgeImpactView {
+            float:left
+        }
+        #matrixView {
+            float:left
+        }
+        .axis text {
+            font: 18px Arial;
+        }
+
+        .axis path,
+        .axis line {
+            fill: none;
+            stroke: #000;
+            shape-rendering: crispEdges;
+        }
+
+        .x.axis path {
+            display: none;
+        }
+        .y.axis path {
+            display: none;
+        }
+        .grid .tick {
+            stroke: lightgrey;
+            opacity: 0.7;
+        }
+        .grid path {
+            stroke-width: 0;
+        }
+        div .scroll {
+            background-color: #FFFFFF;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+        }
+        .extent {
+            fill: #000;
+            fill-opacity: .125;
+            stroke: #fff;
+        }
+        .withborder {
+            border-left: 1px solid #ccc;
+            border-right: 1px solid #ccc;
+            border-top: 1px solid #ccc;
+            border-bottom: 1px solid #ccc;
+        }
+        .navbar-custom {
+            background-color:#428bca;
+            color:#ffffff;
+            border-radius:0;
+        }
+
+        .navbar-custom .navbar-nav > li > a {
+            color:#fff;
+        }
+        .navbar-custom .navbar-nav > .active > a, .navbar-nav > .active > a:hover, .navbar-nav > .active > a:focus {
+            color: #ffffff;
+            background-color:transparent;
+        }
+        .navbar-custom .navbar-brand {
+            color:#eeeeee;
+        }
+        #text {
+            margin-left:20px;
+            float:left;
+        }
+        #slider {
+            margin-left:30px;
+            float:left;
+        }
+
+    </style>
+</head>
+<body>
+
+
+<div class="row clearfix" ng-app="dyGraphVis">
+    <div class="col-md-12 column" ng-controller="QueryCtrl">
+        <nav class="navbar navbar-custom" role="navigation">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1"> <span class="sr-only">Toggle navigation</span><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></button> <a class="navbar-brand" href="#">EdgeImpactVis</a>
+            </div>
+
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <form class="navbar-form navbar-left" role="search">
+                    <div class="form-group">
+                        <select class="form-control" ng-model="dataset" ng-options="data for data in options.dataset"></select>
+                        <input type="text" ng-model="queryName" placeholder="Search" typeahead="name for name in getNames($viewValue)" typeahead-loading="loadingLocations" class="form-control">
+                    </div> <button type="submit" class="btn btn-default">Submit</button>
+
+                </form>
+            </div>
+
+        </nav>
+        <div class="row clearfix">
+            <div class="col-md-2 column">
+                <div class = "withborder" style = "height : 300px">
+                    <p>
+                        Edge Importance Segmentation
+                    </p>
+                    <div class = "row">
+                        <p>
+                            PRS
+                            <input type="number" value="3" style="width:50px">
+                        </p>
+
+                            <div id="slider" style = "height : 30px">
+                                <table id="range" width= 250px cellspacing="0" cellpadding="0">
+                                    <tr>
+                                        <td width="20%"></td>
+                                        <td width="20%"></td>
+                                        <td width="60%"></td>
+                                    </tr>
+                                </table>
+                            </div>
+                        <div id="text">Ranges: <0.2, <0.4, <1</div>
+                    </div>
+
+                    <div class = "row">
+                        <p>
+                            BC
+                            <input type="number" value="3" style="width:50px">
+                        </p>
+
+                        <div id="slider" style = "height : 30px">
+                            <table id="range2" width=250px cellspacing="0" cellpadding="0">
+                                <tr>
+                                    <td width="20%"></td>
+                                    <td width="20%"></td>
+                                    <td width="60%"></td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div id = "text">Ranges: <0.2, <0.4, <1</div>
+
+                    </div>
+                    <div class = "row">
+                        <p>
+                            DS
+                            <input type="number" value="3" style="width:50px">
+                        </p>
+
+                        <div id="slider" style = "height : 30px">
+                            <table id="range3" width=250px cellspacing="0" cellpadding="0">
+                                <tr>
+                                    <td width="12%"></td>
+                                    <td width="24%"></td>
+                                    <td width="76%"></td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div id="text">Ranges: <0.1, <0.2, >=0.2</div>
+                    </div>
+                </div>
+                <div class = "withborder" style = "height : 130px">
+                    <p>
+                        Node Importance Segmentation
+                    </p>
+                    <div class = "row">
+                        <p>
+                            Number of high impacy edges
+                            <input type="number" value="3" style="width:50px">
+                        </p>
+
+                        <div id="slider" style = "height : 30px">
+                            <table id="range1" width=250px cellspacing="0" cellpadding="0">
+                                <tr>
+                                    <td width="0%"></td>
+                                    <td width="33%"></td>
+                                    <td width="67%"></td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div id="text">Ranges: =0, <3, >=3</div>
+                    </div>
+
+                </div>
+                <div class = "withborder" style = "height : 100px">
+                    <p>
+                        Filters
+                    </p>
+                    <p>
+                        #Node >
+                        <input type="number" value="20" style="width:50px">
+                    </p>
+                    <p>
+                        #Edge >
+                        <input type="number" value="20" style="width:50px">
+                    </p>
+
+                </div>
+
+            </div>
+            <div class="col-md-7 column">
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">
+                            Metric View
+                        </h3>
+                    </div>
+                    <div query-name="queryName" dataset = "dateset" d3-edge-flow bar-height="20" bar-padding="5" id = "edgeImpactView" class = "scroll"></div>
+
+                </div>
+            </div>
+
+            <div class="col-md-3 column">
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">
+                            Detail View
+                        </h3>
+                    </div>
+                    <div d3-matrix-view id = "matrixView" show-year="showYear" detail-mode = "detailMode"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var onSlide1 = function(e){
+        var columns = $(e.currentTarget).find("td");
+        var ranges = [], total = 0, i, s ="Ranges: ", w;
+        for(i = 0; i<columns.length; i++){
+            w = columns.eq(i).width()-10 - (i==0?1:0);
+            ranges.push(w);
+            total+=w;
+        }
+        for(i=0; i<columns.length; i++){
+            ranges[i] = 100*ranges[i]/total;
+            carriage = ranges[i]-w
+            s+=" "+ Math.round(ranges[i]) + "%,";
+        }
+        s=s.slice(0,-1);
+        $("#text").html(s);
+    }
+    var onSlide2 = function(e){
+        var columns = $(e.currentTarget).find("td");
+        var ranges = [], total = 0, i, s ="Ranges: ", w;
+        for(i = 0; i<columns.length; i++){
+            w = columns.eq(i).width()-10 - (i==0?1:0);
+            ranges.push(w);
+            total+=w;
+        }
+        for(i=0; i<columns.length; i++){
+            ranges[i] = 100*ranges[i]/total;
+            carriage = ranges[i]-w
+            s+=" "+ Math.round(ranges[i]) + "%,";
+        }
+        s=s.slice(0,-1);
+        $("#text").html(s);
+    }
+    $("#range").colResizable({
+        liveDrag:true,
+        draggingClass:"rangeDrag",
+        gripInnerHtml:"<div class='rangeGrip'></div>",
+        onResize:onSlide1,
+        minWidth:8
+    });
+    $("#range1").colResizable({
+        liveDrag:true,
+        draggingClass:"rangeDrag",
+        gripInnerHtml:"<div class='rangeGrip'></div>",
+        onResize:onSlide2,
+        minWidth:8
+    });
+    $("#range2").colResizable({
+        liveDrag:true,
+        draggingClass:"rangeDrag",
+        gripInnerHtml:"<div class='rangeGrip'></div>",
+        onResize:onSlide2,
+        minWidth:8
+    });
+    $("#range3").colResizable({
+        liveDrag:true,
+        draggingClass:"rangeDrag",
+        gripInnerHtml:"<div class='rangeGrip'></div>",
+        onResize:onSlide2,
+        minWidth:8
+    });
+</script>
+
+
+
+
+
+<!--
+
+
+<div ng-app="dyGraphVis">
+<div ng-controller="QueryCtrl">
+    <nav class="navbar navbar-default">
+        <div class="col-xs-2">
+            <h2>Edge Impact Vis</h2>
+        </div>
+        <div class="col-xs-2">
+            <label class="control-label">Dateset:</label>
+            <select class="form-control" ng-model="dataset" ng-options="data for data in options.dataset"></select>
+        </div>
+    </nav>
+    <div class = "row">
+        <div class = "col-xs-12 col-md-8">
+            <div class = "row">
+                <div class="col-xs-3">
+                    <label class="control-label">Search:</label>
+                    <input type="text" ng-model="queryName" placeholder="Search" typeahead="name for name in getNames($viewValue)" typeahead-loading="loadingLocations" class="form-control">
+
+                </div>
+            </div>
+            <div class = "row">
+                <div query-name="queryName" dataset = "dateset" d3-edge-flow bar-height="20" bar-padding="5" id = "edgeImpactView" ng-controller="ImpactCtrl" class = "scroll"></div>
+            </div>
+
+        </div>
+        <div class = "col-xs-6 col-md-4">
+            <div class = "row">
+                <div class="col-xs-3">
+                    <div class = "row">
+                        <label class="control-label">Mode:</label>
+                    </div>
+                    <div class = "row">
+                        <div class="btn-group">
+                            <label class="btn btn-default" ng-model="detailMode" btn-radio="'Matrix'" uncheckable>Matrix</label>
+                            <label class="btn btn-default" ng-model="detailMode" btn-radio="'Node-Link'" uncheckable>Node-Link</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class = "row">
+                <div d3-matrix-view id = "matrixView" show-year="showYear" detail-mode = "detailMode"></div>
+            </div>
+        </div>
+    </div>
+
+</div>
+</div>
+-->
+
+</body>
+</html>

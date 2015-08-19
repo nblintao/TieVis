@@ -1,0 +1,29 @@
+{
+  "name": "multirange",
+  "version": "0.1.2",
+  "authors": [
+    "Val <val.samonte@gmail.com>"
+  ],
+  "description": "Multirange slider component",
+  "main": [
+    "multirange.js",
+    "multirange.css"
+  ],
+  "keywords": [
+    "multirange",
+    "slider"
+  ],
+  "license": "MIT",
+  "homepage": "val-samonte.github.io/multirange.html",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests",
+    "demo"
+  ],
+  "dependencies": {
+    "angular": "~1.3.2"
+  }
+}
