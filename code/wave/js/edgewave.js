@@ -58,7 +58,7 @@ var svg = d3.select('body').append('svg')
   .attr('height', innerHeight);
 
 var skewsvg = svg.append('g')
-  .attr('transform', 'translate(0 200) rotate(-45) ');
+  .attr('transform', 'translate(50 200) rotate(-45) ');
 
 var gridSideLength = 200;
 
@@ -78,36 +78,38 @@ var grid = skewsvg.selectAll('g')
     return str;
   });
 
-grid.append('rect')
-  .attr('width', gridSideLength - 30)
-  .attr('height', gridSideLength - 30)
-  .attr('x', 0)
-  .attr('y', 0);
+// grid.append('rect')
+//   .attr('width', gridSideLength - 30)
+//   .attr('height', gridSideLength - 30)
+//   .attr('x', 0)
+//   .attr('y', 0);
 
-grid.append('circle')
-  .attr('r', 10)
-  .attr('cx', 10)
-  .attr('cy', 10)
-  .attr('fill', 'blue');
-grid.append('circle')
-  .attr('r', 10)
-  .attr('cx', 10)
-  .attr('cy', 190)
-  .attr('fill', 'red');
-grid.append('circle')
-  .attr('r', 10)
-  .attr('cx', 190)
-  .attr('cy', 190)
-  .attr('fill', 'yellow');
+// grid.append('circle')
+//   .attr('r', 10)
+//   .attr('cx', 10)
+//   .attr('cy', 10)
+//   .attr('fill', 'blue');
+// grid.append('circle')
+//   .attr('r', 10)
+//   .attr('cx', 10)
+//   .attr('cy', 190)
+//   .attr('fill', 'red');
+// grid.append('circle')
+//   .attr('r', 10)
+//   .attr('cx', 190)
+//   .attr('cy', 190)
+//   .attr('fill', 'yellow');
 
-var nodes = [{ "name": "node1" }, { "name": "node2" }];
+var nodes = [{ "name": "node1" }, { "name": "node2" },{ "name": "node3" }];
 var nNodes = nodes.length;
 
-var cellOffset = d3.scale.ordinal().rangeBands([0, gridSideLength]);
+var innerGridSideLength = gridSideLength - 30;
+var cellOffset = d3.scale.ordinal().rangeBands([0, innerGridSideLength]);
 cellOffset.domain(d3.range(nNodes));
 
 var row = grid.selectAll(".row")
   .data(function (d) {
+
     var matrix = [];
     nodes.forEach(function (node, i) {
       matrix[i] = d3.range(nNodes).map(function (j) { return { x: j, y: i, z: 0 }; });
@@ -117,18 +119,30 @@ var row = grid.selectAll(".row")
     });
     // console.log(matrix);
     return matrix;
+
   })
   .enter().append('g')
   .attr('class', 'row')
   .attr('transform', function (d, i) { return 'translate(0,' + cellOffset(i) + ')'; });
 
+
+// row.append("line")
+//   .attr("x2", width);
+
+row.append("text")
+  .attr("x", -2)
+  .attr("y", cellOffset.rangeBand() / 2)
+  .attr("dy", ".32em")
+  .attr("text-anchor", "end")
+  .text(function (d, i) { return nodes[i].name; });
+
 var cell = row.selectAll(".cell")
-  // .data(row.filter(function (d) { return d.z; }))
-  .data(function(d){console.log(d);return d;})
+// .data(row.filter(function (d) { return d.z; }))
+  .data(function (d) { console.log(d); return d; })
   .enter().append("rect")
   .attr("class", "cell")
   .attr("x", function (d) { return cellOffset(d.x); })
   .attr("width", cellOffset.rangeBand())
   .attr("height", cellOffset.rangeBand())
-  .style("fill", function (d) { return d3.rgb(0,d.z/7*255,0); })
+  .style("fill", function (d) { return d3.rgb(0, d.z / 7 * 255, 0); })
   ;
