@@ -40,7 +40,8 @@ var MongoClient = require('mongodb').MongoClient
     , assert = require('assert');
 
 // Connection URL
-var url = 'mongodb://localhost:27017/test';
+// var url = 'mongodb://localhost:27017/test';
+var url = 'mongodb://localhost:27017/edgeImpactVis';
 // Use connect method to connect to the Server
 
 router.get('/names', function(req, res) {
