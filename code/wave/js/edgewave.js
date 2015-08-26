@@ -56,8 +56,9 @@
 // var nodes = [{ "name": "node1" }, { "name": "node2" }, { "name": "node3" }, { "name": "node4" }];
 
 var options = {
-  matrixwave: false,
-  dataset: 'smalldata'
+  matrixwave: true,
+  // dataset: 'smalldata'
+  dataset: 'largedata'
 };
 
 d3.json(options.dataset + '/edgeWaveData.json', function (edgeWaveData) {
@@ -71,8 +72,8 @@ d3.json(options.dataset + '/edgeWaveData.json', function (edgeWaveData) {
 
 function render(edgeWaveData, nodelist, details) {
   var svg = d3.select('body').append('svg')
-    .attr('width', innerWidth)
-    .attr('height', innerHeight);
+    .attr('width', innerWidth * 6)
+    .attr('height', innerHeight * 2);
 
   var skewsvg = svg.append('g')
     .attr('transform', function () {
@@ -84,7 +85,7 @@ function render(edgeWaveData, nodelist, details) {
       }
     });
 
-  var gridSideLength = 300;
+  var gridSideLength = 400;
 
   var grid = skewsvg.selectAll('g')
     .data(edgeWaveData)
@@ -165,7 +166,7 @@ function render(edgeWaveData, nodelist, details) {
   row.append("text")
     .attr("x", -2)
     .attr("y", cellOffset.rangeBand() / 2)
-    .attr("dy", ".32em")
+    .attr("dy", ".16em")
     .attr("text-anchor", "end")
   // .attr('font','courier new')
     .attr('font-family', 'monospace')
@@ -189,7 +190,7 @@ function render(edgeWaveData, nodelist, details) {
     .attr("x", function (d) { return cellOffset(d.x); })
     .attr("width", cellOffset.rangeBand())
     .attr("height", cellOffset.rangeBand())
-    .style("fill", function (d) { return d3.rgb(0, d.v * (-1) / 8 * 255, 0); })
+    .style("fill", function (d) { return d3.rgb(0, d.v / 8 * 255, 0); })
     .on('mouseover', function (d) {
       // console.log(d);
       //   var fromPoint = d.y;
