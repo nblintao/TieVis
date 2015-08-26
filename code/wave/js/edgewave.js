@@ -57,8 +57,8 @@
 
 var options = {
   matrixwave: true,
-  dataset: 'smalldata'
-  // dataset: 'largedata'
+  // dataset: 'smalldata'
+  dataset: 'largedata'
 };
 
 d3.json(options.dataset + '/edgeWaveData.json', function (edgeWaveData) {
@@ -191,7 +191,7 @@ function render(edgeWaveData, nodelist, details) {
     .attr("width", cellOffset.rangeBand())
     .attr("height", cellOffset.rangeBand())
     // .style("fill", function (d) { return d3.rgb(0, d.v / 100 * 255, 0); })
-    .style("fill", function (d) { return d3.hsl(120,d.v/50,0.5); })
+    .style("fill", function (d) { return d3.hsl(120,d.v/1000,0.5); })
     .on('mouseover', function (d) {
       //   var fromPoint = d.y;
       //   var toPoint = d.x;
@@ -203,6 +203,13 @@ function render(edgeWaveData, nodelist, details) {
       ;
       // .each(function (c) { c.style('fill-opacity', 0.5); });
       
+      var infoString = '';
+      infoString +=  '<table ';
+      infoString += '<tr><td><b>From</b></td><td>['+d.y+']</td><td>'+nodelist[d.y]+'</td></tr>';
+      infoString += '<tr><td><b>To</b></td><td>['+d.x+']</td><td>'+nodelist[d.x]+'</td></tr>';
+      infoString += '<tr><td><b>Impact</b></td><td></td><td>'+d.v+'</td></tr>';
+      infoString += '</table>';
+      d3.select('#edgeInfo').html(infoString);
       var kdeData = details[d.i];
       // console.log(kdeData);
       renderKDE(kdeData);
