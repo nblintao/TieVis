@@ -41,7 +41,8 @@ for step in edgeWaveData:
     newEdgeData = [[{'y':fromPoint,'x':toPoint,'i':-1,'v':0} for toPoint in range(nodeNum)]for fromPoint in range(nodeNum)]
     for impact in oldEdgeData:
         # use the abstract of individual impacacts
-        impactNum = abs(int(impact[3]))
+        impactNum = int(impact[3])
+        impactNumAb = abs(impactNum)
         
         if impactNum == 0:
             continue
@@ -49,7 +50,7 @@ for step in edgeWaveData:
         if edge['i'] == -1:
             edge['i'] = len(details)
             details.append([0 for i in range(nodeNum)])
-        edge['v'] += impactNum
+        edge['v'] += impactNumAb
         details[edge['i']][impact[2]] += impactNum
         # print(impactNum)
     
