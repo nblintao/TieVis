@@ -1,6 +1,6 @@
 /* global d3 */
 
-var edgeWaveDate = [
+var edgeWaveData_old = [
   {
     timeID: 0,
     timeName: 'day1',
@@ -63,13 +63,13 @@ var options = {
 d3.json(options.dataset + '/edgeWaveData.json', function (edgeWaveData) {
   d3.json(options.dataset + '/nodelist.json', function (nodelist) {
     d3.json(options.dataset + '/details.json', function (details) {
-      console.log(edgeWaveData);
-      render();
+      // console.log(edgeWaveData);
+      render(edgeWaveData, nodelist, details);
     });
   });
 });
 
-function render() {
+function render(edgeWaveData, nodelist, details) {
   var svg = d3.select('body').append('svg')
     .attr('width', innerWidth)
     .attr('height', innerHeight);
@@ -84,10 +84,10 @@ function render() {
       }
     });
 
-  var gridSideLength = 200;
+  var gridSideLength = 300;
 
   var grid = skewsvg.selectAll('g')
-    .data(edgeWaveDate)
+    .data(edgeWaveData)
     .enter().append('g')
     .attr('transform', function (d) {
       var id = d.timeID;
@@ -129,7 +129,7 @@ function render() {
   //   .attr('cy', 190)
   //   .attr('fill', 'yellow');
 
-  var nNodes = nodes.length;
+  var nNodes = nodelist.length;
 
   var innerGridSideLength = gridSideLength - 30;
   var cellOffset = d3.scale.ordinal().rangeBands([0, innerGridSideLength]);
@@ -138,15 +138,19 @@ function render() {
   var row = grid.selectAll(".row")
     .data(function (d) {
 
-      var matrix = [];
-      nodes.forEach(function (node, i) {
-        matrix[i] = d3.range(nNodes).map(function (j) { return { x: j, y: i, z: 0 }; });
-      });
-      d.edges.forEach(function (edge) {
-        matrix[edge[0]][edge[1]].z = edge[2];
-      });
-      // console.log(matrix);
-      return matrix;
+      // var matrix = [];
+      // nodelist.forEach(function (node, i) {
+      //   matrix[i] = d3.range(nNodes).map(function (j) { return { x: j, y: i, z: 0 }; });
+      // });
+      // d.edges.forEach(function (row,irow) {
+      //   row.forEach(function(col,icol){
+      //     matrix[irow][icol].z = col;
+      //   });
+      //   // matrix[edge[0]][edge[1]].z = edge[2];
+      // });
+      // // console.log(matrix);
+      // return matrix;
+      return d.edges;
 
     })
     .enter().append('g')
@@ -163,21 +167,28 @@ function render() {
     .attr("y", cellOffset.rangeBand() / 2)
     .attr("dy", ".32em")
     .attr("text-anchor", "end")
-    .text(function (d, i) { return nodes[i].name; });
+  // .attr('font','courier new')
+    .attr('font-family', 'monospace')
+    .text(function (d, i) { return nodelist[i].substring(0, 4); });
 
   var cell = row.selectAll(".cell")
-  // .data(row.filter(function (d) { return d.z; }))
-    .data(function (d) {
-      // console.log(d);
-      return d;
+    .data(function (row) {
+      return row.filter(function (d) {
+        // console.log(d);
+        return (d.i !== -1);
+      });
     })
+  // .data(function (d,i) {
+  //   // console.log(d);
+  //   return d;
+  // })
     .enter().append("rect")
     .attr("class", "cell")
     .attr('id', function (d) { return 'col' + d.x; })
     .attr("x", function (d) { return cellOffset(d.x); })
     .attr("width", cellOffset.rangeBand())
     .attr("height", cellOffset.rangeBand())
-    .style("fill", function (d) { return d3.rgb(0, d.z / 7 * 255, 0); })
+    .style("fill", function (d) { return d3.rgb(0, d.v * (-1) / 8 * 255, 0); })
     .on('mouseover', function (d) {
       // console.log(d);
       //   var fromPoint = d.y;
