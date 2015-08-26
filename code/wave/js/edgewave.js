@@ -53,12 +53,23 @@ var edgeWaveDate = [
   }
 ];
 
+var options = {
+  matrixwave: false
+};
+
 var svg = d3.select('body').append('svg')
   .attr('width', innerWidth)
   .attr('height', innerHeight);
 
 var skewsvg = svg.append('g')
-  .attr('transform', 'translate(50 200) rotate(-45) ');
+  .attr('transform', function () {
+    if (options.matrixwave) {
+      return 'translate(50 200) rotate(-45) ';
+    }
+    else {
+      return 'translate(50 200)';
+    }
+  });
 
 var gridSideLength = 200;
 
@@ -67,15 +78,20 @@ var grid = skewsvg.selectAll('g')
   .enter().append('g')
   .attr('transform', function (d) {
     var id = d.timeID;
-    var odd = id % 2;
-    var translateX = Math.floor(id / 2) * gridSideLength;
-    var translateY = Math.ceil(id / 2) * gridSideLength;
-    var str = 'translate(' + translateX + ' ' + translateY + ')';
-    if (odd) {
-      // str += 'translate(' + gridSideLength + ' ' + gridSideLength + ') scale(-1 0)';
-      str += ' rotate(-90) scale(-1 1)';
+    if (options.matrixwave) {
+      var odd = id % 2;
+      var translateX = Math.floor(id / 2) * gridSideLength;
+      var translateY = Math.ceil(id / 2) * gridSideLength;
+      var str = 'translate(' + translateX + ' ' + translateY + ')';
+      if (odd) {
+        // str += 'translate(' + gridSideLength + ' ' + gridSideLength + ') scale(-1 0)';
+        str += ' rotate(-90) scale(-1 1)';
+      }
+      return str;
     }
-    return str;
+    else {
+      return 'translate(' + id * gridSideLength + ' 0)';
+    }
   });
 
 // grid.append('rect')
