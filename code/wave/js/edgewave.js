@@ -1,59 +1,59 @@
 /* global d3 */
 
-var edgeWaveData_old = [
-  {
-    timeID: 0,
-    timeName: 'day1',
-    edges: [
-      [0, 0, 1],
-      [0, 1, 2],
-      [1, 0, 3],
-      [1, 1, 4],
-    ]
-  },
-  {
-    timeID: 1,
-    timeName: 'day2',
-    edges: [
-      [0, 0, 1],
-      [0, 1, 2],
-      [1, 0, 3],
-      [1, 1, 4],
-    ]
-  },
-  {
-    timeID: 2,
-    timeName: 'day3',
-    edges: [
-      [0, 0, 5],
-      [0, 1, 4],
-      [1, 0, 6],
-      [1, 1, 0],
-    ]
-  },
-  {
-    timeID: 3,
-    timeName: 'day4',
-    edges: [
-      [0, 0, 3],
-      [0, 1, 4],
-      [1, 0, 6],
-      [1, 1, 0],
-    ]
-  },
-  {
-    timeID: 4,
-    timeName: 'day5',
-    edges: [
-      [0, 0, 5],
-      [0, 1, 1],
-      [1, 0, 6],
-      [1, 1, 1],
-    ]
-  }
-];
+// var edgeWaveData_old = [
+//   {
+//     timeID: 0,
+//     timeName: 'day1',
+//     edges: [
+//       [0, 0, 1],
+//       [0, 1, 2],
+//       [1, 0, 3],
+//       [1, 1, 4],
+//     ]
+//   },
+//   {
+//     timeID: 1,
+//     timeName: 'day2',
+//     edges: [
+//       [0, 0, 1],
+//       [0, 1, 2],
+//       [1, 0, 3],
+//       [1, 1, 4],
+//     ]
+//   },
+//   {
+//     timeID: 2,
+//     timeName: 'day3',
+//     edges: [
+//       [0, 0, 5],
+//       [0, 1, 4],
+//       [1, 0, 6],
+//       [1, 1, 0],
+//     ]
+//   },
+//   {
+//     timeID: 3,
+//     timeName: 'day4',
+//     edges: [
+//       [0, 0, 3],
+//       [0, 1, 4],
+//       [1, 0, 6],
+//       [1, 1, 0],
+//     ]
+//   },
+//   {
+//     timeID: 4,
+//     timeName: 'day5',
+//     edges: [
+//       [0, 0, 5],
+//       [0, 1, 1],
+//       [1, 0, 6],
+//       [1, 1, 1],
+//     ]
+//   }
+// ];
 
-var nodes = [{ "name": "node1" }, { "name": "node2" }, { "name": "node3" }, { "name": "node4" }];
+// var nodes = [{ "name": "node1" }, { "name": "node2" }, { "name": "node3" }, { "name": "node4" }];
 
 var options = {
   matrixwave: false,
@@ -173,6 +173,7 @@ function render(edgeWaveData, nodelist, details) {
 
   var cell = row.selectAll(".cell")
     .data(function (row) {
+      // Donnot have to use the filter anymore, actucally
       return row.filter(function (d) {
         // console.log(d);
         return (d.i !== -1);
