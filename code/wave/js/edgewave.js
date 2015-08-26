@@ -57,8 +57,8 @@
 
 var options = {
   matrixwave: true,
-  // dataset: 'smalldata'
-  dataset: 'largedata'
+  dataset: 'smalldata'
+  // dataset: 'largedata'
 };
 
 d3.json(options.dataset + '/edgeWaveData.json', function (edgeWaveData) {
