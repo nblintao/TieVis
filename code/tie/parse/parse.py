@@ -67,13 +67,21 @@ def IsAllEmpty(lin):
 
 # V2: Real Deletion
 finalTieData = [[] for fromPoint in range(nodeNum)]
+
 for i in range(nodeNum):
     for j in range(nodeNum):
         if not IsAllEmpty(tieData[i][j]['d']):
             finalTieData[i].append(tieData[i][j])
 
+finalTieDataParallel = []
+for fromList in finalTieData:
+    finalTieDataParallel += fromList
+
 # print(finalTieData)
 json.dump(finalTieData, open('tieData.json','w'))
+
+# print(finalTieDataParallel)
+json.dump(finalTieDataParallel, open('tieDataParallel.json','w'))
 
 # print(nodelist)
 json.dump(nodelist, open('nodelist.json','w'))
