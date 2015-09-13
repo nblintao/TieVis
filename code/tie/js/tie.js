@@ -2,6 +2,9 @@
 var options = {
   dataset: 'parse'
 };
+
+var selectedEdges = [];
+
 d3.json(options.dataset + '/tieDataParallel.json', function (tieData) {
   d3.json(options.dataset + '/nodelist.json', function (nodelist) {
     d3.json(options.dataset + '/timelist.json', function (timelist) {
@@ -42,7 +45,7 @@ function renderProjectView(pcaResult) {
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
   var data = pcaResult;
-  
+
   x.domain(d3.extent(data, function (d) { return d[0]; })).nice();
   y.domain(d3.extent(data, function (d) { return d[1]; })).nice();
 
@@ -67,15 +70,38 @@ function renderProjectView(pcaResult) {
     .attr("dy", ".71em")
     .style("text-anchor", "end")
     .text("Axis Y");
-
-  svg.selectAll(".dot")
+  
+  var gDots = svg.append('g')
+    .attr('class','dots');
+  
+  var dots = gDots.selectAll(".dot")
     .data(data)
     .enter().append("circle")
     .attr("class", "dot")
+    .attr('id',function(d,i){return 'dot'+i;})
     .attr("r", 3.5)
     .attr("cx", function (d) { return x(d[0]); })
-    .attr("cy", function (d) { return y(d[1]); })
-    .style("fill", 'red');
+    .attr("cy", function (d) { return y(d[1]); });
+
+
+  var brush = svg.append("g")
+      .attr("class", "brush")
+      .call(d3.svg.brush()
+        .x(x)
+        .y(y)
+        .on("brushend", function() {
+          var extent = d3.event.target.extent();
+          selectedEdges = [];
+          dots.classed("selected", function(d,i) {
+            var flag = extent[0][0] <= d[0] && d[0] < extent[1][0] && extent[0][1] <= d[1] && d[1] < extent[1][1];
+            if(flag){
+              selectedEdges.push(i);
+            }
+            return flag;
+          });
+          console.log(selectedEdges);
+        }));
+
 
   var legend = svg.selectAll(".legend")
     .data(color.domain())
