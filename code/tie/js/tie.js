@@ -3,24 +3,95 @@ var options = {
   dataset: 'parse'
 };
 
-var selectedEdges = [];
+var scaleColor = d3.scale.linear()
+  .domain([0, 1000])
+  .range(['white', 'red']);
 
-d3.json(options.dataset + '/tieDataParallel.json', function (tieData) {
-  d3.json(options.dataset + '/nodelist.json', function (nodelist) {
-    d3.json(options.dataset + '/timelist.json', function (timelist) {
-      render(tieData, nodelist, timelist);
+var selectedEdges = [];
+var tieData, timelist, nodelist;
+d3.json(options.dataset + '/tieDataParallel.json', function (data1) {
+  tieData = data1;
+  d3.json(options.dataset + '/timelist.json', function (data2) {
+    timelist = data2;
+    d3.json(options.dataset + '/nodelist.json', function (data3) {
+      nodelist = data3;
+      // renderBipartite([]);
     });
+    renderBands(tieData, timelist);
   });
 });
+
+
 
 d3.json(options.dataset + '/pcaResult.json', function (pcaResult) {
   renderProjectView(pcaResult);
 });
 
+
+function renderBipartite(data) {
+
+  var margin = { top: 10, right: 10, bottom: 10, left: 30 },
+    width = 960 - margin.left - margin.right,
+    height = 350 - margin.top - margin.bottom;
+
+  var x = d3.scale.ordinal()
+    .rangePoints([0, width], 1)
+    .domain(d3.range(timelist.length+1));
+  var y = d3.scale.linear()
+    .domain([0, nodelist.length])
+    .range([height, 0]);
+
+  d3.select("#bipartiteView").selectAll('svg').remove();
+
+  var svg = d3.select("#bipartiteView").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+    .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+  // Add an axis and title.
+  var axis = d3.svg.axis()
+    .scale(y)
+    .orient("left");  
+  svg.append("g")
+    .attr("class", "axis")
+    .call(axis)
+    .append("text")
+    .style("text-anchor", "middle")
+    .attr("y", -9)
+    .text(function (d) { return d; });
+
+  var edge = svg.selectAll('.edge')
+    .data(data)
+    .enter()
+    .append('g')
+    .attr('class','edge');
+  
+  var line = edge.selectAll('line')
+    .data(function(d){
+      var r = [];
+      for (var i = 0; i < d.d.length; i++) {
+        r.push({'d':d.d[i],'x':d.x,'y':d.y});        
+      }
+      return r;
+    })
+    .enter()
+    .append('line')
+    .attr('x1',function(d,i){return x(i);})
+    .attr('x2',function(d,i){return x(i+1);})
+    .attr('y1',function(d,i){return y(d.y);})
+    .attr('y2',function(d,i){return y(d.x);})
+    .style('stroke',function(d){return scaleColor(d.d);})
+    ;
+    
+
+}
+
+
 function renderProjectView(pcaResult) {
   var margin = { top: 20, right: 20, bottom: 30, left: 40 },
-    width = 960 - margin.left - margin.right,
-    height = 500 - margin.top - margin.bottom;
+    width = 800 - margin.left - margin.right,
+    height = 400 - margin.top - margin.bottom;
 
   var x = d3.scale.linear()
     .range([0, width]);
@@ -70,37 +141,38 @@ function renderProjectView(pcaResult) {
     .attr("dy", ".71em")
     .style("text-anchor", "end")
     .text("Axis Y");
-  
+
   var gDots = svg.append('g')
-    .attr('class','dots');
-  
+    .attr('class', 'dots');
+
   var dots = gDots.selectAll(".dot")
     .data(data)
     .enter().append("circle")
     .attr("class", "dot")
-    .attr('id',function(d,i){return 'dot'+i;})
+    .attr('id', function (d, i) { return 'dot' + i; })
     .attr("r", 3.5)
     .attr("cx", function (d) { return x(d[0]); })
     .attr("cy", function (d) { return y(d[1]); });
 
 
   var brush = svg.append("g")
-      .attr("class", "brush")
-      .call(d3.svg.brush()
-        .x(x)
-        .y(y)
-        .on("brushend", function() {
-          var extent = d3.event.target.extent();
-          selectedEdges = [];
-          dots.classed("selected", function(d,i) {
-            var flag = extent[0][0] <= d[0] && d[0] < extent[1][0] && extent[0][1] <= d[1] && d[1] < extent[1][1];
-            if(flag){
-              selectedEdges.push(i);
-            }
-            return flag;
-          });
-          console.log(selectedEdges);
-        }));
+    .attr("class", "brush")
+    .call(d3.svg.brush()
+      .x(x)
+      .y(y)
+      .on("brushend", function () {
+        var extent = d3.event.target.extent();
+        selectedEdges = [];
+        dots.classed("selected", function (d, i) {
+          var flag = extent[0][0] <= d[0] && d[0] < extent[1][0] && extent[0][1] <= d[1] && d[1] < extent[1][1];
+          if (flag) {
+            selectedEdges.push(i);
+          }
+          return flag;
+        });
+        // console.log(selectedEdges);
+        renderSelectedBands(selectedEdges);
+      }));
 
 
   var legend = svg.selectAll(".legend")
@@ -125,10 +197,24 @@ function renderProjectView(pcaResult) {
 
 }
 
+function renderSelectedBands(idList) {
+  var selectedTieData = [];
+  for (var i = 0; i < idList.length; i++) {
+    var id = idList[i];
+    selectedTieData.push(tieData[id]);
+  }
+  renderBands(selectedTieData, timelist);
+  renderBipartite(selectedTieData);
+}
 
-function render(tieData, nodelist, timelist) {
+// render([{'d':[100,200,300]},{'d':[110,120,130]},{'d':[200,22,23]}],[],['a','b','c'])
+function renderBands(tieData, timelist) {
+  // console.log(tieData);
+  d3.select('#bandView').selectAll('svg').remove();
+
   var bandViewWidth = 200;
-  var bandViewHeight = 8000;
+  var bandViewHeightPerBand = 20;
+  var bandViewHeight = bandViewHeightPerBand * tieData.length;
 
   var bandView = d3.select('#bandView').append('svg')
     .attr('width', bandViewWidth)
@@ -137,7 +223,6 @@ function render(tieData, nodelist, timelist) {
   var scaleY = d3.scale.linear()
     .domain([0, tieData.length])
     .range([0, bandViewHeight]);
-  var singleHeight = bandViewHeight / tieData.length * 0.8;
 
   var bar = bandView.selectAll('g')
     .data(tieData)
@@ -154,10 +239,6 @@ function render(tieData, nodelist, timelist) {
     .range([0, bandViewWidth]);
   var singleWidth = bandViewWidth / timelist.length;
 
-  var scaleClor = d3.scale.linear()
-    .domain([0, 1000])
-    .range(['white', 'red']);
-
   var rect = bar.selectAll('rect')
     .data(function (d) { return d['d']; })
     .enter()
@@ -167,7 +248,7 @@ function render(tieData, nodelist, timelist) {
     .attr('x', function (d, i) { return scaleX(i); })
   // .attr('y', function(d,i){return scaleY(i);})
     .attr('width', singleWidth)
-    .attr('height', singleHeight)
-    .style('fill', function (d) { return scaleClor(d); })
+    .attr('height', bandViewHeightPerBand * 0.8)
+    .style('fill', function (d) {return scaleColor(d); })
   ;
 };
