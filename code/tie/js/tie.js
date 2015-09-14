@@ -36,7 +36,7 @@ function renderBipartite(data) {
 
   var x = d3.scale.ordinal()
     .rangePoints([0, width], 1)
-    .domain(d3.range(timelist.length+1));
+    .domain(d3.range(timelist.length + 1));
   var y = d3.scale.linear()
     .domain([0, nodelist.length])
     .range([height, 0]);
@@ -52,7 +52,7 @@ function renderBipartite(data) {
   // Add an axis and title.
   var axis = d3.svg.axis()
     .scale(y)
-    .orient("left");  
+    .orient("left");
   svg.append("g")
     .attr("class", "axis")
     .call(axis)
@@ -65,25 +65,25 @@ function renderBipartite(data) {
     .data(data)
     .enter()
     .append('g')
-    .attr('class','edge');
-  
+    .attr('class', 'edge');
+
   var line = edge.selectAll('line')
-    .data(function(d){
+    .data(function (d) {
       var r = [];
       for (var i = 0; i < d.d.length; i++) {
-        r.push({'d':d.d[i],'x':d.x,'y':d.y});        
+        r.push({ 'd': d.d[i], 'x': d.x, 'y': d.y });
       }
       return r;
     })
     .enter()
     .append('line')
-    .attr('x1',function(d,i){return x(i);})
-    .attr('x2',function(d,i){return x(i+1);})
-    .attr('y1',function(d,i){return y(d.y);})
-    .attr('y2',function(d,i){return y(d.x);})
-    .style('stroke',function(d){return scaleColor(d.d);})
+    .attr('x1', function (d, i) { return x(i); })
+    .attr('x2', function (d, i) { return x(i + 1); })
+    .attr('y1', function (d, i) { return y(d.y); })
+    .attr('y2', function (d, i) { return y(d.x); })
+    .style('stroke', function (d) { return scaleColor(d.d); })
     ;
-    
+
 
 }
 
@@ -213,8 +213,22 @@ function renderBands(tieData, timelist) {
   d3.select('#bandView').selectAll('svg').remove();
 
   var bandViewWidth = 200;
-  var bandViewHeightPerBand = 20;
-  var bandViewHeight = bandViewHeightPerBand * tieData.length;
+  var bandViewHeight = 400;
+  
+  // adaptive band height
+  var bandHeightMin = 2;
+  var bandHeightMax = 18;
+  var interBandHeight = 2;
+  var nBands = tieData.length;
+  var bandHeight = bandViewHeight / nBands - interBandHeight;
+  if (bandHeight < bandHeightMin) {
+    bandHeight = bandHeightMin;
+  }
+  else if (bandHeight > bandHeightMax) {
+    bandHeight = bandHeightMax;
+  }
+
+  bandViewHeight = (bandHeight + interBandHeight) * nBands;
 
   var bandView = d3.select('#bandView').append('svg')
     .attr('width', bandViewWidth)
@@ -248,7 +262,7 @@ function renderBands(tieData, timelist) {
     .attr('x', function (d, i) { return scaleX(i); })
   // .attr('y', function(d,i){return scaleY(i);})
     .attr('width', singleWidth)
-    .attr('height', bandViewHeightPerBand * 0.8)
-    .style('fill', function (d) {return scaleColor(d); })
+    .attr('height', bandHeight)
+    .style('fill', function (d) { return scaleColor(d); })
   ;
 };
