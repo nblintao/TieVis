@@ -8,7 +8,9 @@ var scaleColor = d3.scale.linear()
   .range(['white', 'red']);
 
 var selectedEdges = [];
-var tieData, timelist, nodelist;
+var tieData, timelist, nodelist, nodeLink;
+var links;
+
 d3.json(options.dataset + '/tieDataParallel.json', function (data1) {
   tieData = data1;
   d3.json(options.dataset + '/timelist.json', function (data2) {
@@ -16,6 +18,10 @@ d3.json(options.dataset + '/tieDataParallel.json', function (data1) {
     d3.json(options.dataset + '/nodelist.json', function (data3) {
       nodelist = data3;
       // renderBipartite([]);
+      d3.json(options.dataset + '/nodelink.json', function (data4) {
+        nodeLink = data4;
+        initializeNodeLinkView(nodelist, nodeLink);
+      });
     });
     renderBands(tieData, timelist);
   });
@@ -31,7 +37,7 @@ d3.json(options.dataset + '/pcaResult.json', function (pcaResult) {
 function renderBipartite(data) {
 
   var margin = { top: 10, right: 10, bottom: 10, left: 30 },
-    width = 960 - margin.left - margin.right,
+    width = 800 - margin.left - margin.right,
     height = 350 - margin.top - margin.bottom;
 
   var x = d3.scale.ordinal()
@@ -171,7 +177,7 @@ function renderProjectView(pcaResult) {
           return flag;
         });
         // console.log(selectedEdges);
-        renderSelectedBands(selectedEdges);
+        renderSelectedEdges(selectedEdges);
       }));
 
 
@@ -197,7 +203,7 @@ function renderProjectView(pcaResult) {
 
 }
 
-function renderSelectedBands(idList) {
+function renderSelectedEdges(idList) {
   var selectedTieData = [];
   for (var i = 0; i < idList.length; i++) {
     var id = idList[i];
@@ -205,6 +211,13 @@ function renderSelectedBands(idList) {
   }
   renderBands(selectedTieData, timelist);
   renderBipartite(selectedTieData);
+  renderLinks(idList);
+}
+
+function renderLinks(idList) {
+  links.classed("selected", function (d) {
+    return idList.indexOf(d.id) !== -1;
+  });
 }
 
 // render([{'d':[100,200,300]},{'d':[110,120,130]},{'d':[200,22,23]}],[],['a','b','c'])
@@ -267,15 +280,23 @@ function renderBands(tieData, timelist) {
   ;
 };
 
-function initializeNodeLinkView(nodeList) {
-  var width = 960,
-    height = 500;
+function initializeNodeLinkView(nodelist, nodeLink) {
+  var width = 400,
+    height = 350;
     
   // var color = d3.scale.category20();
+  
+  var nodeNameList = [];
+  for (var i = 0; i < nodelist.length; i++) {
+    var t = nodelist[i];
+    nodeNameList.push({ 'name': t });
 
+  }
+  
+  // console.log(nodeNameList, nodeLink);
   var force = d3.layout.force()
-    .charge(-120)
-    .linkDistance(30)
+    .charge(-80)
+    .linkDistance(50)
     .size([width, height]);
 
   var svg = d3.select("#nodeLinkView").append("svg")
@@ -283,29 +304,31 @@ function initializeNodeLinkView(nodeList) {
     .attr("height", height);
 
   force
-    .nodes(nodelist)
-    .links(graph.links)
+    .nodes(nodeNameList)
+    .links(nodeLink)
     .start();
 
-  var link = svg.selectAll(".link")
-    .data(graph.links)
+  links = svg.selectAll(".link")
+    .data(nodeLink)
     .enter().append("line")
     .attr("class", "link")
-    .style("stroke-width", function (d) { return Math.sqrt(d.value); });
+    .style("stroke-width", function (d) { return Math.sqrt(d.value); })
+    .attr('id', function (d) { return 'f' + d.source.index + 't' + d.target.index; })
+    .each(function (d, i) { d.id = i; });
 
   var node = svg.selectAll(".node")
-    .data(graph.nodes)
+    .data(nodeNameList)
     .enter().append("circle")
     .attr("class", "node")
     .attr("r", 5)
-    // .style("fill", function (d) { return color(d.group); })
+  // .style("fill", function (d) { return color(d.group); })
     .call(force.drag);
 
   node.append("title")
-    .text(function (d) { return d; });
+    .text(function (d) { return d.name; });
 
   force.on("tick", function () {
-    link.attr("x1", function (d) { return d.source.x; })
+    links.attr("x1", function (d) { return d.source.x; })
       .attr("y1", function (d) { return d.source.y; })
       .attr("x2", function (d) { return d.target.x; })
       .attr("y2", function (d) { return d.target.y; });

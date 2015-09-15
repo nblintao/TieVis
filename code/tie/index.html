@@ -46,12 +46,17 @@
 		.node {
 			stroke: #fff;
 			stroke-width: 1.5px;
+			fill: #999;
 		}
-		
+	
 		.link {
-			stroke: #999;
-			stroke-opacity: .6;
+			stroke: steelblue;
+			stroke-opacity: .05;
 		}
+		.link.selected{
+			stroke-opacity: 1;
+		}			
+
 	</style>
 </head>
 
@@ -59,8 +64,8 @@
 	<script src="js/tie.js"></script>
 	<div id="bandView"></div>
 	<div id="projectView"></div>
+	<div id="nodeLinkView"></div>	
 	<div id="bipartiteView"></div>
-	<div id="nodeLinkView"></div>
 </body>
 
 </html>
