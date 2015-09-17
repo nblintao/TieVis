@@ -1,0 +1,64 @@
+<html>
+<head>
+<script src = "numeric.min.js"></script>
+<script>
+function MDS(distances, dimensions) {
+    dimensions = dimensions || 2;
+
+    var M = numeric.mul(-.5, numeric.pow(distances, 2));
+
+    function mean(A) { return numeric.div(numeric.add.apply(null, A), A.length); }
+    var rowMeans = mean(M),
+        colMeans = mean(numeric.transpose(M)),
+        totalMean = mean(rowMeans);
+
+    for (var i = 0; i < M.length; ++i) {
+        for (var j =0; j < M[0].length; ++j) {
+            M[i][j] += totalMean - rowMeans[i] - colMeans[j];
+        }
+    }
+
+    var ret = numeric.svd(M),
+        eigenValues = numeric.sqrt(ret.S);
+    return ret.U.map(function(row) {
+        return numeric.mul(row, eigenValues).splice(0, dimensions);
+    });
+};
+</script>
+</head>
+
+<body>
+<script src="d3.min.js"></script>
+<script>
+
+d3.json('tieDataParallel.json', function (tieData){
+var dat = [];
+
+  for (i=0; i<5; i++){
+    var t = [];
+    for (j=0; j<5; j++){
+      t.push(dist(tieData, i, j));
+    }
+    dat.push(t);
+  }
+
+p = MDS(dat, 1);
+
+console.log(dat);
+console.log(p);
+
+});
+
+function dist(d, a, b){
+  var i, ret=0, p, q;
+  for (i=0; i<24; i++){
+    p = +d[a].d[i];
+    q = +d[b].d[i];
+    ret += (p-q)*(p-q);
+  }
+  return Math.sqrt(ret);
+}
+
+</script>
+</body>
+</html>
