@@ -1,6 +1,9 @@
+/* global numeric */
 /* global d3 */
 var options = {
-  dataset: 'parse'
+  dataset: 'parse',
+  doMDS: true,
+  thresholdMDS: 500
 };
 
 var scaleColor = d3.scale.linear()
@@ -220,8 +223,72 @@ function renderLinks(idList) {
   });
 }
 
-// render([{'d':[100,200,300]},{'d':[110,120,130]},{'d':[200,22,23]}],[],['a','b','c'])
+function changeOrder(tieData) {
+  var dat = [];
+  var len = tieData.length;
+  for (var i = 0; i < len; i++) {
+    var t = [];
+    for (var j = 0; j < len; j++) {
+      t.push(dist(tieData, i, j));
+    }
+    dat.push(t);
+  }
+
+  var p = MDS(dat, 1);
+
+  // console.log(dat);
+  // console.log(p);
+
+  for (var i = 0; i < len; i++) {
+    tieData[i].p = p[i][0];
+  }
+  tieData.sort(function (a, b) { return a.p - b.p; });
+
+
+  function dist(d, a, b) {
+    var i, ret = 0, p, q;
+    for (i = 0; i < 24; i++) {
+      p = +d[a].d[i];
+      q = +d[b].d[i];
+      ret += (p - q) * (p - q);
+    }
+    return Math.sqrt(ret);
+  }
+
+  function MDS(distances, dimensions) {
+    dimensions = dimensions || 2;
+
+    var M = numeric.mul(-.5, numeric.pow(distances, 2));
+
+    function mean(A) { return numeric.div(numeric.add.apply(null, A), A.length); }
+    var rowMeans = mean(M),
+      colMeans = mean(numeric.transpose(M)),
+      totalMean = mean(rowMeans);
+
+    for (var i = 0; i < M.length; ++i) {
+      for (var j = 0; j < M[0].length; ++j) {
+        M[i][j] += totalMean - rowMeans[i] - colMeans[j];
+      }
+    }
+
+    var ret = numeric.svd(M),
+      eigenValues = numeric.sqrt(ret.S);
+    return ret.U.map(function (row) {
+      return numeric.mul(row, eigenValues).splice(0, dimensions);
+    });
+  };
+}
+
 function renderBands(tieData, timelist) {
+  var nBands = tieData.length;
+
+  if (options.doMDS && nBands > 2 && nBands < options.thresholdMDS) {
+    console.log('Doing MDS to ' + nBands + ' bands');
+    changeOrder(tieData);
+  }
+  // else{
+  //   console.log('No MDS to ' + nBands + ' bands');    
+  // }
   // console.log(tieData);
   d3.select('#bandView').selectAll('svg').remove();
 
@@ -232,7 +299,6 @@ function renderBands(tieData, timelist) {
   var bandHeightMin = 2;
   var bandHeightMax = 18;
   var interBandHeight = 2;
-  var nBands = tieData.length;
   var bandHeight = bandViewHeight / nBands - interBandHeight;
   if (bandHeight < bandHeightMin) {
     bandHeight = bandHeightMin;
