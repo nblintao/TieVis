@@ -151,7 +151,7 @@ function renderBipartiteCrossReduction(data) {
       }
 
     }
-    // console.log(nodeOrder[step + 1]);
+    console.log(nodeOrder[step + 1]);
   }
   
   // start rendering
@@ -169,8 +169,13 @@ function renderBipartiteCrossReduction(data) {
   var y = function (value, step) {
     console.log(nodeOrder[step].indexOf(value));
     return oldY(nodeOrder[step].indexOf(value));
-  }
-
+  };
+  
+  // // same order for each line
+  // var y = function (value, step) {
+  //   console.log(nodeOrder[0].indexOf(value));
+  //   return oldY(nodeOrder[0].indexOf(value));
+  // };
   d3.select("#bipartiteView").selectAll('svg').remove();
 
   var svg = d3.select("#bipartiteView").append("svg")
