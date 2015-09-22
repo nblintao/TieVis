@@ -1,14 +1,36 @@
 /* global numeric */
 /* global d3 */
+
+var datasets = ['parse', 'tiedata'];
+var bipartiteTypes = ['Original', 'CrossReduction'];
 var options = {
-  dataset: 'parse',
+  dataset: datasets[1],
+  bipartiteType: bipartiteTypes[1],
   doMDS: true,
-  thresholdMDS: 500
+  thresholdMDS: 500,
 };
 
+var fullColor;
+switch (options.dataset) {
+  case 'parse':
+    fullColor = 1000;
+    break;
+  case 'tiedata':
+    fullColor = 1;
+  default:
+    break;
+}
 var scaleColor = d3.scale.linear()
-  .domain([0, 1000])
-  .range(['white', 'red']);
+  .domain([0, fullColor])
+  .range(['rgb(200,200,200)', 'rgb(16,16,16)']);
+
+var scaleColor2 = function (d) {
+  if (d === 0) {
+    return 'white';
+  } else {
+    return scaleColor(d);
+  }
+};
 
 var selectedEdges = [];
 var tieData, timelist, nodelist, nodeLink;
@@ -36,8 +58,165 @@ d3.json(options.dataset + '/pcaResult.json', function (pcaResult) {
   renderProjectView(pcaResult);
 });
 
-
 function renderBipartite(data) {
+  switch (options.bipartiteType) {
+    case 'Original':
+      renderBipartiteOriginal(data);
+      break;
+    case 'CrossReduction':
+      renderBipartiteCrossReduction(data);
+    default:
+      break;
+  }
+}
+
+function renderBipartiteCrossReduction(data) {
+  // find related nodes
+  var relatedNodes = new Set();
+  for (var i = 0; i < data.length; i++) {
+    var d = data[i];
+    for (var j = 0; j < d.d.length; j++) {
+      relatedNodes.add(d.x);
+      relatedNodes.add(d.y);
+    }
+  }
+  // console.log(relatedNodes);
+  var nNodes = relatedNodes.size;
+  var periods = timelist.length;
+  var nodeOrder = new Array(periods + 1);
+  
+  // shuffle for the first line
+  nodeOrder[0] = [];
+  for (var entry of relatedNodes) {
+    nodeOrder[0].push(entry);
+    // console.log(entry);
+  }
+  nodeOrder[0].sort(function (a, b) { return Math.random() > .5 ? -1 : 1; });
+  console.log(nodeOrder[0]);
+  
+  // calculate order for each line
+  for (var step = 0; step < periods; step++) {
+    nodeOrder[step + 1] = new Array(nNodes);
+    var info = {};
+    for (var i = 0; i < data.length; i++) {
+      var t = data[i];
+      if (t.d[step] === 0) {
+        continue;
+      } else {
+        // console.log(t);
+        if (!info[t.x]) {
+          info[t.x] = [];
+        }
+        info[t.x].push(t.y);
+      }
+    }
+    // console.log(info);
+    // find position for each end point
+    for (var key in info) {
+      if (info.hasOwnProperty(key)) {
+        var element = info[key];
+        var posList = [];
+        for (var it in element) {
+          posList.push(nodeOrder[step].indexOf(element[it]));
+        }
+        var bestPos = Math.floor(d3.median(posList));
+        // console.log('best', bestPos, posList);
+        var offset = 0;
+        var pos;
+        while (true) {
+          pos = bestPos - offset;
+          if (pos >= 0 && pos < nNodes && !nodeOrder[step + 1][pos]) {
+            break;
+          }
+          offset += 1;
+          pos = bestPos + offset;
+          if (pos >= 0 && pos < nNodes && !nodeOrder[step + 1][pos]) {
+            break;
+          }
+        }
+        nodeOrder[step + 1][pos] = +key;
+        // console.log(pos);
+      }
+    }
+    
+    //add other data
+    var blankPos = 0;
+    for (var i = 0; i < nodeOrder[0].length; i++) {
+      var e = nodeOrder[0][i];
+      if (nodeOrder[step + 1].indexOf(e) === -1) {
+        while (nodeOrder[step + 1][blankPos]) {
+          blankPos++;
+        }
+        nodeOrder[step + 1][blankPos] = e;
+      }
+
+    }
+    // console.log(nodeOrder[step + 1]);
+  }
+  
+  // start rendering
+  var margin = { top: 10, right: 10, bottom: 10, left: 30 },
+    width = 800 - margin.left - margin.right,
+    height = 350 - margin.top - margin.bottom;
+
+  var x = d3.scale.ordinal()
+    .rangePoints([0, width], 1)
+    .domain(d3.range(timelist.length + 1));
+  // different !!!
+  var oldY = d3.scale.linear()
+    .domain([0, nNodes-1])
+    .range([height, 0]);
+  var y = function (value, step) {
+    console.log(nodeOrder[step].indexOf(value));
+    return oldY(nodeOrder[step].indexOf(value));
+  }
+
+  d3.select("#bipartiteView").selectAll('svg').remove();
+
+  var svg = d3.select("#bipartiteView").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+    .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+  // Add an axis and title.
+  var axis = d3.svg.axis()
+    .scale(oldY)
+    .orient("left");
+  svg.append("g")
+    .attr("class", "axis")
+    .call(axis)
+    .append("text")
+    .style("text-anchor", "middle")
+    .attr("y", -9)
+    .text(function (d) { return d; });
+
+  var edge = svg.selectAll('.edge')
+    .data(data)
+    .enter()
+    .append('g')
+    .attr('class', 'edge');
+
+  var line = edge.selectAll('line')
+    .data(function (d) {
+      var r = [];
+      for (var i = 0; i < d.d.length; i++) {
+        r.push({ 'd': d.d[i], 'x': d.x, 'y': d.y });
+      }
+      return r;
+    })
+    .enter()
+    .append('line')
+    .attr('x1', function (d, i) { return x(i); })
+    .attr('x2', function (d, i) { return x(i + 1); })
+    .attr('y1', function (d, i) { return y(d.y, i); })
+    .attr('y2', function (d, i) { return y(d.x, i + 1); })
+    .style('stroke', function (d) { return scaleColor(d.d); })
+    ;
+
+}
+
+function renderBipartiteOriginal(data) {
 
   var margin = { top: 10, right: 10, bottom: 10, left: 30 },
     width = 800 - margin.left - margin.right,
@@ -212,6 +391,7 @@ function renderSelectedEdges(idList) {
     var id = idList[i];
     selectedTieData.push(tieData[id]);
   }
+  console.log(idList, selectedTieData);
   renderBands(selectedTieData, timelist);
   renderBipartite(selectedTieData);
   renderLinks(idList);
@@ -342,7 +522,7 @@ function renderBands(tieData, timelist) {
   // .attr('y', function(d,i){return scaleY(i);})
     .attr('width', singleWidth)
     .attr('height', bandHeight)
-    .style('fill', function (d) { return scaleColor(d); })
+    .style('fill', function (d) { return scaleColor2(d); })
   ;
 };
 
