@@ -8,6 +8,10 @@ var options = {
   bipartiteType: bipartiteTypes[1],
   doMDS: true,
   thresholdMDS: 500,
+  timelineWidth: 600,
+  timeLeftMargin: 30,
+  rightWidth: 600
+
 };
 
 var fullColor;
@@ -155,8 +159,9 @@ function renderBipartiteCrossReduction(data) {
   }
   
   // start rendering
-  var margin = { top: 10, right: 10, bottom: 10, left: 30 },
-    width = 800 - margin.left - margin.right,
+  var margin = { top: 10, right: 10, bottom: 10, left: options.timeLeftMargin },
+    // width = 800 - margin.left - margin.right,
+    width = options.timelineWidth,
     height = 350 - margin.top - margin.bottom;
 
   var x = d3.scale.ordinal()
@@ -283,7 +288,8 @@ function renderBipartiteOriginal(data) {
 
 function renderProjectView(pcaResult) {
   var margin = { top: 20, right: 20, bottom: 30, left: 40 },
-    width = 800 - margin.left - margin.right,
+    // width = 800 - margin.left - margin.right,
+    width = options.rightWidth - margin.left - margin.right,
     height = 400 - margin.top - margin.bottom;
 
   var x = d3.scale.linear()
@@ -310,7 +316,7 @@ function renderProjectView(pcaResult) {
   var zoom = d3.behavior.zoom()
     .x(x)
     .y(y)
-    // .scaleExtent([1, 10])
+  // .scaleExtent([1, 10])
     .on("zoom", zoomed);
 
   var svg = d3.select("#projectView").append("svg")
@@ -319,8 +325,8 @@ function renderProjectView(pcaResult) {
     .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
     .call(zoom)
-    // http://stackoverflow.com/questions/13713528/how-to-disable-pan-for-d3-behavior-zoom
-    .on("mousedown.zoom", null) ;
+  // http://stackoverflow.com/questions/13713528/how-to-disable-pan-for-d3-behavior-zoom
+    .on("mousedown.zoom", null);
 
   svg.append("g")
     .attr("class", "x axis")
@@ -506,7 +512,8 @@ function renderBands(tieData, timelist) {
   // console.log(tieData);
   d3.select('#bandView').selectAll('svg').remove();
 
-  var bandViewWidth = 200;
+  // var bandViewWidth = 200;
+  var bandViewWidth = options.timelineWidth;
   var bandViewHeight = 400;
   
   // adaptive band height
@@ -524,8 +531,10 @@ function renderBands(tieData, timelist) {
   bandViewHeight = (bandHeight + interBandHeight) * nBands;
 
   var bandView = d3.select('#bandView').append('svg')
-    .attr('width', bandViewWidth)
-    .attr('height', bandViewHeight);
+    .attr('width', bandViewWidth + options.timeLeftMargin)
+    .attr('height', bandViewHeight)
+    .append('g')
+    .attr("transform", "translate(" + options.timeLeftMargin + ",0)");
 
   var scaleY = d3.scale.linear()
     .domain([0, tieData.length])
@@ -561,7 +570,7 @@ function renderBands(tieData, timelist) {
 };
 
 function initializeNodeLinkView(nodelist, nodeLink) {
-  var width = 400,
+  var width = options.rightWidth,
     height = 350;
     
   // var color = d3.scale.category20();
