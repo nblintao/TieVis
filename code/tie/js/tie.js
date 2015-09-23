@@ -164,7 +164,7 @@ function renderBipartiteCrossReduction(data) {
     .domain(d3.range(timelist.length + 1));
   // different !!!
   var oldY = d3.scale.linear()
-    .domain([0, nNodes-1])
+    .domain([0, nNodes - 1])
     .range([height, 0]);
   var y = function (value, step) {
     console.log(nodeOrder[step].indexOf(value));
@@ -302,16 +302,23 @@ function renderProjectView(pcaResult) {
     .scale(y)
     .orient("left");
 
-  var svg = d3.select("#projectView").append("svg")
-    .attr("width", width + margin.left + margin.right)
-    .attr("height", height + margin.top + margin.bottom)
-    .append("g")
-    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
   var data = pcaResult;
 
   x.domain(d3.extent(data, function (d) { return d[0]; })).nice();
   y.domain(d3.extent(data, function (d) { return d[1]; })).nice();
+
+  var zoom = d3.behavior.zoom()
+    .x(x)
+    .y(y)
+    .scaleExtent([1, 10])
+    .on("zoom", zoomed);
+
+  var svg = d3.select("#projectView").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+    .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+    .call(zoom);
 
   svg.append("g")
     .attr("class", "x axis")
@@ -335,8 +342,15 @@ function renderProjectView(pcaResult) {
     .style("text-anchor", "end")
     .text("Axis Y");
 
+  svg.append("clipPath")
+    .attr("id", "clip")
+    .append("rect")
+    .attr("width", width)
+    .attr("height", height);
+
   var gDots = svg.append('g')
-    .attr('class', 'dots');
+    .attr('class', 'dots')
+    .attr("clip-path", "url(#clip)");
 
   var dots = gDots.selectAll(".dot")
     .data(data)
@@ -346,6 +360,19 @@ function renderProjectView(pcaResult) {
     .attr("r", 3.5)
     .attr("cx", function (d) { return x(d[0]); })
     .attr("cy", function (d) { return y(d[1]); });
+
+  function zoomed() {
+    svg.select(".x.axis").call(xAxis);
+    svg.select(".y.axis").call(yAxis);
+
+    // gDots.selectAll('circle').attr("transform", function (d) {
+    //   return "translate(" + x(d[0]) + "," + y(d[1]) + ")";
+    // });
+    
+    gDots.selectAll('circle')
+      .attr("cx", function (d) { return x(d[0]); })
+      .attr("cy", function (d) { return y(d[1]); });
+  }
 
 
   var brush = svg.append("g")
