@@ -310,7 +310,7 @@ function renderProjectView(pcaResult) {
   var zoom = d3.behavior.zoom()
     .x(x)
     .y(y)
-    .scaleExtent([1, 10])
+    // .scaleExtent([1, 10])
     .on("zoom", zoomed);
 
   var svg = d3.select("#projectView").append("svg")
@@ -318,7 +318,9 @@ function renderProjectView(pcaResult) {
     .attr("height", height + margin.top + margin.bottom)
     .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-    .call(zoom);
+    .call(zoom)
+    // http://stackoverflow.com/questions/13713528/how-to-disable-pan-for-d3-behavior-zoom
+    .on("mousedown.zoom", null) ;
 
   svg.append("g")
     .attr("class", "x axis")
