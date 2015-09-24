@@ -155,7 +155,7 @@ function renderBipartiteCrossReduction(data) {
       }
 
     }
-    console.log(nodeOrder[step + 1]);
+    // console.log(nodeOrder[step + 1]);
   }
   
   // start rendering
@@ -164,15 +164,21 @@ function renderBipartiteCrossReduction(data) {
     width = options.timelineWidth,
     height = 350 - margin.top - margin.bottom;
 
-  var x = d3.scale.ordinal()
-    .rangePoints([0, width], 1)
-    .domain(d3.range(timelist.length + 1));
+  // var x = d3.scale.ordinal()
+  //   .rangePoints([0, width], 1)
+  //   .domain(d3.range(timelist.length + 1));
+  
+   var x = d3.scale.linear()
+    .range([0, width])
+    .domain([0,timelist.length]);
+ 
+  
   // different !!!
   var oldY = d3.scale.linear()
     .domain([0, nNodes - 1])
     .range([height, 0]);
   var y = function (value, step) {
-    console.log(nodeOrder[step].indexOf(value));
+    // console.log(nodeOrder[step].indexOf(value));
     return oldY(nodeOrder[step].indexOf(value));
   };
   
@@ -211,21 +217,25 @@ function renderBipartiteCrossReduction(data) {
     .data(function (d) {
       var r = [];
       for (var i = 0; i < d.d.length; i++) {
-        r.push({ 'd': d.d[i], 'x': d.x, 'y': d.y });
+        if(d.d[i]!==0){
+            r.push({ 'd': d.d[i], 'x': d.x, 'y': d.y , 'i':i});
+            // y/x means from/to here
+        }
       }
       return r;
     })
     .enter()
     .append('line')
-    .attr('x1', function (d, i) { return x(i); })
-    .attr('x2', function (d, i) { return x(i + 1); })
-    .attr('y1', function (d, i) { return y(d.y, i); })
-    .attr('y2', function (d, i) { return y(d.x, i + 1); })
-    .style('stroke', function (d) { return scaleColor(d.d); })
+    .attr('x1', function (d, i) { return x(d.i); })
+    .attr('x2', function (d, i) { return x(d.i + 1); })
+    .attr('y1', function (d, i) { return y(d.y, d.i); })
+    .attr('y2', function (d, i) { return y(d.x, d.i + 1); })
+    .style('stroke', function (d) { return scaleColor2(d.d); })
     ;
 
 }
 
+//deprecate
 function renderBipartiteOriginal(data) {
 
   var margin = { top: 10, right: 10, bottom: 10, left: 30 },
@@ -279,7 +289,7 @@ function renderBipartiteOriginal(data) {
     .attr('x2', function (d, i) { return x(i + 1); })
     .attr('y1', function (d, i) { return y(d.y); })
     .attr('y2', function (d, i) { return y(d.x); })
-    .style('stroke', function (d) { return scaleColor(d.d); })
+    .style('stroke', function (d) { return scaleColor2(d.d); })
     ;
 
 
