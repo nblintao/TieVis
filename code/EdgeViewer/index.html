@@ -1,0 +1,33 @@
+<html>
+<head>
+	<title>TieVis</title>
+</head>
+<link href = "bower_components/bootstrap/dist/css/bootstrap.min.css" rel = "stylesheet">
+<script src = "bower_components/d3/d3.js"></script>
+<script src = "bower_components/jquery/dist/jquery.js"></script>
+<script src = "bower_components/underscore/underscore.js"></script>
+<script src = "bower_components/backbone/backbone.js"></script>
+<script src = "app.js"></script>
+<script src = "views/projection.js"></script>
+<script src = "views/band.js"></script>
+<script src = "views/bipartite.js"></script>
+<script src = "views/nodelink.js"></script>
+
+<body>
+	<div class = "clearfix">
+		<div class = "col-lg-1" id = "toolbox" style = "height:100%"></div>
+		<div class = "col-lg-5">
+			<div class = "row" id = "band" style = "height:50%"></div>
+			<div class = "row" id = "bipartite" style = "height:50%"></div>
+		</div>
+		<div class = "col-lg-5">
+			<div class = "row" id = "projection" style = "height:50%"></div>
+			<div class = "row" id = "nodelink" style = "height:50%"></div>
+		</div>
+		<div class = "col-lg-1" id = "infopanel" style = "height:100%"></div>
+	</div>
+	<script type="text/javascript">
+		tieVis.start();
+	</script>
+</body>
+</html>
