@@ -1,10 +1,10 @@
 /* global numeric */
 /* global d3 */
 
-var datasets = ['parse', 'tiedata'];
+var datasets = ['parse', 'tiedata','Enron_Mon'];
 var bipartiteTypes = ['Original', 'CrossReduction'];
 var options = {
-  dataset: datasets[1],
+  dataset: datasets[2],
   bipartiteType: bipartiteTypes[1],
   doMDS: true,
   thresholdMDS: 500,
@@ -21,6 +21,8 @@ switch (options.dataset) {
     break;
   case 'tiedata':
     fullColor = 1;
+  case 'Enron_Mon':
+    fullColor = 10;
   default:
     break;
 }
@@ -611,7 +613,7 @@ function initializeNodeLinkView(nodelist, nodeLink) {
     .data(nodeLink)
     .enter().append("line")
     .attr("class", "link")
-    .style("stroke-width", function (d) { return Math.sqrt(d.value); })
+    .style("stroke-width", function (d) { return Math.sqrt(d.value/fullColor); })
     .attr('id', function (d) { return 'f' + d.source.index + 't' + d.target.index; })
     .each(function (d, i) { d.id = i; });
 
