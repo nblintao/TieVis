@@ -1,7 +1,7 @@
 /* global numeric */
 /* global d3 */
 
-var datasets = ['parse', 'tiedata','Enron_Mon'];
+var datasets = ['parse', 'tiedata', 'Enron_Mon'];
 var bipartiteTypes = ['Original', 'CrossReduction'];
 var options = {
   dataset: datasets[2],
@@ -44,6 +44,8 @@ var links;
 
 d3.json(options.dataset + '/tieDataParallel.json', function (data1) {
   tieData = data1;
+  tieData.forEach(function (d, i) { d.i = i; });
+  // console.log(tieData);
   d3.json(options.dataset + '/timelist.json', function (data2) {
     timelist = data2;
     d3.json(options.dataset + '/nodelist.json', function (data3) {
@@ -98,7 +100,7 @@ function renderBipartiteCrossReduction(data) {
     // console.log(entry);
   }
   nodeOrder[0].sort(function (a, b) { return Math.random() > .5 ? -1 : 1; });
-  console.log(nodeOrder[0]);
+  // console.log(nodeOrder[0]);
   
   // calculate order for each line
   for (var step = 0; step < periods; step++) {
@@ -170,9 +172,9 @@ function renderBipartiteCrossReduction(data) {
   //   .rangePoints([0, width], 1)
   //   .domain(d3.range(timelist.length + 1));
   
-   var x = d3.scale.linear()
+  var x = d3.scale.linear()
     .range([0, width])
-    .domain([0,timelist.length]);
+    .domain([0, timelist.length]);
  
   
   // different !!!
@@ -213,15 +215,16 @@ function renderBipartiteCrossReduction(data) {
     .data(data)
     .enter()
     .append('g')
-    .attr('class', 'edge');
+    .attr('class', 'edge')
+    .on('mouseover', function (d) { hoverEdge(d.i); });
 
   var line = edge.selectAll('line')
     .data(function (d) {
       var r = [];
       for (var i = 0; i < d.d.length; i++) {
-        if(d.d[i]!==0){
-            r.push({ 'd': d.d[i], 'x': d.x, 'y': d.y , 'i':i});
-            // y/x means from/to here
+        if (d.d[i] !== 0) {
+          r.push({ 'd': d.d[i], 'x': d.x, 'y': d.y, 'i': i });
+          // y/x means from/to here
         }
       }
       return r;
@@ -238,64 +241,64 @@ function renderBipartiteCrossReduction(data) {
 }
 
 //deprecate
-function renderBipartiteOriginal(data) {
+// function renderBipartiteOriginal(data) {
 
-  var margin = { top: 10, right: 10, bottom: 10, left: 30 },
-    width = 800 - margin.left - margin.right,
-    height = 350 - margin.top - margin.bottom;
+//   var margin = { top: 10, right: 10, bottom: 10, left: 30 },
+//     width = 800 - margin.left - margin.right,
+//     height = 350 - margin.top - margin.bottom;
 
-  var x = d3.scale.ordinal()
-    .rangePoints([0, width], 1)
-    .domain(d3.range(timelist.length + 1));
-  var y = d3.scale.linear()
-    .domain([0, nodelist.length])
-    .range([height, 0]);
+//   var x = d3.scale.ordinal()
+//     .rangePoints([0, width], 1)
+//     .domain(d3.range(timelist.length + 1));
+//   var y = d3.scale.linear()
+//     .domain([0, nodelist.length])
+//     .range([height, 0]);
 
-  d3.select("#bipartiteView").selectAll('svg').remove();
+//   d3.select("#bipartiteView").selectAll('svg').remove();
 
-  var svg = d3.select("#bipartiteView").append("svg")
-    .attr("width", width + margin.left + margin.right)
-    .attr("height", height + margin.top + margin.bottom)
-    .append("g")
-    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+//   var svg = d3.select("#bipartiteView").append("svg")
+//     .attr("width", width + margin.left + margin.right)
+//     .attr("height", height + margin.top + margin.bottom)
+//     .append("g")
+//     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-  // Add an axis and title.
-  var axis = d3.svg.axis()
-    .scale(y)
-    .orient("left");
-  svg.append("g")
-    .attr("class", "axis")
-    .call(axis)
-    .append("text")
-    .style("text-anchor", "middle")
-    .attr("y", -9)
-    .text(function (d) { return d; });
+//   // Add an axis and title.
+//   var axis = d3.svg.axis()
+//     .scale(y)
+//     .orient("left");
+//   svg.append("g")
+//     .attr("class", "axis")
+//     .call(axis)
+//     .append("text")
+//     .style("text-anchor", "middle")
+//     .attr("y", -9)
+//     .text(function (d) { return d; });
 
-  var edge = svg.selectAll('.edge')
-    .data(data)
-    .enter()
-    .append('g')
-    .attr('class', 'edge');
+//   var edge = svg.selectAll('.edge')
+//     .data(data)
+//     .enter()
+//     .append('g')
+//     .attr('class', 'edge');
 
-  var line = edge.selectAll('line')
-    .data(function (d) {
-      var r = [];
-      for (var i = 0; i < d.d.length; i++) {
-        r.push({ 'd': d.d[i], 'x': d.x, 'y': d.y });
-      }
-      return r;
-    })
-    .enter()
-    .append('line')
-    .attr('x1', function (d, i) { return x(i); })
-    .attr('x2', function (d, i) { return x(i + 1); })
-    .attr('y1', function (d, i) { return y(d.y); })
-    .attr('y2', function (d, i) { return y(d.x); })
-    .style('stroke', function (d) { return scaleColor2(d.d); })
-    ;
+//   var line = edge.selectAll('line')
+//     .data(function (d) {
+//       var r = [];
+//       for (var i = 0; i < d.d.length; i++) {
+//         r.push({ 'd': d.d[i], 'x': d.x, 'y': d.y });
+//       }
+//       return r;
+//     })
+//     .enter()
+//     .append('line')
+//     .attr('x1', function (d, i) { return x(i); })
+//     .attr('x2', function (d, i) { return x(i + 1); })
+//     .attr('y1', function (d, i) { return y(d.y); })
+//     .attr('y2', function (d, i) { return y(d.x); })
+//     .style('stroke', function (d) { return scaleColor2(d.d); })
+//     ;
 
 
-}
+// }
 
 
 function renderProjectView(pcaResult) {
@@ -370,13 +373,17 @@ function renderProjectView(pcaResult) {
 
   var gDots = svg.append('g')
     .attr('class', 'dots')
-    .attr("clip-path", "url(#clip)");
+    .attr("clip-path", "url(#clip)")
+    ;
 
   var dots = gDots.selectAll(".dot")
     .data(data)
     .enter().append("circle")
     .attr("class", "dot")
     .attr('id', function (d, i) { return 'dot' + i; })
+  // cannot catch the event because of the brush background
+  // .attr('mouseover', function (d, i) { hoverEdge(i); })
+  // .style('pointer-events','all')    
     .attr("r", 3.5)
     .attr("cx", function (d) { return x(d[0]); })
     .attr("cy", function (d) { return y(d[1]); });
@@ -443,7 +450,7 @@ function renderSelectedEdges(idList) {
     var id = idList[i];
     selectedTieData.push(tieData[id]);
   }
-  console.log(idList, selectedTieData);
+  // console.log(idList, selectedTieData);
   renderBands(selectedTieData, timelist);
   renderBipartite(selectedTieData);
   renderLinks(idList);
@@ -511,6 +518,13 @@ function changeOrder(tieData) {
   };
 }
 
+function hoverEdge(i) {
+  var edge = tieData[i];
+  // console.log('hover edge from ' + edge.y + ' to ' + edge.x);
+  d3.select('#info').html(edge.y + '(' + nodelist[edge.y] + ')' + '->' + edge.x + '(' + nodelist[edge.x] + ') ' + edge.d);
+
+}
+
 function renderBands(tieData, timelist) {
   var nBands = tieData.length;
 
@@ -556,10 +570,12 @@ function renderBands(tieData, timelist) {
     .data(tieData)
     .enter()
     .append('g')
+    .attr('id', function (d) { return 'barf' + d.y + 't' + d.x; })
     .attr('transform', function (d, i) {
       return 'translate(0,' + scaleY(i) + ')';
     })
-    .attr('id', function (d, i) { return 'bar' + i; })
+    .on('mouseover', function (d, i) { hoverEdge(d.i); })
+  // .attr('id', function (d, i) { return 'bar' + i; })
     ;
 
   var scaleX = d3.scale.linear()
@@ -613,8 +629,15 @@ function initializeNodeLinkView(nodelist, nodeLink) {
     .data(nodeLink)
     .enter().append("line")
     .attr("class", "link")
-    .style("stroke-width", function (d) { return Math.sqrt(d.value/fullColor); })
+    .style("stroke-width", function (d) { return Math.sqrt(d.value / fullColor); })
     .attr('id', function (d) { return 'f' + d.source.index + 't' + d.target.index; })
+    .on('mouseover', function (d, i) {
+      // it diffcult for user to select exact one link from so many links
+      // so, only select from selected links
+      if (this.classList.contains('selected')) {
+        hoverEdge(i);
+      }
+    })
     .each(function (d, i) { d.id = i; });
 
   var node = svg.selectAll(".node")
