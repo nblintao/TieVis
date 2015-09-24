@@ -629,7 +629,8 @@ function initializeNodeLinkView(nodelist, nodeLink) {
     .data(nodeLink)
     .enter().append("line")
     .attr("class", "link")
-    .style("stroke-width", function (d) { return Math.sqrt(d.value / fullColor); })
+    // .style("stroke-width", function (d) { return Math.sqrt(d.value / fullColor); })
+    // .style("stroke-width", 2)
     .attr('id', function (d) { return 'f' + d.source.index + 't' + d.target.index; })
     .on('mouseover', function (d, i) {
       // it diffcult for user to select exact one link from so many links
