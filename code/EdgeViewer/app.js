@@ -51,7 +51,7 @@ var tieVis = {
 		}, inter, options);
 		var nodelink = new NodeLinkView({
 			el: "#nodelink"
-		}, inter);
+		}, inter, options);
 		proj.render();
 		band.render();
 		bipartite.render();
@@ -82,4 +82,4 @@ var tieVis = {
 			proj.renderProjectView(pcaResult);
 		});
 	}
-}
+};

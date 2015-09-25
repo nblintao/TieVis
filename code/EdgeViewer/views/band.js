@@ -13,6 +13,8 @@ var BandView = Backbone.View.extend({
 			console.log("event trigger");
 		});
 		this.options = options;
+		// Backbone.on('selectEdges',renderBands(selectedTieData, timelist);)
+		Backbone.on('selectEdges',this.renderBands,this);
 	},
 	render: function() {
 		var margin = this.defaults.margin;
@@ -28,11 +30,12 @@ var BandView = Backbone.View.extend({
 
 	},
 	renderBands: function(tieData, timelist) {
+		
 		var nBands = tieData.length;
 		var options = this.options;
 		if (options.doMDS && nBands > 2 && nBands < options.thresholdMDS) {
 			console.log('Doing MDS to ' + nBands + ' bands');
-			changeOrder(tieData);
+			this.changeOrder(tieData);
 		}
 		// else{
 		//   console.log('No MDS to ' + nBands + ' bands');    
@@ -74,7 +77,8 @@ var BandView = Backbone.View.extend({
 				return 'translate(0,' + scaleY(i) + ')';
 			})
 			.on('mouseover', function(d, i) {
-				hoverEdge(d.i);
+				// hoverEdge(d.i);
+				Backbone.trigger('hoverEdge',d.i);
 			})
 			// .attr('id', function (d, i) { return 'bar' + i; })
 		;
@@ -101,5 +105,60 @@ var BandView = Backbone.View.extend({
 			.style('fill', function(d) {
 				return options.scaleColor2(d);
 			});
+	},
+	changeOrder: function (tieData) {
+		var dat = [];
+		var len = tieData.length;
+		for (var i = 0; i < len; i++) {
+			var t = [];
+			for (var j = 0; j < len; j++) {
+				t.push(dist(tieData, i, j));
+			}
+			dat.push(t);
+		}
+
+		var p = MDS(dat, 1);
+
+		// console.log(dat);
+		// console.log(p);
+
+		for (var i = 0; i < len; i++) {
+			tieData[i].p = p[i][0];
+		}
+		tieData.sort(function (a, b) { return a.p - b.p; });
+
+
+		function dist(d, a, b) {
+			var i, ret = 0, p, q;
+			for (i = 0; i < 24; i++) {
+				p = +d[a].d[i];
+				q = +d[b].d[i];
+				ret += (p - q) * (p - q);
+			}
+			return Math.sqrt(ret);
+		}
+
+		function MDS(distances, dimensions) {
+			dimensions = dimensions || 2;
+
+			var M = numeric.mul(-.5, numeric.pow(distances, 2));
+
+			function mean(A) { return numeric.div(numeric.add.apply(null, A), A.length); }
+			var rowMeans = mean(M),
+				colMeans = mean(numeric.transpose(M)),
+				totalMean = mean(rowMeans);
+
+			for (var i = 0; i < M.length; ++i) {
+				for (var j = 0; j < M[0].length; ++j) {
+					M[i][j] += totalMean - rowMeans[i] - colMeans[j];
+				}
+			}
+
+			var ret = numeric.svd(M),
+				eigenValues = numeric.sqrt(ret.S);
+			return ret.U.map(function (row) {
+				return numeric.mul(row, eigenValues).splice(0, dimensions);
+			});
+		};
 	}
 })

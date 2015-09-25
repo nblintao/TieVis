@@ -133,7 +133,8 @@ var ProjectionView = Backbone.View.extend({
 					return y(d[1]);
 				});
 		}
-
+		
+		var theView = this;
 
 		var brush = svg.append("g")
 			.attr("class", "brush")
@@ -151,7 +152,7 @@ var ProjectionView = Backbone.View.extend({
 						return flag;
 					});
 					// console.log(selectedEdges);
-					renderSelectedEdges(selectedEdges);
+					theView.renderSelectedEdges(selectedEdges);
 				}));
 
 
@@ -177,6 +178,19 @@ var ProjectionView = Backbone.View.extend({
 			.text(function(d) {
 				return d;
 			});
+	},
+	renderSelectedEdges: function (idList) {
+		// console.log(selectedEdges);
+		var selectedTieData = [];
+		for (var i = 0; i < idList.length; i++) {
+			var id = idList[i];
+			selectedTieData.push(tieData[id]);
+		}
+		// console.log(idList, selectedTieData);
+		Backbone.trigger('selectEdges', selectedTieData, timelist, idList);
+		// renderBands(selectedTieData, timelist);
+		// renderBipartite(selectedTieData);
+		// renderLinks(idList);
 	}
 
 })

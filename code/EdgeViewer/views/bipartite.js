@@ -9,6 +9,7 @@ var BiPartiteView = Backbone.View.extend({
 	},
 	initialize:function(defaults, inter, options) {
 		this.options = options;
+		Backbone.on('selectEdges',this.renderBipartiteCrossReduction,this);
 	},
 	render: function() {
 		var margin = this.defaults.margin;
@@ -173,7 +174,8 @@ var BiPartiteView = Backbone.View.extend({
 			.append('g')
 			.attr('class', 'edge')
 			.on('mouseover', function(d) {
-				hoverEdge(d.i);
+				// hoverEdge(d.i);
+				Backbone.trigger('hoverEdge', d.i);
 			});
 
 		var line = edge.selectAll('line')
@@ -207,7 +209,7 @@ var BiPartiteView = Backbone.View.extend({
 				return y(d.x, d.i + 1);
 			})
 			.style('stroke', function(d) {
-				return scaleColor2(d.d);
+				return options.scaleColor2(d.d);
 			});
 
 	}

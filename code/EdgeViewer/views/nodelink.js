@@ -7,7 +7,12 @@ var NodeLinkView = Backbone.View.extend({
 			left: 40
 		}
 	},
-	render: function() {
+	initialize: function (defaults, inter, options) {
+		this.inter = inter;
+		this.options = options;
+		Backbone.on('selectEdges', this.renderLinks, this);
+	},
+	render: function () {
 		var margin = this.defaults.margin;
 		this.width = this.$el.width() - margin.left - margin.right;
 		this.height = this.$el.height() - margin.top - margin.bottom;
@@ -18,8 +23,12 @@ var NodeLinkView = Backbone.View.extend({
 			.attr("id", "container")
 			.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 	},
-
-	initializeNodeLinkView: function(nodelist, nodeLink) {
+	renderLinks: function (v0, v1, idList) {
+		links.classed("selected", function (d) {
+			return idList.indexOf(d.id) !== -1;
+		});
+	},
+	initializeNodeLinkView: function (nodelist, nodeLink) {
 		var width = this.width,
 			height = this.height;
 
@@ -51,19 +60,20 @@ var NodeLinkView = Backbone.View.extend({
 			.data(nodeLink)
 			.enter().append("line")
 			.attr("class", "link")
-			// .style("stroke-width", function (d) { return Math.sqrt(d.value / fullColor); })
-			// .style("stroke-width", 2)
-			.attr('id', function(d) {
+		// .style("stroke-width", function (d) { return Math.sqrt(d.value / fullColor); })
+		// .style("stroke-width", 2)
+			.attr('id', function (d) {
 				return 'f' + d.source.index + 't' + d.target.index;
 			})
-			.on('mouseover', function(d, i) {
+			.on('mouseover', function (d, i) {
 				// it diffcult for user to select exact one link from so many links
 				// so, only select from selected links
 				if (this.classList.contains('selected')) {
-					hoverEdge(i);
+					// hoverEdge(i);
+					Backbone.trigger('hoverEdge', d.i);
 				}
 			})
-			.each(function(d, i) {
+			.each(function (d, i) {
 				d.id = i;
 			});
 
@@ -72,32 +82,32 @@ var NodeLinkView = Backbone.View.extend({
 			.enter().append("circle")
 			.attr("class", "node")
 			.attr("r", 5)
-			// .style("fill", function (d) { return color(d.group); })
+		// .style("fill", function (d) { return color(d.group); })
 			.call(force.drag);
 
 		node.append("title")
-			.text(function(d) {
+			.text(function (d) {
 				return d.name;
 			});
 
-		force.on("tick", function() {
-			links.attr("x1", function(d) {
-					return d.source.x;
-				})
-				.attr("y1", function(d) {
+		force.on("tick", function () {
+			links.attr("x1", function (d) {
+				return d.source.x;
+			})
+				.attr("y1", function (d) {
 					return d.source.y;
 				})
-				.attr("x2", function(d) {
+				.attr("x2", function (d) {
 					return d.target.x;
 				})
-				.attr("y2", function(d) {
+				.attr("y2", function (d) {
 					return d.target.y;
 				});
 
-			node.attr("cx", function(d) {
-					return d.x;
-				})
-				.attr("cy", function(d) {
+			node.attr("cx", function (d) {
+				return d.x;
+			})
+				.attr("cy", function (d) {
 					return d.y;
 				});
 		});
