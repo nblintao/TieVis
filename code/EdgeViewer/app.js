@@ -4,11 +4,11 @@ var tieVis = {
 		var control = new ControlPanel({
 			el: "#toolbox",
 			model: inter
-		})
+		});
 		var bipartiteTypes = ['Original', 'CrossReduction'];
-		var datasets = ['parse', 'tiedata', 'Enron_Mon'];
+		var datasets = ['parse', 'data', 'Enron_Mon'];
 		var options = {
-			dataset: datasets[2],
+			dataset: datasets[1],
 			bipartiteType: bipartiteTypes[1],
 			doMDS: true,
 			thresholdMDS: 500,
@@ -22,7 +22,7 @@ var tieVis = {
 			case 'parse':
 				fullColor = 1000;
 				break;
-			case 'tiedata':
+			case 'data':
 				fullColor = 1;
 			case 'Enron_Mon':
 				fullColor = 10;
@@ -57,19 +57,19 @@ var tieVis = {
 		bipartite.render();
 		nodelink.render();
 
-		d3.json('data/tieDataParallel.json', function(data1) {
+		d3.json(options.dataset+'/tieDataParallel.json', function(data1) {
 			tieData = data1;
 			tieData.forEach(function(d, i) {
 				d.i = i;
 			});
 			// console.log(tieData);
-			d3.json('data//timelist.json', function(data2) {
+			d3.json(options.dataset+'/timelist.json', function(data2) {
 				timelist = data2;
-				d3.json('data//nodelist.json', function(data3) {
+				d3.json(options.dataset+'/nodelist.json', function(data3) {
 					nodelist = data3;
 					bipartite.renderBipartiteCrossReduction([]);
 					// renderBipartite([]);
-					d3.json('data//nodelink.json', function(data4) {
+					d3.json(options.dataset+'/nodelink.json', function(data4) {
 						nodeLink = data4;
 						nodelink.initializeNodeLinkView(nodelist, nodeLink);
 					});
@@ -78,7 +78,7 @@ var tieVis = {
 				//renderBands(tieData, timelist);
 			});
 		});
-		d3.json('data/pcaResult.json', function(pcaResult) {
+		d3.json(options.dataset+'/pcaResult.json', function(pcaResult) {
 			proj.renderProjectView(pcaResult);
 		});
 	}
