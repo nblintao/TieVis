@@ -7,24 +7,101 @@
 <script src = "bower_components/jquery/dist/jquery.js"></script>
 <script src = "bower_components/underscore/underscore.js"></script>
 <script src = "bower_components/backbone/backbone.js"></script>
+<script src = "bower_components/bootstrap/js/button.js"></script>
+
 <script src = "app.js"></script>
 <script src = "views/projection.js"></script>
 <script src = "views/band.js"></script>
 <script src = "views/bipartite.js"></script>
 <script src = "views/nodelink.js"></script>
+<script src = "views/control.js"></script>
 
+<script src = "models/interaction.js"></script>
+
+<style>
+		body {
+			font: 10px sans-serif;
+		}
+		
+		.axis path,
+		.axis line {
+			fill: none;
+			stroke: #000;
+			shape-rendering: crispEdges;
+		}
+		
+		.dots {
+			stroke: #fff;
+			stroke-width: 1.5px;
+		}
+		
+		.dots .selected {
+			stroke: red;
+		}
+		
+		.brush .extent {
+			fill-opacity: .1;
+			stroke: #fff;
+			shape-rendering: crispEdges;
+		}
+		
+		div {
+			/*height: 400px;*/
+			overflow-x: hidden;
+			overflow-y: auto;
+			/*float: left*/
+		}
+		
+		div#bandView {
+			/*width: 250px;*/
+			max-height: 400px;
+		}
+		
+		.node {
+			stroke: #fff;
+			stroke-width: 1.5px;
+			fill: #999;
+		}
+		
+		.link {
+			stroke: steelblue;
+			stroke-opacity: .05;
+			stroke-width: 2;
+			pointer-events: none;
+		}
+		
+		.link.selected {
+			stroke-opacity: 1;
+			stroke-width: 4;			
+			pointer-events: all;
+		}
+		
+		.edge line {
+			stroke-width: 2px;
+		}
+		.view {
+			border-top:1px solid #f0f0f0;
+			border-bottom:1px solid #f0f0f0;
+			border-left:1px solid #f0f0f0;
+			border-right:1px solid #f0f0f0;
+			box-shadow: 2px 2px 2px #f0f0f0;
+		}
+	</style>
 <body>
 	<div class = "clearfix">
-		<div class = "col-lg-1" id = "toolbox" style = "height:100%"></div>
-		<div class = "col-lg-5">
-			<div class = "row" id = "band" style = "height:50%"></div>
-			<div class = "row" id = "bipartite" style = "height:50%"></div>
+		<div class = "col-lg-1" id = "toolbox" style = "height:100%">
+			
+			
+		</div>
+		<div class = "col-lg-4">
+			<div class = "row view" id = "band" style = "height:50%"></div>
+			<div class = "row view" id = "bipartite" style = "height:50%"></div>
 		</div>
 		<div class = "col-lg-5">
-			<div class = "row" id = "projection" style = "height:50%"></div>
-			<div class = "row" id = "nodelink" style = "height:50%"></div>
+			<div class = "row view" id = "projection" style = "height:50%"></div>
+			<div class = "row view" id = "nodelink" style = "height:50%"></div>
 		</div>
-		<div class = "col-lg-1" id = "infopanel" style = "height:100%"></div>
+		<div class = "col-lg-2" id = "infopanel" style = "height:100%"></div>
 	</div>
 	<script type="text/javascript">
 		tieVis.start();
