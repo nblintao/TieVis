@@ -72,7 +72,8 @@ var BandView = Backbone.View.extend({
 		this.container.selectAll('g').remove();
 
 		// var bandViewWidth = 200;
-		var bandViewWidth = options.timelineWidth;
+		// var bandViewWidth = options.timelineWidth;
+		var bandViewWidth = this.width;
 		var bandViewHeight = 400;
 
 		// adaptive band height

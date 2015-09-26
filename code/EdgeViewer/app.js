@@ -13,9 +13,9 @@ var tieVis = {
 			bipartiteType: bipartiteTypes[1],
 			doMDS: true,
 			thresholdMDS: 500,
-			timelineWidth: 600,
-			timeLeftMargin: 30,
-			rightWidth: 600
+			// timelineWidth: 600,
+			// timeLeftMargin: 30,
+			// rightWidth: 600
 
 		};
 		var fullColor;

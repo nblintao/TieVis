@@ -150,7 +150,8 @@ var BiPartiteView = Backbone.View.extend({
 		// start rendering
 		var margin = this.defaults.margin,
 			// width = 800 - margin.left - margin.right,
-			width = options.timelineWidth,
+			// width = options.timelineWidth,
+			width = this.width,
 			height = 350 - margin.top - margin.bottom;
 
 		// var x = d3.scale.ordinal()
