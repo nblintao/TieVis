@@ -8,7 +8,7 @@ var tieVis = {
 		var bipartiteTypes = ['Original', 'CrossReduction'];
 		var datasets = ['parse', 'data', 'Enron_Mon'];
 		var options = {
-			dataset: datasets[1],
+			dataset: datasets[2],
 			bipartiteType: bipartiteTypes[1],
 			doMDS: true,
 			thresholdMDS: 500,
