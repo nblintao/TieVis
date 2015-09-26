@@ -25,6 +25,11 @@ var NodeLinkView = Backbone.View.extend({
 			.attr("id", "container")
 			.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 	},
+	renderLink: function (i) {
+		this.links.classed("hovered", function (d) {
+			return d.id === i;
+		});
+	},
 	renderLinks: function(v0, v1, idList) {
 		// console.log(idList);
 		// console.log(this.links);
