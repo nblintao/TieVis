@@ -90,10 +90,11 @@ var tieVis = {
 					d3.json(options.dataset+'/nodelink.json', function(data4) {
 						nodeLink = data4;
 						nodelink.initializeNodeLinkView(nodelist, nodeLink);
+						nodelink.setData(tieData, nodelist);
 					});
 				});
 				band.renderBands(tieData, timelist);
-				nodelink.setTieData(tieData);
+				
 				//renderBands(tieData, timelist);
 			});
 		});
