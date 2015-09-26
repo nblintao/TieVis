@@ -26,8 +26,12 @@ var NodeLinkView = Backbone.View.extend({
 			.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 	},
 	renderLinks: function(v0, v1, idList) {
+		// console.log(idList);
+		// console.log(this.links);
+		// .map(function(d){return d.id;})
 		this.idList = idList;
 		this.links.classed("selected", function(d) {
+			// console.log(d.id);
 			return idList.indexOf(d.id) !== -1;
 		});
 	},
@@ -35,45 +39,47 @@ var NodeLinkView = Backbone.View.extend({
 		var tieData = this.tieData;
 		if (this.selectedTime === undefined || this.selectedTime !== time) {
 			this.selectedTime = time;
-			var nodelink = tieData.filter(function(d) {
-				var res = false;
-				if (d.d[time] > 0) {
-					res = true;
-				}
-				return res;
-			}).map(function(d) {
+			console.log(time);
+			var nodelink = tieData
+			.map(function(d,i) {
 				return {
 					x: d.x,
 					y: d.y,
-					source: this.nodelist[d.x],
-					target: this.nodelist[d.y],
-					value: d.d[time]
+					// source: this.nodelist[d.x],
+					// target: this.nodelist[d.y],
+					value: d.d[time],
+					id: i
 				};
+			})
+			.filter(function(d) {
+				return d.value > 0;
 			});
 			var nodeIndex = [];
 			for(var i = 0; i < nodelink.length; i++) {
-				var source = nodelink[i].x;
-				var target = nodelink[i].y;
-				if(nodeIndex.indexOf(source) <= 0) {
+				var source = nodelink[i].y;
+				var target = nodelink[i].x;
+				if(nodeIndex.indexOf(source) < 0) {
 					nodeIndex.push(source);
 				}
-				if(nodeIndex.indexOf(target) <= 0) {
+				if(nodeIndex.indexOf(target) < 0) {
 					nodeIndex.push(target);
 				}
 			}
-			var tempList = this.nodelist.filter(function(d, i) {
-				var res = false;
-				if(nodeIndex.indexOf(i) >= 0){
-					res = true;
-				}
-				return res;
-			})
+			// console.log(nodeIndex);
+			// var tempList = this.nodelist.filter(function(d, i) {
+			// 	var res = false;
+			// 	if(nodeIndex.indexOf(i) >= 0){
+			// 		res = true;
+			// 	}
+			// 	return res;
+			// })
+			var tempList = nodeIndex.map(function(d){
+				return this.nodelist[d];
+			});
 			nodelink = nodelink.map(function(d) {
-				return {
-					source: tempList.indexOf(d.source),
-					target: tempList.indexOf(d.target),
-					value: d.value
-				}
+				d.source = nodeIndex.indexOf(d.y);
+				d.target = nodeIndex.indexOf(d.x);
+				return d;
 			});
 			this.initializeNodeLinkView(tempList, nodelink);
 			if (this.idList !== undefined) {
@@ -87,6 +93,7 @@ var NodeLinkView = Backbone.View.extend({
 		this.nodelist = nodelist;
 	},
 	initializeNodeLinkView: function(nodelist, nodeLink) {
+		// console.log(nodelist, nodeLink)
 		this.container.selectAll("g").remove();
 		var width = this.width,
 			height = this.height;
@@ -94,14 +101,15 @@ var NodeLinkView = Backbone.View.extend({
 
 		// var color = d3.scale.category20();
 
-		var nodeNameList = [];
-		for (var i = 0; i < nodelist.length; i++) {
-			var t = nodelist[i];
-			nodeNameList.push({
-				'name': t
-			});
+		// var nodeNameList = [];
+		// for (var i = 0; i < nodelist.length; i++) {
+		// 	var t = nodelist[i];
+		// 	nodeNameList.push({
+		// 		'name': t
+		// 	});
 
-		}
+		// }
+		var nodeNameList = nodelist.map(function(d){return {'name':d};});
 
 		// console.log(nodeNameList, nodeLink);
 		var force = d3.layout.force()
@@ -115,27 +123,27 @@ var NodeLinkView = Backbone.View.extend({
 			.nodes(nodeNameList)
 			.links(nodeLink);
 
-
+		// console.log(nodeLink);
 		this.links = svg.selectAll(".link")
 			.data(nodeLink)
 			.enter().append("line")
 			.attr("class", "link")
 			// .style("stroke-width", function (d) { return Math.sqrt(d.value / fullColor); })
 			// .style("stroke-width", 2)
-			.attr('id', function(d) {
-				return 'f' + d.source.index + 't' + d.target.index;
-			})
+			// .attr('id', function(d) {
+			// 	return 'f' + d.source.index + 't' + d.target.index;
+			// })
 			.on('mouseover', function(d, i) {
 				// it diffcult for user to select exact one link from so many links
 				// so, only select from selected links
 				if (this.classList.contains('selected')) {
 					// hoverEdge(i);
-					Backbone.trigger('hoverEdge', i);
+					Backbone.trigger('hoverEdge', d.id);
 				}
 			})
-			.each(function(d, i) {
-				d.id = i;
-			});
+			// .each(function(d, i) {
+			// 	d.id = i;
+			// });
 
 		var node = svg.selectAll(".node")
 			.data(nodeNameList)
