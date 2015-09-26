@@ -70,7 +70,7 @@ var NodeLinkView = Backbone.View.extend({
 				// so, only select from selected links
 				if (this.classList.contains('selected')) {
 					// hoverEdge(i);
-					Backbone.trigger('hoverEdge', d.i);
+					Backbone.trigger('hoverEdge', i);
 				}
 			})
 			.each(function (d, i) {
