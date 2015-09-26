@@ -10,6 +10,7 @@ var NodeLinkView = Backbone.View.extend({
 	initialize: function (defaults, inter, options) {
 		this.inter = inter;
 		this.options = options;
+		Backbone.on('hoverEdge', this.renderLink, this);
 		Backbone.on('selectEdges', this.renderLinks, this);
 	},
 	render: function () {
@@ -23,8 +24,13 @@ var NodeLinkView = Backbone.View.extend({
 			.attr("id", "container")
 			.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 	},
+	renderLink: function(i){
+		this.links.classed("hovered", function (d) {
+			return d.id === i;
+		});		
+	},
 	renderLinks: function (v0, v1, idList) {
-		links.classed("selected", function (d) {
+		this.links.classed("selected", function (d) {
 			return idList.indexOf(d.id) !== -1;
 		});
 	},
@@ -56,7 +62,7 @@ var NodeLinkView = Backbone.View.extend({
 			.links(nodeLink)
 			.start();
 
-		links = svg.selectAll(".link")
+		this.links = svg.selectAll(".link")
 			.data(nodeLink)
 			.enter().append("line")
 			.attr("class", "link")
@@ -89,7 +95,7 @@ var NodeLinkView = Backbone.View.extend({
 			.text(function (d) {
 				return d.name;
 			});
-
+		var links = this.links;
 		force.on("tick", function () {
 			links.attr("x1", function (d) {
 				return d.source.x;

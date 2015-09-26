@@ -11,7 +11,13 @@ var ProjectionView = Backbone.View.extend({
 		this.inter = inter;
 		this.listenTo(this.inter, "change", function() {
 			console.log("event trigger");
-		})
+		});
+		Backbone.on('hoverEdge', this.renderEdge, this);
+	},
+	renderEdge:function(index){
+		this.dots.classed("hovered", function (d,i) {
+			return index === i;
+		});	
 	},
 	render: function() {
 		var margin = this.defaults.margin;
@@ -99,7 +105,7 @@ var ProjectionView = Backbone.View.extend({
 			.attr('class', 'dots')
 			.attr("clip-path", "url(#clip)");
 
-		var dots = gDots.selectAll(".dot")
+		this.dots = gDots.selectAll(".dot")
 			.data(data)
 			.enter().append("circle")
 			.attr("class", "dot")
@@ -116,7 +122,7 @@ var ProjectionView = Backbone.View.extend({
 			.attr("cy", function(d) {
 				return y(d[1]);
 			});
-
+		var dots = this.dots;
 		function zoomed() {
 			svg.select(".x.axis").call(xAxis);
 			svg.select(".y.axis").call(yAxis);
