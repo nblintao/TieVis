@@ -70,6 +70,7 @@ var ProjectionView = Backbone.View.extend({
 			.on("zoom", zoomed);
 
 		var svg = this.container
+			.call(zoom)
 			// http://stackoverflow.com/questions/13713528/how-to-disable-pan-for-d3-behavior-zoom
 			.on("mousedown.zoom", null);
 
