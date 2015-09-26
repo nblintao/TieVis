@@ -1,5 +1,6 @@
 var tieVis = {
 	start: function() {
+		var time = new TimeBar();
 		var inter = new InterOption();
 		var control = new ControlPanel({
 			el: "#toolbox",
@@ -45,10 +46,10 @@ var tieVis = {
 		}, inter);
 		var band = new BandView({
 			el: "#band"
-		}, inter, options);
+		}, inter, options, time);
 		var bipartite = new BiPartiteView({
 			el: "#bipartite"
-		}, inter, options);
+		}, inter, options, time);
 		var nodelink = new NodeLinkView({
 			el: "#nodelink"
 		}, inter, options);
@@ -75,6 +76,7 @@ var tieVis = {
 					});
 				});
 				band.renderBands(tieData, timelist);
+				nodelink.setTieData(tieData);
 				//renderBands(tieData, timelist);
 			});
 		});

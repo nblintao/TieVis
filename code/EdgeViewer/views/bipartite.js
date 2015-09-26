@@ -3,13 +3,14 @@ var BiPartiteView = Backbone.View.extend({
 		margin: {
 			top: 20,
 			right: 20,
-			bottom: 30,
-			left: 40
+			bottom: 20,
+			left: 20
 		}
 	},
-	initialize:function(defaults, inter, options) {
+	initialize: function(defaults, inter, options, time) {
 		this.options = options;
-		Backbone.on('selectEdges',this.renderBipartiteCrossReduction,this);
+		Backbone.on('selectEdges', this.renderBipartiteCrossReduction, this);
+		this.time = time;
 	},
 	render: function() {
 		var margin = this.defaults.margin;
@@ -19,25 +20,36 @@ var BiPartiteView = Backbone.View.extend({
 			.attr("width", this.width + margin.left + margin.right)
 			.attr("height", this.height + margin.top + margin.bottom)
 			.append("g")
-			.attr("id", "container")
+			.attr("id", "bipartite")
 			.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-		// function renderBipartite(data) {
-		// 	switch (options.bipartiteType) {
-		// 		case 'Original':
-		// 			renderBipartiteOriginal(data);
-		// 			break;
-		// 		case 'CrossReduction':
-		// 			renderBipartiteCrossReduction(data);
-		// 		default:
-		// 			break;
-		// 	}
-		// }
+		var width = this.width;
+		this.listenTo(this.time, "change", function() {
+				// console.log("event trigger");
+				d3.select("#bipartite").select("#time").attr("transform", function(d) {
+					var pos = d.get("pos");
+					// console.log(pos);
+					var scale = d3.scale.linear().domain([0, 1]).range([0, width]);
+					var x = scale(pos);
+					return "translate(" + x + "," + "0)";
+				});
+			})
+			// function renderBipartite(data) {
+			// 	switch (options.bipartiteType) {
+			// 		case 'Original':
+			// 			renderBipartiteOriginal(data);
+			// 			break;
+			// 		case 'CrossReduction':
+			// 			renderBipartiteCrossReduction(data);
+			// 		default:
+			// 			break;
+			// 	}
+			// }
 	},
 	renderBipartiteCrossReduction: function(data) {
 		// find related nodes
 		var options = this.options;
 		var relatedNodes = new Set();
+		var time = this.time;
 		for (var i = 0; i < data.length; i++) {
 			var d = data[i];
 			for (var j = 0; j < d.d.length; j++) {
@@ -210,6 +222,58 @@ var BiPartiteView = Backbone.View.extend({
 			})
 			.style('stroke', function(d) {
 				return options.scaleColor2(d.d);
+			});
+		var line = d3.svg.line()
+			.x(function(d) {
+				return d.x;
+			})
+			.y(function(d) {
+				return d.y;
+			})
+			.interpolate("basis");
+		var width = this.width;
+		var height = this.height;
+		var timeBar = svg.append("g")
+			.datum(time)
+			.append("path")
+			.attr("id", "time")
+			.attr("d", function(d) {
+				return line([{
+					"x": 0,
+					"y": 0
+				}, {
+					"x": 0,
+					"y": height
+				}]);
+			})
+			.attr("stroke", "#000000")
+			.attr("opacity", 0.5)
+			.attr("transform", function(d) {
+				var pos = d.get("pos");
+				var scale = d3.scale.linear().domain([0, 1]).range([0, width]);
+				var x = scale(pos);
+				return "translate(" + x + "," + "0)";
+			});
+		var range = [];
+		for (var i = 0; i < timelist.length; i++) {
+			range.push(i);
+		}
+		var timeScale = d3.scale.quantize().domain([0, 1]).range(range);
+		d3.select("#bipartite")
+			.on("mousemove", function() {
+				var mpos = d3.mouse(this);
+				//bandView.selectAll("#time").remove();
+				var t = (mpos[0] - margin.left) / (width);
+				t = t < 0 ? 0 : t > 1 ? 1 : t;
+				time.set("pos", t);
+
+				// 	Backbone.trigger('hoverEdge', d.i);
+
+			})
+			.on("click", function() {
+				var mpos = d3.mouse(this);
+				var t = (mpos[0] - margin.left) / (width);
+				Backbone.trigger("selectTime", timeScale(t));
 			});
 
 	}

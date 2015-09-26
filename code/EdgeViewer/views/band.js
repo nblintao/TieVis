@@ -3,18 +3,21 @@ var BandView = Backbone.View.extend({
 		margin: {
 			top: 20,
 			right: 20,
-			bottom: 30,
-			left: 40
+			bottom: 20,
+			left: 20
 		}
 	},
-	initialize: function(defaults, inter, options) {
+	initialize: function(defaults, inter, options, time) {
 		this.inter = inter;
 		this.listenTo(this.inter, "change", function() {
 			console.log("event trigger");
 		});
 		this.options = options;
 		// Backbone.on('selectEdges',renderBands(selectedTieData, timelist);)
-		Backbone.on('selectEdges',this.renderBands,this);
+		Backbone.on('selectEdges', this.renderBands, this);
+
+		this.time = time;
+		
 	},
 	render: function() {
 		var margin = this.defaults.margin;
@@ -24,13 +27,26 @@ var BandView = Backbone.View.extend({
 			.attr("width", this.width + margin.left + margin.right)
 			.attr("height", this.height + margin.top + margin.bottom)
 			.append("g")
-			.attr("id", "container")
+			.attr("id", "band")
 			.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
+		var width = this.width;
+		this.listenTo(this.time, "change", function() {
+			// console.log("event trigger");
+			d3.select("#band").select("#time").attr("transform", function(d) {
+						var pos = d.get("pos");
+						// console.log(pos);
+						var scale = d3.scale.linear().domain([0, 1]).range([0, width]);
+						var x = scale(pos);
+						return "translate(" + x + "," + "0)";
+					});
+		})
 
 	},
 	renderBands: function(tieData, timelist) {
-		
+		var width = this.width;
+		var height = this.height;
+		var margin = this.defaults.margin;
+		var time = this.time;
 		var nBands = tieData.length;
 		var options = this.options;
 		if (options.doMDS && nBands > 2 && nBands < options.thresholdMDS) {
@@ -76,11 +92,23 @@ var BandView = Backbone.View.extend({
 			.attr('transform', function(d, i) {
 				return 'translate(0,' + scaleY(i) + ')';
 			})
-			.on('mouseover', function(d, i) {
-				// hoverEdge(d.i);
-				Backbone.trigger('hoverEdge',d.i);
-			})
-			// .attr('id', function (d, i) { return 'bar' + i; })
+			// .on('mouseover', function(d, i) {
+			// 	// hoverEdge(d.i);
+			// 	var mpos = d3.mouse(this);
+			// 	//bandView.selectAll("#time").remove();
+			// 	var t = mpos[0] / (width - margin.left - margin.right);
+			// 	t = t < 0 ? 0 : t > 1 ? 1 : t;
+			// 	time.set("pos", t);
+			// 	timeBar.attr("transform", function(d) {
+			// 		var pos = d.get("pos");
+			// 		var scale = d3.scale.linear().domain([0, 1]).range([margin.left, width - margin.right]);
+			// 		var x = scale(pos);
+			// 		return "translate(" + x + "," + "0)";
+			// 	});
+			// 	Backbone.trigger('hoverEdge', d.i);
+
+		// })
+		// .attr('id', function (d, i) { return 'bar' + i; })
 		;
 
 		var scaleX = d3.scale.linear()
@@ -90,23 +118,85 @@ var BandView = Backbone.View.extend({
 
 		var rect = bar.selectAll('rect')
 			.data(function(d) {
-				return d['d'];
+				var data = d['d'].map(function(d , i) {
+					return {
+						"d" : d,
+						"index" : i
+					}
+				}).filter(function(d) {
+					var res = true;
+					if(d.d == 0) {
+						res = false
+					}
+					return res;
+				})
+				return data;
 			})
 			.enter()
 			.append('rect');
 
 		rect
-			.attr('x', function(d, i) {
-				return scaleX(i);
+			.attr('x', function(d) {
+				return scaleX(d.index);
 			})
 			// .attr('y', function(d,i){return scaleY(i);})
 			.attr('width', singleWidth)
 			.attr('height', bandHeight)
 			.style('fill', function(d) {
-				return options.scaleColor2(d);
+				return options.scaleColor2(d.d);
+			});
+		var line = d3.svg.line()
+			.x(function(d) {
+				return d.x;
+			})
+			.y(function(d) {
+				return d.y;
+			})
+			.interpolate("basis");
+		var timeBar = bandView.append("g")
+			.datum(time)
+			.append("path")
+			.attr("id", "time")
+			.attr("d", function(d) {
+				return line([{
+					"x": 0,
+					"y": 0
+				}, {
+					"x": 0,
+					"y": height
+				}]);
+			})
+			.attr("stroke", "#000000")
+			.attr("opacity", 0.5)
+			.attr("transform", function(d) {
+				var pos = d.get("pos");
+				var scale = d3.scale.linear().domain([0, 1]).range([0, width]);
+				var x = scale(pos);
+				return "translate(" + x + "," + "0)";
+			});
+		var range = [];
+		for(var i = 0; i < timelist.length; i++) {
+			range.push(i);
+		}
+		var timeScale = d3.scale.quantize().domain([0, 1]).range(range);
+		d3.select("#band")
+			.on("mousemove", function() {
+					var mpos = d3.mouse(this);
+					//bandView.selectAll("#time").remove();
+					var t = (mpos[0] - margin.left) / (width);
+					t = t < 0 ? 0 : t > 1 ? 1 : t;
+					time.set("pos", t);
+					
+				// 	Backbone.trigger('hoverEdge', d.i);
+
+			})
+			.on("click", function() {
+				var mpos = d3.mouse(this);
+				var t = (mpos[0] - margin.left) / (width);
+				Backbone.trigger("selectTime", timeScale(t));
 			});
 	},
-	changeOrder: function (tieData) {
+	changeOrder: function(tieData) {
 		var dat = [];
 		var len = tieData.length;
 		for (var i = 0; i < len; i++) {
@@ -125,11 +215,14 @@ var BandView = Backbone.View.extend({
 		for (var i = 0; i < len; i++) {
 			tieData[i].p = p[i][0];
 		}
-		tieData.sort(function (a, b) { return a.p - b.p; });
+		tieData.sort(function(a, b) {
+			return a.p - b.p;
+		});
 
 
 		function dist(d, a, b) {
-			var i, ret = 0, p, q;
+			var i, ret = 0,
+				p, q;
 			for (i = 0; i < 24; i++) {
 				p = +d[a].d[i];
 				q = +d[b].d[i];
@@ -143,7 +236,9 @@ var BandView = Backbone.View.extend({
 
 			var M = numeric.mul(-.5, numeric.pow(distances, 2));
 
-			function mean(A) { return numeric.div(numeric.add.apply(null, A), A.length); }
+			function mean(A) {
+				return numeric.div(numeric.add.apply(null, A), A.length);
+			}
 			var rowMeans = mean(M),
 				colMeans = mean(numeric.transpose(M)),
 				totalMean = mean(rowMeans);
@@ -156,7 +251,7 @@ var BandView = Backbone.View.extend({
 
 			var ret = numeric.svd(M),
 				eigenValues = numeric.sqrt(ret.S);
-			return ret.U.map(function (row) {
+			return ret.U.map(function(row) {
 				return numeric.mul(row, eigenValues).splice(0, dimensions);
 			});
 		};
