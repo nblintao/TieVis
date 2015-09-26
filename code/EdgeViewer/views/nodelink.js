@@ -27,7 +27,7 @@ var NodeLinkView = Backbone.View.extend({
 	},
 	renderLinks: function(v0, v1, idList) {
 		this.idList = idList;
-		links.classed("selected", function(d) {
+		this.links.classed("selected", function(d) {
 			return idList.indexOf(d.id) !== -1;
 		});
 	},

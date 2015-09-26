@@ -128,7 +128,7 @@ var BandView = Backbone.View.extend({
 			.range([0, bandViewWidth]);
 		var singleWidth = bandViewWidth / timelist.length;
 
-		rect = this.bar.selectAll('rect')
+		this.rect = this.bar.selectAll('rect')
 			.data(function(d) {
 				var data = d['d'].map(function(d , i) {
 					return {
@@ -147,7 +147,7 @@ var BandView = Backbone.View.extend({
 			.enter()
 			.append('rect');
 
-		rect
+		this.rect
 			.attr('x', function(d) {
 				return scaleX(d.index);
 			})
