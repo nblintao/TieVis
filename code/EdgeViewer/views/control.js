@@ -6,16 +6,18 @@ var ControlPanel = Backbone.View.extend({
 				'</button>' +
 				'<button type="button" class="btn btn-default" aria-label="Left Align" id = "stick" data-toggle="button">' +
 	 				'<span class="glyphicon glyphicon-pushpin" aria-hidden="true"></span>' +
-				'</button>'
-			'</div>';
+				'</button>' +				
+			'</div>' +
+			'<p id="temp"></p>'  // TODO: Sidong, please move the showEdgeInfo to infopanel on the right side 
+			;
 		Backbone.on('hoverEdge', this.showEdgeInfo, this);
 	},
 	showEdgeInfo: function (i) {
 		var edge = tieData[i];
 		// console.log('hover edge from ' + edge.y + ' to ' + edge.x);
 		var info = edge.y + '(' + nodelist[edge.y] + ')' + '->' + edge.x + '(' + nodelist[edge.x] + ') ' + edge.d
-		d3.select('#info').html(info);
-		console.log(info);
+		d3.select('#temp').html(info);
+		// console.log(info);
 	},
 	render: function(){
 		$(this.el).html(this.html);

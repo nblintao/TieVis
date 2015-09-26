@@ -9,7 +9,7 @@ var tieVis = {
 		var bipartiteTypes = ['Original', 'CrossReduction'];
 		var datasets = ['parse', 'data', 'Enron_Mon'];
 		var options = {
-			dataset: datasets[1],
+			dataset: datasets[2],
 			bipartiteType: bipartiteTypes[1],
 			doMDS: true,
 			thresholdMDS: 500,
@@ -33,10 +33,27 @@ var tieVis = {
 		options.scaleColor = d3.scale.linear()
 			.domain([0, fullColor])
 			.range(['rgb(200,200,200)', 'rgb(16,16,16)']);
-		options.scaleColor2 = function(d) {
+		options.scaleColorR = d3.scale.linear()
+			.domain([0, fullColor])
+			// .range([d3.hsl(0,0.5,0.5), d3.hsl(0,1,0.5)]);
+			.range(['rgb(255,200,200)', 'rgb(255,0,0)']);
+		options.scaleColor2 = function (d) {
 			if (d === 0) {
 				return 'white';
 			} else {
+				return options.scaleColor(d);
+			}
+		};
+		options.scaleColor3 = function (d, flag) {
+			if(d===0){
+				return 'white';
+			}
+			// hovered
+			if (flag) {
+				return options.scaleColorR(d);
+			} else
+			// unhovered
+			{
 				return options.scaleColor(d);
 			}
 		};

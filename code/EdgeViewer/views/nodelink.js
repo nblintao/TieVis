@@ -10,6 +10,7 @@ var NodeLinkView = Backbone.View.extend({
 	initialize: function(defaults, inter, options) {
 		this.inter = inter;
 		this.options = options;
+		Backbone.on('hoverEdge', this.renderLink, this);
 		Backbone.on('selectEdges', this.renderLinks, this);
 		Backbone.on('selectTime', this.renderTime, this);
 	},
@@ -42,15 +43,17 @@ var NodeLinkView = Backbone.View.extend({
 				return res;
 			}).map(function(d) {
 				return {
-					source: d.x,
-					target: d.y,
+					x: d.x,
+					y: d.y,
+					source: this.nodelist[d.x],
+					target: this.nodelist[d.y],
 					value: d.d[time]
 				};
 			});
 			var nodeIndex = [];
 			for(var i = 0; i < nodelink.length; i++) {
-				var source = nodelink[i].source;
-				var target = nodelink[i].target;
+				var source = nodelink[i].x;
+				var target = nodelink[i].y;
 				if(nodeIndex.indexOf(source) <= 0) {
 					nodeIndex.push(source);
 				}
@@ -65,6 +68,13 @@ var NodeLinkView = Backbone.View.extend({
 				}
 				return res;
 			})
+			nodelink = nodelink.map(function(d) {
+				return {
+					source: tempList.indexOf(d.source),
+					target: tempList.indexOf(d.target),
+					value: d.value
+				}
+			});
 			this.initializeNodeLinkView(tempList, nodelink);
 			if (this.idList !== undefined) {
 				this.renderLinks(null, null, this.idList);
@@ -72,14 +82,15 @@ var NodeLinkView = Backbone.View.extend({
 		}
 
 	},
-	setTieData: function(tieData) {
+	setData: function(tieData, nodelist) {
 		this.tieData = tieData;
+		this.nodelist = nodelist;
 	},
 	initializeNodeLinkView: function(nodelist, nodeLink) {
 		this.container.selectAll("g").remove();
 		var width = this.width,
 			height = this.height;
-		this.nodelist = nodelist;
+		// this.nodelist = nodelist;
 
 		// var color = d3.scale.category20();
 
@@ -105,7 +116,7 @@ var NodeLinkView = Backbone.View.extend({
 			.links(nodeLink);
 
 
-		links = svg.selectAll(".link")
+		this.links = svg.selectAll(".link")
 			.data(nodeLink)
 			.enter().append("line")
 			.attr("class", "link")
@@ -119,7 +130,7 @@ var NodeLinkView = Backbone.View.extend({
 				// so, only select from selected links
 				if (this.classList.contains('selected')) {
 					// hoverEdge(i);
-					Backbone.trigger('hoverEdge', d.i);
+					Backbone.trigger('hoverEdge', i);
 				}
 			})
 			.each(function(d, i) {
@@ -138,9 +149,9 @@ var NodeLinkView = Backbone.View.extend({
 			.text(function(d) {
 				return d.name;
 			});
-
+		var that = this;
 		force.on("tick", function() {
-			links.attr("x1", function(d) {
+			that.links.attr("x1", function(d) {
 					return d.source.x;
 				})
 				.attr("y1", function(d) {

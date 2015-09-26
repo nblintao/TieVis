@@ -9,8 +9,22 @@ var BiPartiteView = Backbone.View.extend({
 	},
 	initialize: function(defaults, inter, options, time) {
 		this.options = options;
-		Backbone.on('selectEdges', this.renderBipartiteCrossReduction, this);
+		Backbone.on('selectEdges',this.renderBipartiteCrossReduction,this);
+		Backbone.on('hoverEdge', this.renderEdge, this);
 		this.time = time;
+	},
+	renderEdge: function (i) {
+		var options = this.options;
+		this.edge.classed("hovered", function (d) {
+			return d.i === i;
+		});
+		this.line.style('stroke', function (d) {
+			return options.scaleColor3(d.d, false);
+		});
+		this.svg.selectAll('.hovered').selectAll('line')
+			.style('stroke', function (d) {
+				return options.scaleColor3(d.d, true);
+			});	
 	},
 	render: function() {
 		var margin = this.defaults.margin;
@@ -165,7 +179,7 @@ var BiPartiteView = Backbone.View.extend({
 		this.container.selectAll('g').remove();
 
 		var svg = this.container;
-
+		this.svg = svg;
 		// Add an axis and title.
 		var axis = d3.svg.axis()
 			.scale(oldY)
@@ -185,12 +199,14 @@ var BiPartiteView = Backbone.View.extend({
 			.enter()
 			.append('g')
 			.attr('class', 'edge')
+			.attr('id',function(d){return d.i;})
 			.on('mouseover', function(d) {
 				// hoverEdge(d.i);
 				Backbone.trigger('hoverEdge', d.i);
 			});
-
-		var line = edge.selectAll('line')
+		this.edge = edge;
+		
+		this.line = edge.selectAll('line')
 			.data(function(d) {
 				var r = [];
 				for (var i = 0; i < d.d.length; i++) {

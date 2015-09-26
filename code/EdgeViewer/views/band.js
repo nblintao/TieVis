@@ -14,10 +14,22 @@ var BandView = Backbone.View.extend({
 		});
 		this.options = options;
 		// Backbone.on('selectEdges',renderBands(selectedTieData, timelist);)
-		Backbone.on('selectEdges', this.renderBands, this);
-
+		Backbone.on('selectEdges',this.renderBands,this);
+		Backbone.on('hoverEdge', this.renderEdge, this);
 		this.time = time;
-		
+	},
+	renderEdge: function (i) {
+		var options = this.options;
+		this.bar.classed("hovered", function (d) {
+			return d.i === i;
+		});
+		this.rect.style('fill', function (d) {
+			return options.scaleColor3(d, false);
+		});
+		this.bandView.selectAll('.hovered').selectAll('rect')
+			.style('fill', function (d) {
+				return options.scaleColor3(d, true);
+			});	
 	},
 	render: function() {
 		var margin = this.defaults.margin;
@@ -76,13 +88,13 @@ var BandView = Backbone.View.extend({
 
 		bandViewHeight = (bandHeight + interBandHeight) * nBands;
 
-		var bandView = this.container;
+		this.bandView = this.container;
 
 		var scaleY = d3.scale.linear()
 			.domain([0, tieData.length])
 			.range([0, bandViewHeight]);
 
-		var bar = bandView.selectAll('g')
+		this.bar = this.bandView.selectAll('g')
 			.data(tieData)
 			.enter()
 			.append('g')
@@ -116,7 +128,7 @@ var BandView = Backbone.View.extend({
 			.range([0, bandViewWidth]);
 		var singleWidth = bandViewWidth / timelist.length;
 
-		var rect = bar.selectAll('rect')
+		rect = this.bar.selectAll('rect')
 			.data(function(d) {
 				var data = d['d'].map(function(d , i) {
 					return {
@@ -153,7 +165,7 @@ var BandView = Backbone.View.extend({
 				return d.y;
 			})
 			.interpolate("basis");
-		var timeBar = bandView.append("g")
+		var timeBar = this.bandView.append("g")
 			.datum(time)
 			.append("path")
 			.attr("id", "time")

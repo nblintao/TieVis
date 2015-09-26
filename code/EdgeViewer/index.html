@@ -38,8 +38,12 @@
 		}
 		
 		.dots .selected {
-			stroke: red;
+			stroke: steelblue;
 		}
+	
+		.dots .selected.hovered {
+			stroke: red;
+		}	
 		
 		.brush .extent {
 			fill-opacity: .1;
@@ -78,9 +82,17 @@
 			pointer-events: all;
 		}
 		
+		.link.hovered {
+			stroke: red;
+		}
+			
 		.edge line {
 			stroke-width: 2px;
 		}
+		.edge.hovered line {
+			stroke-width: 4px;
+		}		
+		
 		.view {
 			border-top:1px solid #f0f0f0;
 			border-bottom:1px solid #f0f0f0;
