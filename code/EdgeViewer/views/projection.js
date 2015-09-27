@@ -18,7 +18,7 @@ var ProjectionView = Backbone.View.extend({
 	// http://stackoverflow.com/questions/17108890/d3-zoom-and-brush-working-at-the-same-time
 	setAreaMode: function () {
         var self = this;
-		console.log(self.inter.get('brush'));
+		// console.log(self.inter.get('brush'));
         if (self.inter.get('brush')) {
             // self.setCursorToCrosshair();
 
@@ -31,7 +31,7 @@ var ProjectionView = Backbone.View.extend({
                 .attr('class', 'brush')
                 .attr("pointer-events", "all")
                 .datum(function() { return { selected: false, previouslySelected: false};});
-			console.log(self.brush)
+			// console.log(self.brush)
             /* Attaching listeners to brush */
             d3.select('.brush').call(
 				self.brush.on("brushend", self.brushend)
@@ -163,7 +163,7 @@ var ProjectionView = Backbone.View.extend({
 				return 'dot' + i;
 			})
 			// cannot catch the event because of the brush background
-			// .attr('mouseover', function (d, i) { hoverEdge(i); })
+			.on('mouseover', function (d, i) { Backbone.trigger('hoverEdge', i);})
 			// .style('pointer-events','all')    
 			.attr("r", 3.5)
 			.attr("cx", function(d) {
