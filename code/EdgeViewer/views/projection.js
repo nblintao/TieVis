@@ -11,10 +11,6 @@ var ProjectionView = Backbone.View.extend({
 	initialize: function(options, inter) {
 		this.inter = inter;
 		this.listenTo(this.inter, "change", function() {
-			// console.log("event trigger",this.inter);
-			var flag = this.inter.get('brush');
-			this.selectAreaMode = flag;
-			console.log(flag);	
 			this.setAreaMode();		
 		});
 		Backbone.on('hoverEdge', this.renderEdge, this);
@@ -22,12 +18,13 @@ var ProjectionView = Backbone.View.extend({
 	// http://stackoverflow.com/questions/17108890/d3-zoom-and-brush-working-at-the-same-time
 	setAreaMode: function () {
         var self = this;
-
-        if (self.selectAreaMode) {
+		console.log(self.inter.get('brush'));
+        if (self.inter.get('brush')) {
             // self.setCursorToCrosshair();
 
             /* Deactivating zoom tool */
             self.zoomer.on('zoom', null);
+			this.svg.on("mousedown.zoom", null);			
 
             /* Adding brush to DOM */
             self.svg.append("g")
@@ -37,16 +34,26 @@ var ProjectionView = Backbone.View.extend({
 			
             /* Attaching listeners to brush */
             d3.select('.brush').call(
-				self.brush.on("brushend",self.brushend)
-            );
+				self.brush.on("brushend", self.brushend)
+					.on('brushstart', function(){})
+					.on('brush', function(){})
+				);
         }
 		else {
             // self.setCursorToDefault();
             /* Activating zoomer */
             self.zoomer.on("zoom", self.zoomed);
-
+			self.svg.call(self.zoomer);
+			
+			// this.svg.on("mousedown.zoom", this.mousedownzoom);
+			// console.log(this.svg);
+			
             /* Deactivating listeners brush tool */
-            d3.select('.brush').call(self.brush.on('brushend', null));
+            d3.select('.brush').call(self.brush
+				.on('brushstart', null)
+                .on('brush', null)
+                .on('brushend', null)
+			);
 
             /* Removing brush from DOM */
             d3.select('.brush').remove();
@@ -68,7 +75,8 @@ var ProjectionView = Backbone.View.extend({
 			.attr("id", "container")
 			.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 	},
-	renderProjectView: function(pcaResult) {
+	renderProjectView: function (pcaResult) {
+		var that = this;
 
 		// width = 800 - margin.left - margin.right,
 		// var width = options.rightWidth - margin.left - margin.right,
@@ -76,41 +84,43 @@ var ProjectionView = Backbone.View.extend({
 		var width = this.width,
 			height = this.height;
 		var margin = this.defaults.margin;
-		var x = d3.scale.linear()
+		this.x = d3.scale.linear()
 			.range([0, width]);
 
-		var y = d3.scale.linear()
+		this.y = d3.scale.linear()
 			.range([height, 0]);
 
 		var color = d3.scale.category10();
 
 		var xAxis = d3.svg.axis()
-			.scale(x)
+			.scale(that.x)
 			.orient("bottom");
 
 		var yAxis = d3.svg.axis()
-			.scale(y)
+			.scale(that.y)
 			.orient("left");
 
 		var data = pcaResult;
 
-		x.domain(d3.extent(data, function(d) {
+		this.x.domain(d3.extent(data, function(d) {
 			return d[0];
 		})).nice();
-		y.domain(d3.extent(data, function(d) {
+		this.y.domain(d3.extent(data, function(d) {
 			return d[1];
 		})).nice();
 
 		this.zoomer = d3.behavior.zoom()
-			.x(x)
-			.y(y)
+			.x(this.x)
+			.y(this.y);
 			// .scaleExtent([1, 10])
-			.on("zoom", this.zoomed);
+			// .on("zoom", this.zoomed);
 
-		var svg = this.container
-			.call(this.zoomer);
+		var svg = this.container;
+			// .call(this.zoomer);
 			// http://stackoverflow.com/questions/13713528/how-to-disable-pan-for-d3-behavior-zoom
 			// .on("mousedown.zoom", null);
+			
+		// this.mousedownzoom = svg[0][0]['__onmousedown.zoom'];
 		this.svg = svg;
 		svg.append("g")
 			.attr("class", "x axis")
@@ -156,30 +166,28 @@ var ProjectionView = Backbone.View.extend({
 			// .style('pointer-events','all')    
 			.attr("r", 3.5)
 			.attr("cx", function(d) {
-				return x(d[0]);
+				return that.x(d[0]);
 			})
 			.attr("cy", function(d) {
-				return y(d[1]);
+				return that.y(d[1]);
 			});
 		var dots = this.dots;
 		this.zoomed = function() {
-			svg.select(".x.axis").call(xAxis);
-			svg.select(".y.axis").call(yAxis);
+			that.svg.select(".x.axis").call(xAxis);
+			that.svg.select(".y.axis").call(yAxis);
 
 			// gDots.selectAll('circle').attr("transform", function (d) {
-			//   return "translate(" + x(d[0]) + "," + y(d[1]) + ")";
+			//   return "translate(" + that.x(d[0]) + "," + that.y(d[1]) + ")";
 			// });
 
 			gDots.selectAll('circle')
 				.attr("cx", function(d) {
-					return x(d[0]);
+					return that.x(d[0]);
 				})
 				.attr("cy", function(d) {
-					return y(d[1]);
+					return that.y(d[1]);
 				});
 		};
-		
-		var theView = this;
 		
 		this.brushend = function () {
 			var extent = d3.event.target.extent();
@@ -192,19 +200,20 @@ var ProjectionView = Backbone.View.extend({
 				return flag;
 			});
 			// console.log(selectedEdges);
-			theView.renderSelectedEdges(selectedEdges);
+			that.renderSelectedEdges(selectedEdges);
 		};
 
 		this.brush = d3.svg.brush()
-			.x(x)
-			.y(y)
-			.on("brushend",this.brushend);
+			.x(this.zoomer.x())
+			.y(this.zoomer.y());
+			// .on("brushend",this.brushend);
 			
-		var brush = svg.append("g")
-			.attr("class", "brush")
-			.call(this.brush);
-
-
+		// var brush = svg.append("g")
+		// 	.attr("class", "brush")
+		// 	.call(this.brush);
+		
+		this.setAreaMode();
+		
 		var legend = svg.selectAll(".legend")
 			.data(color.domain())
 			.enter().append("g")

@@ -25,8 +25,9 @@ var ControlPanel = Backbone.View.extend({
 	events: {
 		'click #brush':function() {
 			this.model.set({
-				brush: $("#brush").hasClass("active")
-			});			
+				// seems triggered before the click is finished, so reverse it
+				brush: !($("#brush").hasClass("active"))
+			});	
 		},
 		'click #stick':function() {
 
