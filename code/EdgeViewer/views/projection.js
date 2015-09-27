@@ -1,3 +1,4 @@
+/* global d3 */
 var ProjectionView = Backbone.View.extend({
 	defaults: {
 		margin: {
@@ -10,10 +11,47 @@ var ProjectionView = Backbone.View.extend({
 	initialize: function(options, inter) {
 		this.inter = inter;
 		this.listenTo(this.inter, "change", function() {
-			console.log("event trigger");
+			// console.log("event trigger",this.inter);
+			var flag = this.inter.get('brush');
+			this.selectAreaMode = flag;
+			console.log(flag);	
+			this.setAreaMode();		
 		});
 		Backbone.on('hoverEdge', this.renderEdge, this);
 	},
+	// http://stackoverflow.com/questions/17108890/d3-zoom-and-brush-working-at-the-same-time
+	setAreaMode: function () {
+        var self = this;
+
+        if (self.selectAreaMode) {
+            // self.setCursorToCrosshair();
+
+            /* Deactivating zoom tool */
+            self.zoomer.on('zoom', null);
+
+            /* Adding brush to DOM */
+            self.svg.append("g")
+                .attr('class', 'brush')
+                .attr("pointer-events", "all")
+                .datum(function() { return { selected: false, previouslySelected: false};});
+			
+            /* Attaching listeners to brush */
+            d3.select('.brush').call(
+				self.brush.on("brushend",self.brushend)
+            );
+        }
+		else {
+            // self.setCursorToDefault();
+            /* Activating zoomer */
+            self.zoomer.on("zoom", self.zoomed);
+
+            /* Deactivating listeners brush tool */
+            d3.select('.brush').call(self.brush.on('brushend', null));
+
+            /* Removing brush from DOM */
+            d3.select('.brush').remove();
+        }
+    },
 	renderEdge:function(index){
 		this.dots.classed("hovered", function (d,i) {
 			return index === i;
@@ -63,17 +101,17 @@ var ProjectionView = Backbone.View.extend({
 			return d[1];
 		})).nice();
 
-		var zoom = d3.behavior.zoom()
+		this.zoomer = d3.behavior.zoom()
 			.x(x)
 			.y(y)
 			// .scaleExtent([1, 10])
-			.on("zoom", zoomed);
+			.on("zoom", this.zoomed);
 
 		var svg = this.container
-			.call(zoom)
+			.call(this.zoomer);
 			// http://stackoverflow.com/questions/13713528/how-to-disable-pan-for-d3-behavior-zoom
-			.on("mousedown.zoom", null);
-
+			// .on("mousedown.zoom", null);
+		this.svg = svg;
 		svg.append("g")
 			.attr("class", "x axis")
 			.attr("transform", "translate(0," + height + ")")
@@ -124,7 +162,7 @@ var ProjectionView = Backbone.View.extend({
 				return y(d[1]);
 			});
 		var dots = this.dots;
-		function zoomed() {
+		this.zoomed = function() {
 			svg.select(".x.axis").call(xAxis);
 			svg.select(".y.axis").call(yAxis);
 
@@ -139,28 +177,32 @@ var ProjectionView = Backbone.View.extend({
 				.attr("cy", function(d) {
 					return y(d[1]);
 				});
-		}
+		};
 		
 		var theView = this;
+		
+		this.brushend = function () {
+			var extent = d3.event.target.extent();
+			var selectedEdges = [];
+			dots.classed("selected", function (d, i) {
+				var flag = extent[0][0] <= d[0] && d[0] < extent[1][0] && extent[0][1] <= d[1] && d[1] < extent[1][1];
+				if (flag) {
+					selectedEdges.push(i);
+				}
+				return flag;
+			});
+			// console.log(selectedEdges);
+			theView.renderSelectedEdges(selectedEdges);
+		};
 
+		this.brush = d3.svg.brush()
+			.x(x)
+			.y(y)
+			.on("brushend",this.brushend);
+			
 		var brush = svg.append("g")
 			.attr("class", "brush")
-			.call(d3.svg.brush()
-				.x(x)
-				.y(y)
-				.on("brushend", function() {
-					var extent = d3.event.target.extent();
-					selectedEdges = [];
-					dots.classed("selected", function(d, i) {
-						var flag = extent[0][0] <= d[0] && d[0] < extent[1][0] && extent[0][1] <= d[1] && d[1] < extent[1][1];
-						if (flag) {
-							selectedEdges.push(i);
-						}
-						return flag;
-					});
-					// console.log(selectedEdges);
-					theView.renderSelectedEdges(selectedEdges);
-				}));
+			.call(this.brush);
 
 
 		var legend = svg.selectAll(".legend")

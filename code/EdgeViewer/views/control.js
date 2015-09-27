@@ -26,7 +26,7 @@ var ControlPanel = Backbone.View.extend({
 		'click #brush':function() {
 			this.model.set({
 				brush: $("#brush").hasClass("active")
-			})
+			});			
 		},
 		'click #stick':function() {
 
