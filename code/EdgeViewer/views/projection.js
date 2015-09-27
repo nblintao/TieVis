@@ -24,26 +24,26 @@ var ProjectionView = Backbone.View.extend({
 
             /* Deactivating zoom tool */
             self.zoomer.on('zoom', null);
-			this.svg.on("mousedown.zoom", null);			
+			self.outcontainer.on("mousedown.zoom", null);			
 
             /* Adding brush to DOM */
             self.svg.append("g")
                 .attr('class', 'brush')
                 .attr("pointer-events", "all")
                 .datum(function() { return { selected: false, previouslySelected: false};});
-			
+			console.log(self.brush)
             /* Attaching listeners to brush */
             d3.select('.brush').call(
 				self.brush.on("brushend", self.brushend)
-					.on('brushstart', function(){})
-					.on('brush', function(){})
+					// .on('brushstart', function(){})
+					// .on('brush', function(){})
 				);
         }
 		else {
             // self.setCursorToDefault();
             /* Activating zoomer */
             self.zoomer.on("zoom", self.zoomed);
-			self.svg.call(self.zoomer);
+			self.outcontainer.call(self.zoomer);// reuse mousedown.zoom
 			
 			// this.svg.on("mousedown.zoom", this.mousedownzoom);
 			// console.log(this.svg);
@@ -68,9 +68,10 @@ var ProjectionView = Backbone.View.extend({
 		var margin = this.defaults.margin;
 		this.width = this.$el.width() - margin.left - margin.right;
 		this.height = this.$el.height() - margin.top - margin.bottom;
-		this.container = d3.select(this.el).append("svg")
+		this.outcontainer = d3.select(this.el).append("svg")
 			.attr("width", this.width + margin.left + margin.right)
-			.attr("height", this.height + margin.top + margin.bottom)
+			.attr("height", this.height + margin.top + margin.bottom);
+		this.container = this.outcontainer
 			.append("g")
 			.attr("id", "container")
 			.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
@@ -201,6 +202,9 @@ var ProjectionView = Backbone.View.extend({
 			});
 			// console.log(selectedEdges);
 			that.renderSelectedEdges(selectedEdges);
+			
+			d3.event.target.clear();
+			d3.select(this).call(d3.event.target);
 		};
 
 		this.brush = d3.svg.brush()
