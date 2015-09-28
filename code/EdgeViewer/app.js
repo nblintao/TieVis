@@ -37,15 +37,15 @@ var tieVis = {
 			.domain([0, fullColor])
 			// .range([d3.hsl(0,0.5,0.5), d3.hsl(0,1,0.5)]);
 			.range(['rgb(255,200,200)', 'rgb(255,0,0)']);
-		options.scaleColor2 = function (d) {
+		options.scaleColor2 = function(d) {
 			if (d === 0) {
 				return 'white';
 			} else {
 				return options.scaleColor(d);
 			}
 		};
-		options.scaleColor3 = function (d, flag) {
-			if(d===0){
+		options.scaleColor3 = function(d, flag) {
+			if (d === 0) {
 				return 'white';
 			}
 			// hovered
@@ -70,36 +70,50 @@ var tieVis = {
 		var nodelink = new NodeLinkView({
 			el: "#nodelink"
 		}, inter, options);
+		var info = new InfoView({
+			el: "#info"
+		});
 		proj.render();
 		band.render();
 		bipartite.render();
 		nodelink.render();
+		info.render();
 
-		d3.json(options.dataset+'/tieDataParallel.json', function(data1) {
+		d3.json(options.dataset + '/tieDataParallel.json', function(data1) {
 			tieData = data1;
 			tieData.forEach(function(d, i) {
 				d.i = i;
 			});
 			// console.log(tieData);
-			d3.json(options.dataset+'/timelist.json', function(data2) {
+			d3.json(options.dataset + '/timelist.json', function(data2) {
 				timelist = data2;
-				d3.json(options.dataset+'/nodelist.json', function(data3) {
+				d3.json(options.dataset + '/nodelist.json', function(data3) {
 					nodelist = data3;
 					bipartite.renderBipartiteCrossReduction([]);
 					// renderBipartite([]);
-					d3.json(options.dataset+'/nodelink.json', function(data4) {
+					d3.json(options.dataset + '/nodelink.json', function(data4) {
 						nodeLink = data4;
 						nodelink.initializeNodeLinkView(nodelist, nodeLink);
 						nodelink.setData(tieData, nodelist);
 					});
 				});
 				band.renderBands(tieData, timelist);
-				
+
 				//renderBands(tieData, timelist);
 			});
 		});
-		d3.json(options.dataset+'/pcaResult.json', function(pcaResult) {
+		d3.json(options.dataset + '/pcaResult.json', function(pcaResult) {
 			proj.renderProjectView(pcaResult);
 		});
+		d3.json(options.dataset + '/occupation.json', function(occup) {
+			// info.setOccupation(dat);
+			d3.json(options.dataset + '/mailinfo.json', function(mailinfo) {
+				d3.json(options.dataset + '/mails.json', function(mails) {
+					info.setData(occup, mailinfo, mails);
+				});
+			});
+		});
+
+		
 	}
 };
