@@ -250,6 +250,7 @@ var ProjectionView = Backbone.View.extend({
 		}
 		// console.log(idList, selectedTieData);
 		Backbone.trigger('selectEdges', selectedTieData, timelist, idList);
+		Backbone.trigger('showInfo', idList);
 		// renderBands(selectedTieData, timelist);
 		// renderBipartite(selectedTieData);
 		// renderLinks(idList);
