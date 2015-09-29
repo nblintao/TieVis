@@ -16,7 +16,11 @@ var BandView = Backbone.View.extend({
 		// Backbone.on('selectEdges',renderBands(selectedTieData, timelist);)
 		Backbone.on('selectEdges',this.renderBands,this);
 		Backbone.on('hoverEdge', this.renderEdge, this);
+		Backbone.on('renderScale',this.renderScaleEvent,this);
 		this.time = time;
+	},
+	renderScaleEvent:function(){
+		this.renderScale();
 	},
 	renderEdge: function (i) {
 		var options = this.options;
@@ -86,7 +90,9 @@ var BandView = Backbone.View.extend({
 		} else if (bandHeight > bandHeightMax) {
 			bandHeight = bandHeightMax;
 		}
-
+		
+		this.bandHeight = bandHeight;
+		
 		bandViewHeight = (bandHeight + interBandHeight) * nBands;
 
 		this.bandView = this.container;
@@ -123,9 +129,21 @@ var BandView = Backbone.View.extend({
 		// .attr('id', function (d, i) { return 'bar' + i; })
 		;
 
-		var scaleX = d3.scale.linear()
+		this.scaleX = d3.scale.linear()
 			.domain([0, timelist.length])
 			.range([0, bandViewWidth]);
+		this.inter.scaleBandBipa = this.scaleX;
+		// console.log(this.inter.scaleBandBipa);
+		
+		var zoom = d3.behavior.zoom()
+			.on("zoom", function(){
+				Backbone.trigger('renderScale');
+			})
+			.x(this.scaleX);
+		this.inter.zoomBandBipa = zoom;
+		
+		this.bandView.call(zoom);
+		
 		var singleWidth = bandViewWidth / timelist.length;
 
 		this.rect = this.bar.selectAll('rect')
@@ -147,16 +165,24 @@ var BandView = Backbone.View.extend({
 			.enter()
 			.append('rect');
 
-		this.rect
+		var that = this;
+		this.renderScale = function(){
+			// console.log("renenrenr");
+			that.rect
 			.attr('x', function(d) {
-				return scaleX(d.index);
+				return that.scaleX(d.index);
 			})
 			// .attr('y', function(d,i){return scaleY(i);})
-			.attr('width', singleWidth)
-			.attr('height', bandHeight)
+			// .attr('width', singleWidth)
+			.attr('width', that.scaleX(1)-that.scaleX(0))
+			.attr('height', that.bandHeight)
 			.style('fill', function(d) {
 				return options.scaleColor2(d.d);
 			});
+		};
+		
+		this.renderScale();
+
 		var line = d3.svg.line()
 			.x(function(d) {
 				return d.x;

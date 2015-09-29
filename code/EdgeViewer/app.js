@@ -74,6 +74,7 @@ var tieVis = {
 			el: "#info"
 		});
 		proj.render();
+		//render band before bipartite because of inter.scaleBandBipa
 		band.render();
 		bipartite.render();
 		nodelink.render();

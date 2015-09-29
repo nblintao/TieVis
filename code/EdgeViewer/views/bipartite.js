@@ -9,10 +9,15 @@ var BiPartiteView = Backbone.View.extend({
 	},
 	initialize: function(defaults, inter, options, time) {
 		this.options = options;
+		this.inter = inter;
 		Backbone.on('selectEdges',this.renderBipartiteCrossReduction,this);
 		Backbone.on('hoverEdge', this.renderEdge, this);
 		this.time = time;
 		Backbone.on('selectTime', this.renderBipartiteGroup, this);
+		Backbone.on('renderScale', this.renderScaleEvent, this);
+	},
+	renderScaleEvent:function(){
+		this.renderScale();
 	},
 	renderBipartiteCrossReduction:function(data){
 		this.data = data;
@@ -140,7 +145,7 @@ var BiPartiteView = Backbone.View.extend({
 		}
 	},
 	orderGroup: function (nodeOrder, relatedNodes, periods, nNodes, data, selectedTime) {
-		console.log(nodeOrder, relatedNodes, periods, nNodes, data, selectedTime);
+		// console.log(nodeOrder, relatedNodes, periods, nNodes, data, selectedTime);
 		var edgesNow = [];
 		for (var i = 0; i < data.length; i++) {
 			if (data[i].d[selectedTime] !== 0) {
@@ -189,7 +194,7 @@ var BiPartiteView = Backbone.View.extend({
 				groups.splice(tset, 1);
 			}
 		}
-		console.log(groups);
+		// console.log(groups);
 		
 		// get the order
 		var order = [];
@@ -230,7 +235,7 @@ var BiPartiteView = Backbone.View.extend({
 			this.orderGroup(nodeOrder, relatedNodes, periods, nNodes, data, selectedTime);
 		}
 		
-		console.log(nodeOrder);
+		// console.log(nodeOrder);
 		
 		
 		// start rendering
@@ -244,10 +249,12 @@ var BiPartiteView = Backbone.View.extend({
 		//   .rangePoints([0, width], 1)
 		//   .domain(d3.range(timelist.length + 1));
 
-		var x = d3.scale.linear()
-			.range([0, width])
-			.domain([0, timelist.length]);
-
+		// var x = d3.scale.linear()
+		// 	.range([0, width])
+		// 	.domain([0, timelist.length]);
+			
+		var x = this.inter.scaleBandBipa;
+		this.container.call(this.inter.zoomBandBipa);
 
 		// different !!!
 		var oldY = d3.scale.linear()
@@ -326,6 +333,16 @@ var BiPartiteView = Backbone.View.extend({
 			.style('stroke', function(d) {
 				return options.scaleColor2(d.d);
 			});
+			
+		this.renderScale = function(){
+			this.line
+				.attr('x1', function (d, i) {
+					return x(d.i);
+				})
+				.attr('x2', function (d, i) {
+					return x(d.i + 1);
+				});
+		}
 		var line = d3.svg.line()
 			.x(function(d) {
 				return d.x;
