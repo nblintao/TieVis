@@ -12,6 +12,14 @@ var BiPartiteView = Backbone.View.extend({
 		Backbone.on('selectEdges',this.renderBipartiteCrossReduction,this);
 		Backbone.on('hoverEdge', this.renderEdge, this);
 		this.time = time;
+		Backbone.on('selectTime', this.renderBipartiteGroup, this);
+	},
+	renderBipartiteCrossReduction:function(data){
+		this.data = data;
+		this.renderBipartite(data, -1);
+	},
+	renderBipartiteGroup: function(selectedTime){
+		this.renderBipartite(this.data, selectedTime);
 	},
 	renderEdge: function (i) {
 		var options = this.options;
@@ -59,30 +67,14 @@ var BiPartiteView = Backbone.View.extend({
 			// 	}
 			// }
 	},
-	renderBipartiteCrossReduction: function(data) {
-		// find related nodes
-		var options = this.options;
-		var relatedNodes = new Set();
-		var time = this.time;
-		for (var i = 0; i < data.length; i++) {
-			var d = data[i];
-			for (var j = 0; j < d.d.length; j++) {
-				relatedNodes.add(d.x);
-				relatedNodes.add(d.y);
-			}
-		}
-		// console.log(relatedNodes);
-		var nNodes = relatedNodes.size;
-		var periods = timelist.length;
-		var nodeOrder = new Array(periods + 1);
-
+	orderCrossReduction: function (nodeOrder, relatedNodes, periods, nNodes, data) {
 		// shuffle for the first line
 		nodeOrder[0] = [];
 		for (var entry of relatedNodes) {
 			nodeOrder[0].push(entry);
 			// console.log(entry);
 		}
-		nodeOrder[0].sort(function(a, b) {
+		nodeOrder[0].sort(function (a, b) {
 			return Math.random() > .5 ? -1 : 1;
 		});
 		// console.log(nodeOrder[0]);
@@ -146,7 +138,101 @@ var BiPartiteView = Backbone.View.extend({
 			}
 			// console.log(nodeOrder[step + 1]);
 		}
+	},
+	orderGroup: function (nodeOrder, relatedNodes, periods, nNodes, data, selectedTime) {
+		console.log(nodeOrder, relatedNodes, periods, nNodes, data, selectedTime);
+		var edgesNow = [];
+		for (var i = 0; i < data.length; i++) {
+			if (data[i].d[selectedTime] !== 0) {
+				edgesNow.push([data[i].y, data[i].x]);
+			}
+		}
 
+		var groups = [];
+		// construct the groups
+		for (var i = 0; i < edgesNow.length; i++) {
+			var edge = edgesNow[i];
+			var fset = -1, tset = -1;
+			for (var j = 0; j < groups.length; j++) {
+				if (groups[j].s.indexOf(edge[0]) !== -1) {
+					fset = j;
+				}
+				if (groups[j].s.indexOf(edge[1]) !== -1) {
+					tset = j;
+				}
+			}
+
+			if (fset === -1 && tset === -1) {
+				var ss;
+				if(edge[0] === edge[1]){
+					ss = [edge[0]];
+				}else{
+					ss = [edge[0], edge[1]];
+				}
+				groups.push({ e: [edge], s: ss});
+			}
+			else if (fset === -1 || tset === -1) {
+				if (fset === -1) {
+					groups[tset].e.push(edge);
+					groups[tset].s.push(edge[0]);
+				} else {
+					groups[fset].e.push(edge);
+					groups[fset].s.push(edge[1]);
+				}
+			}
+			else if (fset !== tset) {
+				var ga = groups[fset];
+				var gb = groups[tset];
+				ga.e = ga.e.concat(gb.e);
+				ga.e.push(edge);
+				ga.s = ga.e.concat(gb.e);
+				groups.splice(tset, 1);
+			}
+		}
+		console.log(groups);
+		
+		// get the order
+		var order = [];
+		for (var i = 0; i < groups.length; i++) {
+			order = order.concat(groups[i].s);
+		}
+		for (var entry of relatedNodes) {
+			if(order.indexOf(entry)===-1){
+				order.push(entry);
+			}
+		}
+		// console.log(order);
+		for (var i = 0; i < periods + 1; i++) {
+			nodeOrder[i] = order;
+		}
+	},
+	renderBipartite: function(data, selectedTime) {
+		// find related nodes
+		var options = this.options;
+		var relatedNodes = new Set();
+		var time = this.time;
+		for (var i = 0; i < data.length; i++) {
+			var d = data[i];
+			// for (var j = 0; j < d.d.length; j++) {
+				relatedNodes.add(d.x);
+				relatedNodes.add(d.y);
+			// }
+		}
+		// console.log(relatedNodes);
+		var nNodes = relatedNodes.size;
+		var periods = timelist.length;
+		var nodeOrder = new Array(periods + 1);
+		
+		if (selectedTime === -1){
+			this.orderCrossReduction(nodeOrder, relatedNodes, periods, nNodes, data);
+		}
+		else {
+			this.orderGroup(nodeOrder, relatedNodes, periods, nNodes, data, selectedTime);
+		}
+		
+		console.log(nodeOrder);
+		
+		
 		// start rendering
 		var margin = this.defaults.margin,
 			// width = 800 - margin.left - margin.right,

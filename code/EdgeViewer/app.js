@@ -90,6 +90,7 @@ var tieVis = {
 				d3.json(options.dataset + '/nodelist.json', function(data3) {
 					nodelist = data3;
 					bipartite.renderBipartiteCrossReduction([]);
+					// Backbone.trigger('selectEdges',[])
 					// renderBipartite([]);
 					d3.json(options.dataset + '/nodelink.json', function(data4) {
 						nodeLink = data4;
