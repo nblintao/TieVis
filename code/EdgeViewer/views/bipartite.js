@@ -59,7 +59,7 @@ var BiPartiteView = Backbone.View.extend({
 					var x = scale(pos);
 					return "translate(" + x + "," + "0)";
 				});
-			})
+			});
 			// function renderBipartite(data) {
 			// 	switch (options.bipartiteType) {
 			// 		case 'Original':
@@ -145,7 +145,7 @@ var BiPartiteView = Backbone.View.extend({
 		}
 	},
 	orderGroup: function (nodeOrder, relatedNodes, periods, nNodes, data, selectedTime) {
-		// console.log(nodeOrder, relatedNodes, periods, nNodes, data, selectedTime);
+		//console.log(nodeOrder, relatedNodes, periods, nNodes, data, selectedTime);
 		var edgesNow = [];
 		for (var i = 0; i < data.length; i++) {
 			if (data[i].d[selectedTime] !== 0) {
@@ -190,11 +190,11 @@ var BiPartiteView = Backbone.View.extend({
 				var gb = groups[tset];
 				ga.e = ga.e.concat(gb.e);
 				ga.e.push(edge);
-				ga.s = ga.e.concat(gb.e);
+				ga.s = ga.s.concat(gb.s);
 				groups.splice(tset, 1);
 			}
 		}
-		// console.log(groups);
+		//console.log(groups);
 		
 		// get the order
 		var order = [];
@@ -206,7 +206,7 @@ var BiPartiteView = Backbone.View.extend({
 				order.push(entry);
 			}
 		}
-		// console.log(order);
+		//console.log(order);
 		for (var i = 0; i < periods + 1; i++) {
 			nodeOrder[i] = order;
 		}
@@ -243,7 +243,8 @@ var BiPartiteView = Backbone.View.extend({
 			// width = 800 - margin.left - margin.right,
 			// width = options.timelineWidth,
 			width = this.width,
-			height = 350 - margin.top - margin.bottom;
+			// height = 350 - margin.top - margin.bottom;
+			height = this.height;
 
 		// var x = d3.scale.ordinal()
 		//   .rangePoints([0, width], 1)
