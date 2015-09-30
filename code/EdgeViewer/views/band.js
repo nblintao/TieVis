@@ -230,8 +230,10 @@ var BandView = Backbone.View.extend({
 			})
 			.on("click", function() {
 				var mpos = d3.mouse(this);
-				var t = (mpos[0] - margin.left) / (width);
-				Backbone.trigger("selectTime", timeScale(t));
+				// var t = (mpos[0] - margin.left) / (width);
+				// Backbone.trigger("selectTime", timeScale(t));
+				var time = Math.floor(that.scaleX.invert((mpos[0] - margin.left)));
+				Backbone.trigger("selectTime", time);
 			});
 	},
 	changeOrder: function(tieData) {

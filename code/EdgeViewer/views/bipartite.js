@@ -379,6 +379,7 @@ var BiPartiteView = Backbone.View.extend({
 			range.push(i);
 		}
 		var timeScale = d3.scale.quantize().domain([0, 1]).range(range);
+		var that = this;
 		d3.select("#bipartite")
 			.on("mousemove", function() {
 				var mpos = d3.mouse(this);
@@ -392,8 +393,10 @@ var BiPartiteView = Backbone.View.extend({
 			})
 			.on("click", function() {
 				var mpos = d3.mouse(this);
-				var t = (mpos[0] - margin.left) / (width);
-				Backbone.trigger("selectTime", timeScale(t));
+				// var t = (mpos[0] - margin.left) / (width);
+				// Backbone.trigger("selectTime", timeScale(t));
+				var time = Math.floor(that.inter.scaleBandBipa.invert((mpos[0] - margin.left)));
+				Backbone.trigger("selectTime", time);
 			});
 
 	}
