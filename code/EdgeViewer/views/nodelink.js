@@ -44,7 +44,7 @@ var NodeLinkView = Backbone.View.extend({
 		var tieData = this.tieData;
 		if (this.selectedTime === undefined || this.selectedTime !== time) {
 			this.selectedTime = time;
-			console.log(time);
+			// console.log(time);
 			var nodelink = tieData
 			.map(function(d,i) {
 				return {
