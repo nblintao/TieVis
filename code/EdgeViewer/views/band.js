@@ -236,6 +236,43 @@ var BandView = Backbone.View.extend({
 				Backbone.trigger("selectTime", time);
 			});
 	},
+	hieCluter: function(tieData) {
+		var vectDist = function(a, b) {
+			var res = 0;
+			for(var i = 0; i < a.length; i++) {
+				res = (a[i] - b[j]) * (a[i] - b[j]);
+			}
+			return Math.sqrt(res);
+		};
+		var dist = function(v1, v2) {
+			var res = 0;
+			for(var i = 0; i < v1.length; i++) {
+				for(var j = 0; j < v2.length; j++) {
+					res += vectDist(v1[i], v2[j]);
+				}
+			}
+			return res / (v1.length * v2.length);
+		};
+		var cluster = [];
+		for(var i = 0; i < tieData.length; i++) {
+			cluster.push([tieData[i]]);
+		}
+		while(cluster.length > 1) {
+			var max = -1, id1, id2;
+			for(var i = 0; i < cluster.length; i++) {
+				for(var j = i + 1; j < cluster.length; j++) {
+					var d = dist(cluster[i], cluster[j]);
+					if(max < d) {
+						max = d;
+						id1 = i;
+						id2 = j;
+					}
+				}
+			}
+			cluster[i] = cluster[i].concat(cluster[j]);
+			cluster.splice(id2, 1);
+		}
+	},
 	changeOrder: function(tieData) {
 		var dat = [];
 		var len = tieData.length;

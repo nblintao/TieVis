@@ -11,7 +11,7 @@ var tieVis = {
 		var options = {
 			dataset: datasets[2],
 			bipartiteType: bipartiteTypes[1],
-			doMDS: true,
+			doMDS: false,
 			thresholdMDS: 500,
 			// timelineWidth: 600,
 			// timeLeftMargin: 30,
