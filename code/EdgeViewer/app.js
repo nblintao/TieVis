@@ -37,13 +37,13 @@ var tieVis = {
 			.domain([0, fullColor])
 			// .range([d3.hsl(0,0.5,0.5), d3.hsl(0,1,0.5)]);
 			.range(['rgb(255,200,200)', 'rgb(255,0,0)']);
-		options.scaleColor2 = function(d) {
-			if (d === 0) {
-				return 'white';
-			} else {
-				return options.scaleColor(d);
-			}
-		};
+		// options.scaleColor2 = function(d) {
+		// 	if (d === 0) {
+		// 		return 'white';
+		// 	} else {
+		// 		return options.scaleColor(d);
+		// 	}
+		// };
 		options.scaleColor3 = function(d, flag) {
 			if (d === 0) {
 				return 'white';

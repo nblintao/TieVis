@@ -9,9 +9,9 @@ var BandView = Backbone.View.extend({
 	},
 	initialize: function(defaults, inter, options, time) {
 		this.inter = inter;
-		this.listenTo(this.inter, "change", function() {
-			console.log("event trigger");
-		});
+		// this.listenTo(this.inter, "change", function() {
+		// 	console.log("event trigger");
+		// });
 		this.options = options;
 		// Backbone.on('selectEdges',renderBands(selectedTieData, timelist);)
 		Backbone.on('selectEdges',this.renderBands,this);
@@ -177,7 +177,7 @@ var BandView = Backbone.View.extend({
 			.attr('width', that.scaleX(1)-that.scaleX(0))
 			.attr('height', that.bandHeight)
 			.style('fill', function(d) {
-				return options.scaleColor2(d.d);
+				return options.scaleColor3(d.d,false);
 			});
 		};
 		
