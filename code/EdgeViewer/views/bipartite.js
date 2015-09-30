@@ -275,6 +275,12 @@ var BiPartiteView = Backbone.View.extend({
 
 		var svg = this.container;
 		this.svg = svg;
+		svg.append("clipPath")
+			.attr("id", "clipBi")
+			.append("rect")
+			.attr("width", width)
+			.attr("height", height);
+	
 		// Add an axis and title.
 		var axis = d3.svg.axis()
 			.scale(oldY)
@@ -288,8 +294,11 @@ var BiPartiteView = Backbone.View.extend({
 			.text(function(d) {
 				return d;
 			});
-
-		var edge = svg.selectAll('.edge')
+			
+		var cliped = svg.append('g')
+			.attr("clip-path", "url(#clipBi)");
+			
+		var edge = cliped.selectAll('.edge')
 			.data(data)
 			.enter()
 			.append('g')
