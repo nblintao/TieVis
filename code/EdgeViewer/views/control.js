@@ -8,9 +8,20 @@ var ControlPanel = Backbone.View.extend({
 	 				'<span class="glyphicon glyphicon-pushpin" aria-hidden="true"></span>' +
 				'</button>' +				
 			'</div>' +
-			'<p id="temp"></p>'  // TODO: Sidong, please move the showEdgeInfo to infopanel on the right side 
+			'<p id="temp"></p>' + // TODO: Sidong, please move the showEdgeInfo to infopanel on the right side
+			 '<p id="time"></p>'
 			;
 		Backbone.on('hoverEdge', this.showEdgeInfo, this);
+		Backbone.on('selectTime',this.showTime, this);
+	},
+	showTime:function(t){
+		var timeinfo;
+		if(t>=timelist.length){
+			timeinfo = 'Period Not Exist';
+		}else{
+			timeinfo = 'Period ' + t + ': ' + timelist[t];
+		}		
+		d3.select('#time').html(timeinfo);
 	},
 	showEdgeInfo: function (i) {
 		var edge = tieData[i];

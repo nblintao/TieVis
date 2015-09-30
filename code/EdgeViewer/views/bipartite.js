@@ -15,6 +15,7 @@ var BiPartiteView = Backbone.View.extend({
 		this.time = time;
 		Backbone.on('selectTime', this.renderBipartiteGroup, this);
 		Backbone.on('renderScale', this.renderScaleEvent, this);
+		this.colorCat = d3.scale.category10();
 	},
 	renderScaleEvent:function(){
 		this.renderScale();
@@ -28,16 +29,17 @@ var BiPartiteView = Backbone.View.extend({
 	},
 	renderEdge: function (i) {
 		var options = this.options;
+		var that = this;
 		this.edge.classed("hovered", function (d) {
 			return d.i === i;
 		});
 		this.line.style('stroke', function (d) {
-			return options.scaleColor3(d.d, false);
+			return that.colorScale(d, false);
 		});
 		this.svg.selectAll('.hovered').selectAll('line')
 			.style('stroke', function (d) {
-				return options.scaleColor3(d.d, true);
-			});	
+				return that.colorScale(d, true);
+			});
 	},
 	render: function() {
 		var margin = this.defaults.margin;
@@ -149,7 +151,8 @@ var BiPartiteView = Backbone.View.extend({
 		var edgesNow = [];
 		for (var i = 0; i < data.length; i++) {
 			if (data[i].d[selectedTime] !== 0) {
-				edgesNow.push([data[i].y, data[i].x]);
+				// edgesNow.push([data[i].y, data[i].x]);
+				edgesNow.push(data[i]);
 			}
 		}
 
@@ -159,30 +162,30 @@ var BiPartiteView = Backbone.View.extend({
 			var edge = edgesNow[i];
 			var fset = -1, tset = -1;
 			for (var j = 0; j < groups.length; j++) {
-				if (groups[j].s.indexOf(edge[0]) !== -1) {
+				if (groups[j].s.indexOf(edge.y) !== -1) {
 					fset = j;
 				}
-				if (groups[j].s.indexOf(edge[1]) !== -1) {
+				if (groups[j].s.indexOf(edge.x) !== -1) {
 					tset = j;
 				}
 			}
 
 			if (fset === -1 && tset === -1) {
 				var ss;
-				if(edge[0] === edge[1]){
-					ss = [edge[0]];
+				if(edge.y === edge.x){
+					ss = [edge.y];
 				}else{
-					ss = [edge[0], edge[1]];
+					ss = [edge.y, edge.x];
 				}
 				groups.push({ e: [edge], s: ss});
 			}
 			else if (fset === -1 || tset === -1) {
 				if (fset === -1) {
 					groups[tset].e.push(edge);
-					groups[tset].s.push(edge[0]);
+					groups[tset].s.push(edge.y);
 				} else {
 					groups[fset].e.push(edge);
-					groups[fset].s.push(edge[1]);
+					groups[fset].s.push(edge.x);
 				}
 			}
 			else if (fset !== tset) {
@@ -193,8 +196,24 @@ var BiPartiteView = Backbone.View.extend({
 				ga.s = ga.s.concat(gb.s);
 				groups.splice(tset, 1);
 			}
+			else // fset === tset
+			{
+				groups[fset].e.push(edge);
+			}
 		}
 		//console.log(groups);
+		
+		// set group id
+		data.forEach(function(d){
+			d.g = undefined;
+		});
+		for (var i = 0; i < groups.length; i++) {
+			var edges = groups[i].e;
+			for(var j=0;j<edges.length;j++){
+				var oneEdge = edges[j];
+				oneEdge.g = i;
+			}
+		}
 		
 		// get the order
 		var order = [];
@@ -212,6 +231,7 @@ var BiPartiteView = Backbone.View.extend({
 		}
 	},
 	renderBipartite: function(data, selectedTime) {
+		var that = this;
 		// find related nodes
 		var options = this.options;
 		var relatedNodes = new Set();
@@ -310,6 +330,14 @@ var BiPartiteView = Backbone.View.extend({
 			});
 		this.edge = edge;
 		
+		this.colorScale = function (d, flag) {
+			if (d.e.g !== undefined) {
+				return that.colorCat(d.e.g);
+			} else {
+				return options.scaleColor3(d.d, flag);
+			}
+		};
+		
 		this.line = edge.selectAll('line')
 			.data(function(d) {
 				var r = [];
@@ -319,7 +347,8 @@ var BiPartiteView = Backbone.View.extend({
 							'd': d.d[i],
 							'x': d.x,
 							'y': d.y,
-							'i': i
+							'i': i,
+							'e': d
 						});
 						// y/x means from/to here
 					}
@@ -340,9 +369,7 @@ var BiPartiteView = Backbone.View.extend({
 			.attr('y2', function(d, i) {
 				return y(d.x, d.i + 1);
 			})
-			.style('stroke', function(d) {
-				return options.scaleColor2(d.d);
-			});
+			.style('stroke', function(d){return that.colorScale(d,false);});
 			
 		this.renderScale = function(){
 			this.line
@@ -389,7 +416,7 @@ var BiPartiteView = Backbone.View.extend({
 			range.push(i);
 		}
 		var timeScale = d3.scale.quantize().domain([0, 1]).range(range);
-		var that = this;
+		
 		d3.select("#bipartite")
 			.on("mousemove", function() {
 				var mpos = d3.mouse(this);
