@@ -67,6 +67,8 @@ var BandView = Backbone.View.extend({
 		var options = this.options;
 		if (options.doMDS && nBands > 2 && nBands < options.thresholdMDS) {
 			console.log('Doing MDS to ' + nBands + ' bands');
+
+            //this.hieCluter(tieData);
 			this.changeOrder(tieData);
 		}
 		// else{
@@ -240,38 +242,67 @@ var BandView = Backbone.View.extend({
 		var vectDist = function(a, b) {
 			var res = 0;
 			for(var i = 0; i < a.length; i++) {
-				res = (a[i] - b[j]) * (a[i] - b[j]);
+				res += (a[i] - b[i]) * (a[i] - b[i]);
 			}
 			return Math.sqrt(res);
 		};
-		var dist = function(v1, v2) {
+		var dist = function(v1, v2, dist) {
 			var res = 0;
 			for(var i = 0; i < v1.length; i++) {
 				for(var j = 0; j < v2.length; j++) {
-					res += vectDist(v1[i], v2[j]);
+					res += dist(v1[i], v2[j]);
 				}
 			}
 			return res / (v1.length * v2.length);
 		};
+        var expand = function(node) {
+            var n0, n1;
+            var children = node.children;
+            var temp = children.map(function(d) {
+                var res;
+                if(d.data.length == 1) {
+                    res = d.data;
+                } else {
+                    res = expand(d);
+                }
+                return res;
+            });
+            var res = [];
+            for(var i = 0, len = temp.length; i < len; i++) {
+                res = res.concat(temp[i]);
+            }
+            return res;
+        };
 		var cluster = [];
 		for(var i = 0; i < tieData.length; i++) {
-			cluster.push([tieData[i]]);
+			cluster.push({
+                data:[tieData[i]]
+            });
 		}
 		while(cluster.length > 1) {
-			var max = -1, id1, id2;
+			var min = Number.MAX_VALUE, id1, id2;
 			for(var i = 0; i < cluster.length; i++) {
 				for(var j = i + 1; j < cluster.length; j++) {
-					var d = dist(cluster[i], cluster[j]);
-					if(max < d) {
-						max = d;
+					var d = dist(cluster[i].data, cluster[j].data, function(a, b) {
+                        return vectDist(a.d, b.d);
+                    });
+					if(min > d) {
+						min = d;
 						id1 = i;
 						id2 = j;
 					}
 				}
 			}
-			cluster[i] = cluster[i].concat(cluster[j]);
+			//cluster[id1].data = cluster[id1].data.concat(cluster[id2].data);
+            var newNode = {};
+            newNode.data = cluster[id1].data.concat(cluster[id2].data);
+            newNode.children = [cluster[id1], cluster[id2]];
+            cluster[id1] = newNode;
 			cluster.splice(id2, 1);
 		}
+        console.log(cluster[0]);
+        //console.log(expand(cluster[0]).map(function(d) {return d.i}));
+        return cluster;
 	},
 	changeOrder: function(tieData) {
 		var dat = [];
