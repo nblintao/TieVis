@@ -16,3 +16,8 @@ writing/document.blg
 /code/frontend/js/zrender.js
 *.pdf
 code/EdgeViewer.rar
+newwriting/document.aux
+newwriting/document.synctex.gz
+newwriting/document.bbl
+newwriting/document.log
+newwriting/document.blg

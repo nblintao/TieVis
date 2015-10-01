@@ -1,0 +1,32 @@
+\documentclass{article}
+\title{Part of the Paper}
+\author{Tao LIN}
+
+\begin{document}
+
+\maketitle
+
+\section{Bipartite View}
+
+In the bipartite view, we introduce a visualization of both the temporal and topological information about the selected edges.
+The temporal information is encoded horizontally. We visualize a bipartite graph for each time step, and the visualization for the time steps is horizontally arranged according to the temporal sequence.
+
+For each time step, we display the related edges regarding to their source and target vertices. Two parallel vertical axes are used to arrange the related vertices. The left axe encodes the source vertices of the edges, and the right one encodes the target vertices. Each edge is visually encoded as a link between the left axe and the right one. 
+
+In order to minimize the visual clutter within the time short enough, we should optimize the way vertices are arranged on the axes.
+Here are several ways considered.
+
+//TODO: early considerations
+
+In order to find a balance between visual quality and respond speed, we finally decide to do the optimization hierarchically. The related vertices are grouped, and the vertices in the same group are aligned together. Then, we optimize the alignment of the vertices in the groups and the alignment of these groups.
+
+The grouping is according to the connectivity of the vertices in the selected time step. The vertices of the edges connected together are regarded as in the same group. By mentioning the selected time step here, it is important to point out that the alignments are identical for distinct time steps. If the alignments are distinct for the time steps, it would be difficult for the analyzer to find the pattern. If edges of all time steps are considered, the connected subsets may be too large to minimize the visual clutter quickly.
+
+// TODO: inner-group alignment
+
+// TODO: inter-group alignment
+
+
+
+\end{document}
+
