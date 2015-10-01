@@ -15,12 +15,16 @@ var ProjectionView = Backbone.View.extend({
 		});
 		Backbone.on('selectTime', this.renderTime, this);
 		Backbone.on('hoverEdge', this.renderEdge, this);
+		Backbone.on('selectEdges',this.selectEdges,this);
+	},
+	selectEdges:function(tieData){
+		this.tieData = tieData;
 	},
 	renderTime: function(time) {
 		var that = this;
 		if (this.selectedTime === undefined || this.selectedTime !== time) {
 			this.selectedTime = time;
-			var edgesNow = tieData.filter(function (d) {
+			var edgesNow = this.tieData.filter(function (d) {
 				return d.d[time] > 0;
 			});
 			var nEdgesNow = edgesNow.length;
@@ -247,6 +251,7 @@ var ProjectionView = Backbone.View.extend({
 			});
 			// console.log(selectedEdges);
 			that.renderSelectedEdges(selectedEdges);
+			this.clipped.select('.nodeLines').remove();
 			
 			d3.event.target.clear();
 			d3.select(this).call(d3.event.target);
