@@ -13,7 +13,51 @@ var ProjectionView = Backbone.View.extend({
 		this.listenTo(this.inter, "change", function() {
 			this.setAreaMode();		
 		});
+		Backbone.on('selectTime', this.renderTime, this);
 		Backbone.on('hoverEdge', this.renderEdge, this);
+		Backbone.on('selectEdges',this.selectEdges,this);
+	},
+	selectEdges:function(tieData){
+		this.tieData = tieData;
+	},
+	renderTime: function(time) {
+		var that = this;
+		if (this.selectedTime === undefined || this.selectedTime !== time) {
+			this.selectedTime = time;
+			var edgesNow = this.tieData.filter(function (d) {
+				return d.d[time] > 0;
+			});
+			var nEdgesNow = edgesNow.length;
+
+			var nodeLineData = [];
+			for (var i = 0; i < nEdgesNow - 1; i++) {
+				for (var j = 1; j < nEdgesNow; j++) {
+					var edgei = edgesNow[i];
+					var edgej = edgesNow[j];
+					if (edgei.y === edgej.y || edgei.y === edgej.x || edgei.x === edgej.y || edgei.x === edgej.x) {
+						nodeLineData.push([edgei.i, edgej.i]);
+					}
+				}
+			}
+			
+			this.nodeLineData = nodeLineData;
+			this.clipped.select('.nodeLines').remove();
+			var nodeLines = this.clipped.append('g')
+				.attr('class', 'nodeLines');
+			this.nodeLine = nodeLines.selectAll('line')
+				.data(that.nodeLineData)
+				.enter()
+				.append('line');
+			this.rerenderLines();				
+		}
+	},
+	rerenderLines: function () {
+		var that = this;
+		that.nodeLine
+			.attr('x1', function (d) { return that.x(that.pcaResult[d[0]][0]); })
+			.attr('x2', function (d) { return that.x(that.pcaResult[d[1]][0]); })
+			.attr('y1', function (d) { return that.y(that.pcaResult[d[0]][1]); })
+			.attr('y2', function (d) { return that.y(that.pcaResult[d[1]][1]); });
 	},
 	// http://stackoverflow.com/questions/17108890/d3-zoom-and-brush-working-at-the-same-time
 	setAreaMode: function () {
@@ -102,7 +146,7 @@ var ProjectionView = Backbone.View.extend({
 			.orient("left");
 
 		var data = pcaResult;
-
+		this.pcaResult = pcaResult;
 		this.x.domain(d3.extent(data, function(d) {
 			return d[0];
 		})).nice();
@@ -151,9 +195,11 @@ var ProjectionView = Backbone.View.extend({
 			.attr("width", width)
 			.attr("height", height);
 
-		var gDots = svg.append('g')
-			.attr('class', 'dots')
+		this.clipped = svg.append('g')
 			.attr("clip-path", "url(#clip)");
+			
+		var gDots = this.clipped.append('g')
+			.attr('class','dots');
 
 		this.dots = gDots.selectAll(".dot")
 			.data(data)
@@ -173,6 +219,7 @@ var ProjectionView = Backbone.View.extend({
 				return that.y(d[1]);
 			});
 		var dots = this.dots;
+		// console.log(dots);
 		this.zoomed = function() {
 			that.svg.select(".x.axis").call(xAxis);
 			that.svg.select(".y.axis").call(yAxis);
@@ -188,6 +235,8 @@ var ProjectionView = Backbone.View.extend({
 				.attr("cy", function(d) {
 					return that.y(d[1]);
 				});
+			
+			that.rerenderLines();
 		};
 		
 		this.brushend = function () {
@@ -202,6 +251,7 @@ var ProjectionView = Backbone.View.extend({
 			});
 			// console.log(selectedEdges);
 			that.renderSelectedEdges(selectedEdges);
+			that.clipped.select('.nodeLines').remove();
 			
 			d3.event.target.clear();
 			d3.select(this).call(d3.event.target);
