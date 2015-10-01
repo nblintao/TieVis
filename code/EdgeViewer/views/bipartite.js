@@ -72,8 +72,9 @@ var BiPartiteView = Backbone.View.extend({
 			// 		default:
 			// 			break;
 			// 	}
-			// }
+		// }
 	},
+	// deprecated
 	orderCrossReduction: function (nodeOrder, relatedNodes, periods, nNodes, data) {
 		// shuffle for the first line
 		nodeOrder[0] = [];
@@ -146,6 +147,106 @@ var BiPartiteView = Backbone.View.extend({
 			// console.log(nodeOrder[step + 1]);
 		}
 	},
+	permulation: function (d) {
+		if (d.length <= 1) {
+			return [d];
+		}
+		var perm = [];
+		for (var i = 0; i < d.length; i++) {
+			var ele = [d[i]];
+			var behind = d.slice(0);
+			behind.splice(i, 1);
+			var permBehind = this.permulation(behind);
+			for (var j = 0; j < permBehind.length; j++) {
+				var pushedEle = ele.concat(permBehind[j]);
+				perm.push(pushedEle);
+			}
+		}
+		return perm;
+	},
+	interGroupCrossReduction: function (groups, data) {
+		var nG = groups.length;
+		if (nG < 2 || nG > 8) {
+			return groups;
+		}
+		else {
+			var transGroup = {};
+			var filterExist = function (d) { return d > 0; };
+			var relatedGroups = [];
+			for (var i = 0; i < data.length; i++) {
+				var e = data[i];
+				var py = nG, px = nG;
+				for (var j = 0; j < nG; j++) {
+					var nodes = groups[j].s;
+					if (nodes.indexOf(e.y) !== -1) {
+						py = j;
+					}
+					if (nodes.indexOf(e.x) !== -1) {
+						px = j;
+					}
+				}
+				if (py === px) {
+					continue;
+				}
+				if (relatedGroups.indexOf(py) === -1) {
+					relatedGroups.push(py);
+				}
+				if (relatedGroups.indexOf(px) === -1) {
+					relatedGroups.push(px);
+				}
+				var count = e.d.filter(filterExist).length;
+				var item = '_' + py + '_' + px;
+				transGroup[item] = (transGroup[item] || 0) + count;
+			}
+			// console.log(transGroup);
+			// console.log(relatedGroups);
+		
+			var listHead = [];
+			var list = [];
+			// only permulate the relatedGroups
+			// last group should be the last
+			for (var i = 0; i < nG; i++) {
+				if (relatedGroups.indexOf(i) === -1) {
+					listHead.push(i);
+				} else {
+					list.push(i);
+				}
+			}
+			// console.log(list);
+			if (list.length > 10) {
+				console.log('Length is '+list.length+', skipping reducing cross between groups.');
+				return groups;
+			}
+			
+			var thePerms = this.permulation(list);
+			var minValue = -1;
+			var permForMinValue = -1;
+			for (var i = 0; i < thePerms.length; i++) {
+				var thePerm = thePerms[i];
+				thePerm.push(nG);
+				thePerm = listHead.concat(thePerm);
+				var value = 0;
+				for (var a = 0; a < nG; a++) {
+					for (var b = a + 1; b < nG + 1; b++) {
+						var it = '_' + thePerm[a] + '_' + thePerm[b];
+						value += (transGroup[it] || 0) * (b - a);
+					}
+				}
+				if (minValue === -1 || value < minValue) {
+					minValue = value;
+					permForMinValue = thePerm;
+				}
+			}
+			// console.log(minValue, permForMinValue);
+		
+			var reorderedGroups = [];
+			for (var i = 0; i < nG; i++) {
+				reorderedGroups.push(groups[permForMinValue[i]]);
+			}
+			// console.log(reorderedGroups);
+			return reorderedGroups;		
+		}
+	},
 	orderGroup: function (nodeOrder, relatedNodes, periods, nNodes, data, selectedTime) {
 		//console.log(nodeOrder, relatedNodes, periods, nNodes, data, selectedTime);
 		var edgesNow = [];
@@ -203,23 +304,7 @@ var BiPartiteView = Backbone.View.extend({
 		}
 		
 		// reduce cross in the group
-		var permulation = function (d) {
-			if (d.length <= 1) {
-				return [d];
-			}
-			var perm = [];
-			for (var i = 0; i < d.length; i++) {
-				var ele = [d[i]];
-				var behind = d.slice(0);
-				behind.splice(i, 1);
-				var permBehind = permulation(behind);
-				for (var j = 0; j < permBehind.length; j++) {
-					var pushedEle = ele.concat(permBehind[j]);
-					perm.push(pushedEle);
-				}
-			}
-			return perm;
-		};
+
 		var countCross = function(perm, edges){
 			var count = 0;
 			var nEdge = edges.length;
@@ -245,7 +330,7 @@ var BiPartiteView = Backbone.View.extend({
 			}
 			var bestOrder;
 			var minCross = -1;
-			var perms = permulation(group.s);
+			var perms = this.permulation(group.s);
 			for(var j=0;j<perms.length;j++){
 				var perm = perms[j];
 				var cross = countCross(perm, group.e);
@@ -264,84 +349,7 @@ var BiPartiteView = Backbone.View.extend({
 		
 		
 		// reduce cross between groups
-		var nG = groups.length;
-		if(nG < 2 || nG > 8){
-			console.log('Skipping reducing cross between groups');
-		}else
-		{
-		
-		var transGroup = {};
-		var filterExist = function (d) { return d > 0; };
-		var relatedGroups = [];
-		for (var i = 0; i < data.length; i++) {
-			var e = data[i];
-			var py = nG, px = nG;
-			for (var j = 0; j < nG; j++) {
-				var nodes = groups[j].s;
-				if (nodes.indexOf(e.y) !== -1) {
-					py = j;
-				}
-				if (nodes.indexOf(e.x) !== -1) {
-					px = j;
-				}
-			}
-			if (py === px) {
-				continue;
-			}
-			if(relatedGroups.indexOf(py) === -1){
-				relatedGroups.push(py);
-			}
-			if(relatedGroups.indexOf(px) === -1){
-				relatedGroups.push(px);
-			}			
-			var count = e.d.filter(filterExist).length;
-			var item = '_'+py+'_'+px;
-			transGroup[item] = (transGroup[item] || 0) + count;
-		}
-		// console.log(transGroup);
-		// console.log(relatedGroups);
-		
-		var listHead = [];
-		var list = [];
-		// only permulate the relatedGroups
-		// last group should be the last
-		for (var i = 0; i < nG; i++) {
-			if (relatedGroups.indexOf(i) === -1) {
-				listHead.push(i);
-			} else {
-				list.push(i);
-			}
-		}
-		// console.log(list);
-		var thePerms = permulation(list);
-		var minValue = -1;
-		var permForMinValue = -1;
-		for (var i = 0; i < thePerms.length; i++) {
-			var thePerm = thePerms[i];
-			thePerm.push(nG);
-			thePerm = listHead.concat(thePerm);
-			var value = 0;
-			for (var a = 0; a < nG; a++) {
-				for (var b = a + 1; b < nG + 1; b++) {
-					var it = '_' + thePerm[a] + '_' + thePerm[b];
-					value += (transGroup[it] || 0) * (b-a) ;
-				}
-			}
-			if(minValue === -1 || value < minValue){
-				minValue = value;
-				permForMinValue = thePerm;
-			}
-		}
-		console.log(minValue, permForMinValue);
-		
-		var reorderedGroups = [];
-		for(var i=0;i<nG;i++){
-			reorderedGroups.push(groups[permForMinValue[i]]);
-		}
-		groups = reorderedGroups;
-		console.log(groups);
-		
-		}
+		groups = this.interGroupCrossReduction(groups, data);
 		
 		// set group id
 		data.forEach(function(d){
