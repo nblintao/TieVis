@@ -14,7 +14,7 @@ var BandView = Backbone.View.extend({
 		// });
 		this.options = options;
 		// Backbone.on('selectEdges',renderBands(selectedTieData, timelist);)
-		Backbone.on('selectEdges',this.renderBands,this);
+		Backbone.on('selectEdges',this.renderData,this);
 		Backbone.on('hoverEdge', this.renderEdge, this);
 		Backbone.on('renderScale',this.renderScaleEvent,this);
 		this.time = time;
@@ -45,6 +45,12 @@ var BandView = Backbone.View.extend({
 			.append("g")
 			.attr("id", "band")
 			.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+        this.container.append("g")
+            .attr("id", "band");
+        this.container.append("g")
+            .attr("id", "dendro");
+//        this.container.append("g")
+//            .attr("id", "dendro");
 		var width = this.width;
 		this.listenTo(this.time, "change", function() {
 			// console.log("event trigger");
@@ -58,6 +64,33 @@ var BandView = Backbone.View.extend({
 		})
 
 	},
+    setDist: function(dist) {
+        this.dist = dist;
+    },
+    renderData: function(tieData, timelist) {
+        var width = this.width;
+        var height = this.height;
+        var margin = this.defaults.margin;
+        var bandWidth = width * 0.9;
+        var dendroWidth = width * 0.1;
+        var options = this.options;
+        var nBands = tieData.length;
+        var root = [];
+
+//        if (options.doMDS && nBands > 2 && nBands < options.thresholdMDS) {
+            console.log('Doing MDS to ' + nBands + ' bands');
+
+            root = this.hieCluter(tieData);
+            var temp = root.data.map(function(d) {
+                return tieData[d];
+            });
+            tieData = temp;
+            //this.changeOrder(tieData);
+//        }
+        var x = margin.left + dendroWidth;
+        this.renderBands(tieData, timelist, x, bandWidth);
+        this.renderDendro(root);
+    },
 	renderBands: function(tieData, timelist) {
 		var width = this.width;
 		var height = this.height;
@@ -65,17 +98,12 @@ var BandView = Backbone.View.extend({
 		var time = this.time;
 		var nBands = tieData.length;
 		var options = this.options;
-		if (options.doMDS && nBands > 2 && nBands < options.thresholdMDS) {
-			console.log('Doing MDS to ' + nBands + ' bands');
 
-            //this.hieCluter(tieData);
-			this.changeOrder(tieData);
-		}
 		// else{
 		//   console.log('No MDS to ' + nBands + ' bands');    
 		// }
 		// console.log(tieData);
-		this.container.selectAll('g').remove();
+		this.container.select("#band").selectAll('g').remove();
 
 		// var bandViewWidth = 200;
 		// var bandViewWidth = options.timelineWidth;
@@ -96,8 +124,9 @@ var BandView = Backbone.View.extend({
 		this.bandHeight = bandHeight;
 		
 		bandViewHeight = (bandHeight + interBandHeight) * nBands;
+        this.bandViewHeight = bandViewHeight;
 
-		this.bandView = this.container;
+		this.bandView = this.container.select("#band");
 
 		var scaleY = d3.scale.linear()
 			.domain([0, tieData.length])
@@ -237,7 +266,60 @@ var BandView = Backbone.View.extend({
 				var time = Math.floor(that.scaleX.invert((mpos[0] - margin.left)));
 				Backbone.trigger("selectTime", time);
 			});
+
+//        this.renderDendro(root);
 	},
+    renderDendro: function(root) {
+        var width = this.width * 0.1,
+            height = this.bandViewHeight;
+
+        var cluster = d3.layout.cluster()
+            .size([height, width]);
+
+        var diagonal = d3.svg.diagonal()
+            .projection(function(d) { return [d.y, d.x]; });
+
+
+        var svg = this.container.select("#dendro");
+
+
+        var nodes = cluster.nodes(root),
+            links = cluster.links(nodes);
+
+        var links = svg.selectAll(".dendroLink")
+            .data(links, function(d) {
+                return d.source.id + "-" + d.target.id;
+            });
+
+            links.enter().append("path")
+            .attr("class", "dendroLink")
+            .attr("d", diagonal);
+        links.exit().remove();
+        var node = svg.selectAll(".node")
+            .data(nodes, function(d) {
+                return d.id;
+            });
+
+        node.enter().append("g")
+            .attr("class", "node");
+        svg.selectAll(".node").attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; });
+        node.exit().remove();
+        node.append("circle")
+            .attr("r", function(d) {
+                var res = 2.5;
+                if(d.children === undefined) {
+                    res = 0;
+                }
+                return res;
+            });
+
+//        node.append("text")
+//            .attr("dx", function(d) { return d.children ? -8 : 8; })
+//            .attr("dy", 3)
+//            .style("text-anchor", function(d) { return d.children ? "end" : "start"; })
+//            .text(function(d) { return d.name; });
+
+    },
 	hieCluter: function(tieData) {
 		var vectDist = function(a, b) {
 			var res = 0;
@@ -246,11 +328,11 @@ var BandView = Backbone.View.extend({
 			}
 			return Math.sqrt(res);
 		};
-		var dist = function(v1, v2, dist) {
+		var dist = function(v1, v2, callBack) {
 			var res = 0;
 			for(var i = 0; i < v1.length; i++) {
 				for(var j = 0; j < v2.length; j++) {
-					res += dist(v1[i], v2[j]);
+					res += callBack(v1[i], v2[j]);
 				}
 			}
 			return res / (v1.length * v2.length);
@@ -274,36 +356,88 @@ var BandView = Backbone.View.extend({
             return res;
         };
 		var cluster = [];
-		for(var i = 0; i < tieData.length; i++) {
+        var stack = [];
+
+        var maxIndex = tieData.length;
+		for(var i = 0; i < maxIndex; i++) {
 			cluster.push({
-                data:[tieData[i]]
+                data:[i],
+                id: i
             });
 		}
-		while(cluster.length > 1) {
-			var min = Number.MAX_VALUE, id1, id2;
-			for(var i = 0; i < cluster.length; i++) {
-				for(var j = i + 1; j < cluster.length; j++) {
-					var d = dist(cluster[i].data, cluster[j].data, function(a, b) {
-                        return vectDist(a.d, b.d);
+        var that = this;
+        while(cluster.length > 1) {
+            if(stack.length === 0) {
+                var t = Math.round(Math.random() * (cluster.length - 1));
+                stack.push(cluster[t]);
+//                cluster.splice(t, 1);
+            }
+            var c = stack[stack.length - 1];
+            var min = Number.MAX_VALUE, id1;
+            for(var i = 0; i < cluster.length; i++) {
+
+                if(cluster[i].id === c.id) {
+                    continue;
+                }
+                var t1 = d3.min([c.id, cluster[i].id]);
+                var t2 = d3.max([c.id, cluster[i].id]);
+                //console.log(t1);
+                //console.log(t2);
+                var d = that.dist[t1][t2];
+                if(min > d) {
+                    min = d;
+                    id1 = i;
+                }
+            }
+            var dindex = stack.indexOf(cluster[id1]);
+            if(dindex >= 0) {
+                stack.pop();
+                stack.splice(dindex, 1);
+                var id2 = cluster.indexOf(c);
+                if(id2 < id1) {
+                    var t = id1;
+                    id1 = id2;
+                    id2 = t;
+                }
+                var c = cluster[id1];
+                var d = cluster[id2];
+                cluster.splice(id2, 1);
+                cluster.splice(id1, 1);
+                var newNode = {};
+                newNode.data = c.data.concat(d.data);
+                newNode.children = [c, d];
+                newNode.id = maxIndex;
+//                maxIndex += 1;
+                //refresh dist matrix
+                for(var i = 0; i < cluster.length; i++) {
+                    var temp = dist(cluster[i].data, newNode.data, function(a, b) {
+                        var i = a > b ? b : a;
+                        var j = a > b ? a : b;
+                        //console.log(that.dist[i][j]);
+                        return that.dist[i][j];
                     });
-					if(min > d) {
-						min = d;
-						id1 = i;
-						id2 = j;
-					}
-				}
-			}
-			//cluster[id1].data = cluster[id1].data.concat(cluster[id2].data);
-            var newNode = {};
-            newNode.data = cluster[id1].data.concat(cluster[id2].data);
-            newNode.children = [cluster[id1], cluster[id2]];
-            cluster[id1] = newNode;
-			cluster.splice(id2, 1);
-		}
+//                    console.log(temp);
+                    that.dist[cluster[i].id][newNode.id] = temp;
+                }
+
+                cluster.push(newNode);
+                that.dist.push([0]);
+                maxIndex++;
+
+
+
+            } else {
+                stack.push(cluster[id1]);
+            }
+        }
         console.log(cluster[0]);
         //console.log(expand(cluster[0]).map(function(d) {return d.i}));
-        return cluster;
+
+        return cluster[0];
 	},
+    collapseTree: function() {
+
+    },
 	changeOrder: function(tieData) {
 		var dat = [];
 		var len = tieData.length;

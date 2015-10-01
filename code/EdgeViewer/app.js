@@ -88,18 +88,23 @@ var tieVis = {
 			// console.log(tieData);
 			d3.json(options.dataset + '/timelist.json', function(data2) {
 				timelist = data2;
-				d3.json(options.dataset + '/nodelist.json', function(data3) {
-					nodelist = data3;
-					bipartite.renderBipartiteCrossReduction([]);
-					// Backbone.trigger('selectEdges',[])
-					// renderBipartite([]);
-					d3.json(options.dataset + '/nodelink.json', function(data4) {
-						nodeLink = data4;
-						nodelink.initializeNodeLinkView(nodelist, nodeLink);
-						nodelink.setData(tieData, nodelist);
-					});
-				});
-				band.renderBands(tieData, timelist);
+
+                d3.json(options.dataset + "/distance.json", function(dist) {
+                    band.setDist(dist);
+                    band.renderData(tieData, timelist);
+                    d3.json(options.dataset + '/nodelist.json', function(data3) {
+                        nodelist = data3;
+                        bipartite.renderBipartiteCrossReduction([]);
+                        // Backbone.trigger('selectEdges',[])
+                        // renderBipartite([]);
+                        d3.json(options.dataset + '/nodelink.json', function(data4) {
+                            nodeLink = data4;
+                            nodelink.initializeNodeLinkView(nodelist, nodeLink);
+                            nodelink.setData(tieData, nodelist);
+                        });
+                    });
+                });
+
 
 				//renderBands(tieData, timelist);
 			});
