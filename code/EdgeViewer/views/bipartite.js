@@ -263,7 +263,61 @@ var BiPartiteView = Backbone.View.extend({
 		}
 		
 		
-		// TODO:reduce cross between groups
+		// reduce cross between groups
+		var nG = groups.length;// + 1;
+		var transGroup = {};
+		var filterExist = function (d) { return d > 0; };
+		for (var i = 0; i < data.length; i++) {
+			var e = data[i];
+			var py = nG, px = nG;
+			for (var j = 0; j < nG; j++) {
+				var nodes = groups[j].s;
+				if (nodes.indexOf(e.y) !== -1) {
+					py = j;
+				}
+				if (nodes.indexOf(e.x) !== -1) {
+					px = j;
+				}
+			}
+			if (py === px) {
+				continue;
+			}
+			var count = e.d.filter(filterExist).length;
+			var item = '_'+py+'_'+px;
+			transGroup[item] = (transGroup[item] || 0) + count;
+		}
+		// console.log(transGroup);
+		
+		var list = [];
+		// only permulate nG groups, last group should be the last
+		for(var i=0;i<nG;i++){
+			list.push(i);
+		}
+		var thePerms = permulation(list);
+		var minValue = -1;
+		var permForMinValue = -1;
+		for (var i = 0; i < thePerms.length; i++) {
+			var thePerm = thePerms[i];
+			thePerm.push(nG);
+			var value = 0;
+			for (var a = 0; a < nG; a++) {
+				for (var b = a + 1; b < nG + 1; b++) {
+					var it = '_' + thePerm[a] + '_' + thePerm[b];
+					value += (transGroup[it] || 0) * (b-a) ;
+				}
+			}
+			if(minValue === -1 || value < minValue){
+				minValue = value;
+				permForMinValue = thePerm;
+			}
+		}
+		
+		var reorderedGroups = [];
+		for(var i=0;i<nG;i++){
+			reorderedGroups.push(groups[permForMinValue[i]]);
+		}
+		groups = reorderedGroups;
+		
 		
 		
 		//console.log(groups);
