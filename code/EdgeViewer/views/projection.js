@@ -251,7 +251,7 @@ var ProjectionView = Backbone.View.extend({
 			});
 			// console.log(selectedEdges);
 			that.renderSelectedEdges(selectedEdges);
-			this.clipped.select('.nodeLines').remove();
+			that.clipped.select('.nodeLines').remove();
 			
 			d3.event.target.clear();
 			d3.select(this).call(d3.event.target);
