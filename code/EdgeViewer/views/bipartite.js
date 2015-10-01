@@ -264,9 +264,15 @@ var BiPartiteView = Backbone.View.extend({
 		
 		
 		// reduce cross between groups
-		var nG = groups.length;// + 1;
+		var nG = groups.length;
+		if(nG < 2 || nG > 8){
+			console.log('Skipping reducing cross between groups');
+		}else
+		{
+		
 		var transGroup = {};
 		var filterExist = function (d) { return d > 0; };
+		var relatedGroups = [];
 		for (var i = 0; i < data.length; i++) {
 			var e = data[i];
 			var py = nG, px = nG;
@@ -282,23 +288,38 @@ var BiPartiteView = Backbone.View.extend({
 			if (py === px) {
 				continue;
 			}
+			if(relatedGroups.indexOf(py) === -1){
+				relatedGroups.push(py);
+			}
+			if(relatedGroups.indexOf(px) === -1){
+				relatedGroups.push(px);
+			}			
 			var count = e.d.filter(filterExist).length;
 			var item = '_'+py+'_'+px;
 			transGroup[item] = (transGroup[item] || 0) + count;
 		}
 		// console.log(transGroup);
+		// console.log(relatedGroups);
 		
+		var listHead = [];
 		var list = [];
-		// only permulate nG groups, last group should be the last
-		for(var i=0;i<nG;i++){
-			list.push(i);
+		// only permulate the relatedGroups
+		// last group should be the last
+		for (var i = 0; i < nG; i++) {
+			if (relatedGroups.indexOf(i) === -1) {
+				listHead.push(i);
+			} else {
+				list.push(i);
+			}
 		}
+		// console.log(list);
 		var thePerms = permulation(list);
 		var minValue = -1;
 		var permForMinValue = -1;
 		for (var i = 0; i < thePerms.length; i++) {
 			var thePerm = thePerms[i];
 			thePerm.push(nG);
+			thePerm = listHead.concat(thePerm);
 			var value = 0;
 			for (var a = 0; a < nG; a++) {
 				for (var b = a + 1; b < nG + 1; b++) {
@@ -311,16 +332,16 @@ var BiPartiteView = Backbone.View.extend({
 				permForMinValue = thePerm;
 			}
 		}
+		console.log(minValue, permForMinValue);
 		
 		var reorderedGroups = [];
 		for(var i=0;i<nG;i++){
 			reorderedGroups.push(groups[permForMinValue[i]]);
 		}
 		groups = reorderedGroups;
+		console.log(groups);
 		
-		
-		
-		//console.log(groups);
+		}
 		
 		// set group id
 		data.forEach(function(d){
