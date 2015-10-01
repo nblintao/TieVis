@@ -166,7 +166,7 @@ var BiPartiteView = Backbone.View.extend({
 	},
 	interGroupCrossReduction: function (groups, data) {
 		var nG = groups.length;
-		if (nG < 2 || nG > 8) {
+		if (nG < 2) {
 			return groups;
 		}
 		else {
