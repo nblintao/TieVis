@@ -201,6 +201,71 @@ var BiPartiteView = Backbone.View.extend({
 				groups[fset].e.push(edge);
 			}
 		}
+		
+		// reduce cross in the group
+		var permulation = function (d) {
+			if (d.length <= 1) {
+				return [d];
+			}
+			var perm = [];
+			for (var i = 0; i < d.length; i++) {
+				var ele = [d[i]];
+				var behind = d.slice(0);
+				behind.splice(i, 1);
+				var permBehind = permulation(behind);
+				for (var j = 0; j < permBehind.length; j++) {
+					var pushedEle = ele.concat(permBehind[j]);
+					perm.push(pushedEle);
+				}
+			}
+			return perm;
+		};
+		var countCross = function(perm, edges){
+			var count = 0;
+			var nEdge = edges.length;
+			for(var i = 0; i< nEdge-1; i++){
+				for(var j=i+1;j<nEdge;j++){
+					var edgei = edges[i];
+					var edgej = edges[j];
+					if(edgei.y === edgej.y ||edgei.x === edgej.x ){
+						continue;
+					}
+					if((perm.indexOf(edgei.y) > perm.indexOf(edgej.y)) !== (perm.indexOf(edgei.x) > perm.indexOf(edgej.x))){
+						count++;
+					}
+				}
+			}
+			return count;
+		};
+		for (var i = 0; i < groups.length; i++) {
+			var group = groups[i];
+			// do not calculate when group is too large
+			if (group.s.length <= 2 || group.s.length > 10) {
+				continue;
+			}
+			var bestOrder;
+			var minCross = -1;
+			var perms = permulation(group.s);
+			for(var j=0;j<perms.length;j++){
+				var perm = perms[j];
+				var cross = countCross(perm, group.e);
+				// console.log(perm,cross);
+				if(minCross === -1 || cross < minCross){
+					minCross = cross;
+					bestOrder = perm;
+					if(cross === 0){
+						break;
+					}
+				}
+			}
+			group.s = bestOrder;
+			// console.log(group,bestOrder,minCross);
+		}
+		
+		
+		// TODO:reduce cross between groups
+		
+		
 		//console.log(groups);
 		
 		// set group id
