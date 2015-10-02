@@ -73,7 +73,7 @@ var InfoView = Backbone.View.extend({
 			.attr('class', 'panel-heading')
 			.attr('role', 'tab')
 			.attr('id', function (d) { return 'heading' + d.no; })
-			.append('h4')
+			.append('h5')
 			.attr('class', 'panel-title')
 			.append('a')
 			.attr('role', 'button')
@@ -86,7 +86,7 @@ var InfoView = Backbone.View.extend({
 			.html(function(d){
 				return d.s.name + 
 				// '<span class="label label-default">'+d.s.occu+'</span>'+
-				' <span class="glyphicon glyphicon-send" aria-hidden="true"></span> ' + 
+				'&nbsp;<span class="glyphicon glyphicon-send" aria-hidden="true"></span>&nbsp;&nbsp;' + 
 				d.t.name;
 				// '<span class="label label-default">'+d.t.occu+'</span>';
 			});
