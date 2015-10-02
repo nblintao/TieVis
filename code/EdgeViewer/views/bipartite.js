@@ -15,7 +15,11 @@ var BiPartiteView = Backbone.View.extend({
 		this.time = time;
 		Backbone.on('selectTime', this.renderBipartiteGroup, this);
 		Backbone.on('renderScale', this.renderScaleEvent, this);
-		this.colorCat = d3.scale.category10();
+		// 3 colors of d3.scale.category10 are too close to the original colors
+		var cat = ['#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f','#bcbd22'];
+		this.colorCat = function(d){
+			return cat[d%7];
+		};
 	},
 	renderScaleEvent:function(){
 		this.renderScale();
@@ -482,7 +486,8 @@ var BiPartiteView = Backbone.View.extend({
 			if (d.e.g !== undefined) {
 				return that.colorCat(d.e.g);
 			} else {
-				return options.scaleColor3(d.d, flag);
+				return '#7f7f7f';
+				// return options.scaleColor3(d.d, flag);
 			}
 		};
 		
@@ -542,6 +547,7 @@ var BiPartiteView = Backbone.View.extend({
 			.datum(time)
 			.append("path")
 			.attr("id", "time")
+			.attr('class','timeLine')
 			.attr("d", function(d) {
 				return line([{
 					"x": 0,
@@ -551,8 +557,9 @@ var BiPartiteView = Backbone.View.extend({
 					"y": height
 				}]);
 			})
-			.attr("stroke", "#000000")
-			.attr("opacity", 0.5)
+			// .attr("stroke", "#000000")
+			// .attr("opacity", 0.5)
+			.attr('stroke-dasharray','5,5')
 			.attr("transform", function(d) {
 				var pos = d.get("pos");
 				var scale = d3.scale.linear().domain([0, 1]).range([0, width]);

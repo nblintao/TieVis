@@ -26,17 +26,22 @@ var tieVis = {
 			case 'data':
 				fullColor = 1;
 			case 'Enron_Mon':
-				fullColor = 10;
+				fullColor = 15;
 			default:
 				break;
 		}
 		options.scaleColor = d3.scale.linear()
+			.clamp(true)
 			.domain([0, fullColor])
-			.range(['rgb(200,200,200)', 'rgb(16,16,16)']);
-		options.scaleColorR = d3.scale.linear()
+			// .range(['rgb(200,200,200)', 'rgb(16,16,16)']);
+			.range(['white', '#3a8edb']);
+		options.scaleColorHighLight = d3.scale.linear()
+			.clamp(true)
 			.domain([0, fullColor])
 			// .range([d3.hsl(0,0.5,0.5), d3.hsl(0,1,0.5)]);
-			.range(['rgb(255,200,200)', 'rgb(255,0,0)']);
+			// .range(['rgb(255,200,200)', 'rgb(255,0,0)']);
+			.range(['white', '#f3a031']);
+			
 		// options.scaleColor2 = function(d) {
 		// 	if (d === 0) {
 		// 		return 'white';
@@ -50,7 +55,7 @@ var tieVis = {
 			}
 			// hovered
 			if (flag) {
-				return options.scaleColorR(d);
+				return options.scaleColorHighLight(d);
 			} else
 			// unhovered
 			{
@@ -91,10 +96,16 @@ var tieVis = {
 
                 d3.json(options.dataset + "/distance.json", function(dist) {
                     band.setDist(dist);
-                    band.renderData(tieData, timelist);
+					
+                    // forbidden render overview:					
+                    // band.renderData(tieData, timelist);
+					
                     d3.json(options.dataset + '/nodelist.json', function(data3) {
                         nodelist = data3;
-                        bipartite.renderBipartiteCrossReduction([]);
+
+                        // forbidden render overview:
+						// bipartite.renderBipartiteCrossReduction([]);
+						
                         // Backbone.trigger('selectEdges',[])
                         // renderBipartite([]);
                         d3.json(options.dataset + '/nodelink.json', function(data4) {

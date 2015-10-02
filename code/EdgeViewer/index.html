@@ -34,18 +34,19 @@
 		}
 		
 		.dots {
-			fill: black;
+			/*fill: black;*/
+			fill: #999;
 			stroke: #fff;
-			stroke-width: 1.5px;
+			stroke-width: 1.5px;			
 		}
 		
 		.dots .selected {
-			fill: steelblue;
+			fill: #3a8edb;
 			/*stroke: steelblue;*/
 		}
 	
 		.dots .selected.hovered {
-			fill: red;
+			fill: #f3a031;
 			/*stroke: red;*/
 		}	
 		
@@ -74,7 +75,7 @@
 		}
 		
 		.link {
-			stroke: steelblue;
+			stroke: #3a8edb;
 			stroke-opacity: .05;
 			stroke-width: 2;
 			pointer-events: none;
@@ -87,11 +88,11 @@
 		}
 		
 		.link.hovered {
-			stroke: red;
+			stroke: #f3a031;
 		}
 		
 		.nodeLines line {
-			stroke: steelblue;
+			stroke: #3a8edb;
 			stroke-opacity: .08;
 			stroke-width: 4;
 			pointer-events: none;
@@ -102,8 +103,16 @@
 		}
 		.edge.hovered line {
 			stroke-width: 4px;
-		}		
-		#band path {
+		}
+		
+		.timeLine {
+			stroke: gray;
+			stroke-width: 4px;
+			opacity: 0.8;
+			stroke-dasharray: "5,5";
+		}
+		
+		#dendro path {
             stroke: #000;
             stroke-width: 1px;
             fill:none;
@@ -115,24 +124,31 @@
 			border-right:1px solid #f0f0f0;
 			box-shadow: 2px 2px 2px #f0f0f0;
 		}
+				
 	</style>
 <body>
-	<div class = "clearfix">
-		<div class = "col-lg-1" id = "toolbox" style = "height:100%">
+	<!--<div class = "clearfix">-->
+	<div class = "container-fluid">
+		<!--<div class = "col-lg-1" id = "toolbox" style = "height:100%">			
 			
-			
+		</div>-->
+		<div class = "col-lg-3" id = "panel">
+			<div class="row" style="background:#3a8edb">
+				<img src="Iconset/Title2.png" style="margin:15px"/>
+			</div>
+			<!--<div class = "row" id = "toolbox" style = "height:20%"></div>-->
+			<div class = "row" id = "info"></div>
 		</div>
 		<div class = "col-lg-4">
 			<div class = "row view" id = "band" style = "height:50%"></div>
 			<div class = "row view" id = "bipartite" style = "height:50%"></div>
 		</div>
-		<div class = "col-lg-5">
+		<div class = "col-lg-5" style="position:relative">
 			<div class = "row view" id = "projection" style = "height:50%"></div>
 			<div class = "row view" id = "nodelink" style = "height:50%"></div>
+			<div id = "toolbox" style = "position:absolute;top:0px;right:0px"></div>
 		</div>
-		<div class = "col-lg-2" id = "info">
-			
-		</div>
+
 		<!--<div class = "col-lg-1" id = "infopanel" style = "height:100%">
 			<div id="tform"  style="width:100%; height:100%; overflow:auto; float:left;" ><form></form></div>
 		</div>

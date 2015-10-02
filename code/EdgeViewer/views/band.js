@@ -304,6 +304,7 @@ var BandView = Backbone.View.extend({
             .datum(time)
             .append("path")
             .attr("id", "time")
+            .attr('class','timeLine')
             .attr("d", function(d) {
                 return line([{
                     "x": 0,
@@ -313,8 +314,9 @@ var BandView = Backbone.View.extend({
                     "y": height
                 }]);
             })
-            .attr("stroke", "#000000")
-            .attr("opacity", 0.5)
+            // .attr("stroke", "#000000")
+            // .attr("opacity", 0.5)
+            .attr('stroke-dasharray','5,5')
             .attr("transform", function(d) {
                 var pos = d.get("pos");
                 var scale = d3.scale.linear().domain([0, 1]).range([0, width]);
