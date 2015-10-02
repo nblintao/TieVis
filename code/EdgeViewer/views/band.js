@@ -128,34 +128,35 @@ var BandView = Backbone.View.extend({
                 y:-1
             }];
             this.remain -= (lc.data.length - 1);
-            if(rc.data.length <= this.remain) {
-                rc._data = rc.data;
-                rc._children = rc.children;
-                rc.children = [];
-                var sum = [];
-                for(var i = 0; i < rc.data.length; i++) {
-                    for(var j = 0; j < rc.data[i].d.length; j++) {
-                        if(sum[j] === undefined) {
-                            sum[j] = rc.data[i].d[j];
-                        } else {
-                            sum[j] += rc.data[i].d[j];
-                        }
-                    }
-                }
-                for(var i = 0; i < sum.length; i++) {
-                    sum[i] /= rc.data.length;
-                }
-                rc.data = [{
-                    d:sum,
-                    x:-1,
-                    y:-1
-                }];
 
-            } else {
-                this.collapseTree(rc);
-            }
         } else {
             this.collapseTree(lc);
+        }
+        if(rc.data.length <= this.remain) {
+            rc._data = rc.data;
+            rc._children = rc.children;
+            rc.children = [];
+            var sum = [];
+            for(var i = 0; i < rc.data.length; i++) {
+                for(var j = 0; j < rc.data[i].d.length; j++) {
+                    if(sum[j] === undefined) {
+                        sum[j] = rc.data[i].d[j];
+                    } else {
+                        sum[j] += rc.data[i].d[j];
+                    }
+                }
+            }
+            for(var i = 0; i < sum.length; i++) {
+                sum[i] /= rc.data.length;
+            }
+            rc.data = [{
+                d:sum,
+                x:-1,
+                y:-1
+            }];
+
+        } else {
+            this.collapseTree(rc);
         }
     },
     rebuildData: function(node) {
