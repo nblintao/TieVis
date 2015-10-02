@@ -83,7 +83,7 @@ var InfoView = Backbone.View.extend({
 			.attr('href', function (d) { return '#collapse' + d.no; })
 			.attr('aria-expanded', 'false')
 			.attr('class', 'collapsed')
-			.attr('aria-controls', function (d) { return '#collapse' + d.no; })
+			.attr('aria-controls', function (d) { return 'collapse' + d.no; })
 			
 			// .append('font')
 			// .attr('size','12px')
@@ -98,10 +98,21 @@ var InfoView = Backbone.View.extend({
 			.append('tr')
 			
 			.selectAll('td')
-			.data(function(d){return [d.s.name,d.t.name];})
+			.data(function (d) { return [d.s.name, d.t.name]; })
 			.enter()
 			.append('td')
-			.html(function(d){return d;});
+			.html(function (d, i) {
+				var str = '<span class="glyphicon ';
+				if (i === 0) {
+					str += 'glyphicon-log-out';
+				}
+				else if (i === 1) {
+					str += 'glyphicon-log-in';
+				}
+				str += '" aria-hidden="true"></span>';
+				str += ' ' + d;
+				return str;
+			});
 			// .html(function(d){
 			// 	return d.s.name + 
 			// 	// '<span class="label label-default">'+d.s.occu+'</span>'+
@@ -155,6 +166,7 @@ var InfoView = Backbone.View.extend({
 		// 		}, 500);
 		// 	}
 		// });
+		// $('.collapse').collapse();	
 		
 	},
 	show_info: function(dat) {
