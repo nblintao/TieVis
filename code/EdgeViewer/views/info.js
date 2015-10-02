@@ -1,8 +1,31 @@
 var InfoView = Backbone.View.extend({
 	initialize: function() {
-		this.html = "<div class = 'col-lg-1' id='tform'  style='width:50%;height:100%; overflow:auto; float:left;' ><form></form></div>" +
-			"<div class = 'col-lg-1' id='subj'  style='width:50%;height:100%; overflow:auto; float:left;' ><form></form></div>";
+		// this.html = "<div class = 'col-lg-1' id='tform'  style='width:50%;height:100%; overflow:auto; float:left;' ><form></form></div>" +
+		// "<div class = 'col-lg-1' id='subj'  style='width:50%;height:100%; overflow:auto; float:left;' ><form></form></div>";
+		this.html = 
+		'<p id="temp"></p>' + 
+		'<p id="time"></p>'+
+		"<div id='tform'  style='width:50%;height:100%; overflow:auto; float:left;' ><form></form></div>" +
+		"<div id='subj'  style='width:50%;height:100%; overflow:auto; float:left;' ><form></form></div>";
 		Backbone.on("showInfo", this.show_info, this);	
+		Backbone.on('hoverEdge', this.showEdgeInfo, this);
+		Backbone.on('selectTime',this.showTime, this);
+	},
+	showTime: function (t) {
+		var timeinfo;
+		if (t >= timelist.length) {
+			timeinfo = 'Period Not Exist';
+		} else {
+			timeinfo = 'Period ' + t + ': ' + timelist[t];
+		}
+		d3.select('#time').html(timeinfo);
+	},
+	showEdgeInfo: function (i) {
+		var edge = tieData[i];
+		// console.log('hover edge from ' + edge.y + ' to ' + edge.x);
+		var info = edge.y + '(' + nodelist[edge.y] + ')' + '->' + edge.x + '(' + nodelist[edge.x] + ') ' + edge.d
+		d3.select('#temp').html(info);
+		// console.log(info);
 	},
 	render: function() {
 		$(this.el).html(this.html);
