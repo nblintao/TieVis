@@ -91,10 +91,16 @@ var tieVis = {
 
                 d3.json(options.dataset + "/distance.json", function(dist) {
                     band.setDist(dist);
-                    band.renderData(tieData, timelist);
+					
+                    // forbidden render overview:					
+                    // band.renderData(tieData, timelist);
+					
                     d3.json(options.dataset + '/nodelist.json', function(data3) {
                         nodelist = data3;
-                        bipartite.renderBipartiteCrossReduction([]);
+
+                        // forbidden render overview:
+						// bipartite.renderBipartiteCrossReduction([]);
+						
                         // Backbone.trigger('selectEdges',[])
                         // renderBipartite([]);
                         d3.json(options.dataset + '/nodelink.json', function(data4) {
