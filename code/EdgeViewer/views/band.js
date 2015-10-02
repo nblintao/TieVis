@@ -49,7 +49,8 @@ var BandView = Backbone.View.extend({
         // this.container.append("g")
         //     .attr("id", "band");
         this.container.append("g")
-            .attr("id", "dendro");
+            .attr("id", "dendro")
+            .attr("transform", "translate(0," + margin.top + ")");
 //        this.container.append("g")
 //            .attr("id", "dendro");
         var width = this.width;
