@@ -4,7 +4,7 @@ var BiPartiteView = Backbone.View.extend({
 			top: 20,
 			right: 20,
 			bottom: 20,
-			left: 20
+			left: 40
 		}
 	},
 	initialize: function(defaults, inter, options, time) {

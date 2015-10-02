@@ -4,7 +4,7 @@ var BandView = Backbone.View.extend({
             top: 20,
             right: 20,
             bottom: 20,
-            left: 20
+            left: 40
         }
     },
     initialize: function(defaults, inter, options, time) {
@@ -42,11 +42,12 @@ var BandView = Backbone.View.extend({
         this.container = d3.select(this.el).append("svg")
             .attr("width", this.width + margin.left + margin.right)
             .attr("height", this.height + margin.top + margin.bottom)
+        this.band = this.container
             .append("g")
             .attr("id", "band")
             .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-        this.container.append("g")
-            .attr("id", "band");
+        // this.container.append("g")
+        //     .attr("id", "band");
         this.container.append("g")
             .attr("id", "dendro");
 //        this.container.append("g")
@@ -71,8 +72,10 @@ var BandView = Backbone.View.extend({
         var width = this.width;
         var height = this.height;
         var margin = this.defaults.margin;
-        var bandWidth = width * 0.9;
-        var dendroWidth = width * 0.1;
+        // var bandWidth = width * 0.9;
+        // var dendroWidth = width * 0.1;
+        var bandWidth = width;
+        var dendroWidth = this.dendroWidth = margin.left;
         var options = this.options;
         var nBands = tieData.length;
         var root = [];
@@ -205,10 +208,21 @@ var BandView = Backbone.View.extend({
         this.bandViewHeight = bandViewHeight;
 
         this.bandView = this.container.select("#band");
-
+        
         var scaleY = d3.scale.linear()
             .domain([0, tieData.length])
             .range([0, bandViewHeight]);
+
+
+		this.bandView.append("clipPath")
+			.attr("id", "clipBa")
+			.append("rect")
+			.attr("width", width)
+			.attr("height", height);
+
+		this.bandView = this.bandView.append('g')
+			.attr("clip-path", "url(#clipBi)");
+         
 
         this.bar = this.bandView.selectAll('g')
             .data(tieData)
@@ -350,7 +364,7 @@ var BandView = Backbone.View.extend({
 //        this.renderDendro(root);
     },
     renderDendro: function(root) {
-        var width = this.width * 0.1,
+        var width = this.dendroWidth,
             height = this.bandViewHeight;
 
         var cluster = d3.layout.cluster()
