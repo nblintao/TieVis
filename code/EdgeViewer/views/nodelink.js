@@ -154,7 +154,7 @@ var NodeLinkView = Backbone.View.extend({
 			.data(nodeNameList)
 			.enter().append("circle")
 			.attr("class", "node")
-			.attr("r", 5)
+			.attr("r", 4);
 			// .style("fill", function (d) { return color(d.group); })
 			// .call(force.drag);
 
