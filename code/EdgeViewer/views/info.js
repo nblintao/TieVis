@@ -21,11 +21,12 @@ var InfoView = Backbone.View.extend({
 		d3.select('#time').html(timeinfo);
 	},
 	showEdgeInfo: function (i) {
-		var edge = tieData[i];
-		// console.log('hover edge from ' + edge.y + ' to ' + edge.x);
-		var info = edge.y + '(' + nodelist[edge.y] + ')' + '->' + edge.x + '(' + nodelist[edge.x] + ') ' + edge.d
-		d3.select('#temp').html(info);
-		// console.log(info);
+		// var edge = tieData[i];
+		// var info = edge.y + '(' + nodelist[edge.y] + ')' + '->' + edge.x + '(' + nodelist[edge.x] + ') ' + edge.d
+		// d3.select('#temp').html(info);
+		
+		$('.collapse').collapse('hide');		
+		$('#collapse'+i).collapse('show');
 	},
 	render: function() {
 		// $(this.el).html(this.html);
@@ -68,35 +69,20 @@ var InfoView = Backbone.View.extend({
 			.append('div')
 			.attr('class','panel panel-default');
 
-  // <div class="panel panel-default">
-    // <div class="panel-heading" role="tab" id="headingOne">
-    //   <h4 class="panel-title">
-    //     <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-    //       Collapsible Group Item #1
-    //     </a>
-    //   </h4>
-    // </div>
-    // <div id="collapseOne" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
-    //   <div class="panel-body">
-    //     Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus labore sustainable VHS.
-    //   </div>
-    // </div>
-  // </div>
-		
 		edge.append('div')
 			.attr('class', 'panel-heading')
 			.attr('role', 'tab')
-			.attr('id', function (d) { return 'heading' + d.i; })
+			.attr('id', function (d) { return 'heading' + d.no; })
 			.append('h4')
 			.attr('class', 'panel-title')
 			.append('a')
 			.attr('role', 'button')
 			.attr('data-toggle', 'collapse')
 			.attr('data-parent', '#accordion')
-			.attr('href', function (d) { return '#collapse' + d.i; })
+			.attr('href', function (d) { return '#collapse' + d.no; })
 			.attr('aria-expanded', 'false')
 			.attr('class', 'collapsed')
-			.attr('aria-controls', function (d) { return '#collapse' + d.i; })
+			.attr('aria-controls', function (d) { return '#collapse' + d.no; })
 			.html(function(d){
 				return d.s.name + 
 				// '<span class="label label-default">'+d.s.occu+'</span>'+
@@ -108,10 +94,10 @@ var InfoView = Backbone.View.extend({
     //   <div class="panel-body">
 		
 		var content = edge.append('div')
-			.attr('id', function (d) { return 'collapse' + d.i; })
+			.attr('id', function (d) { return 'collapse' + d.no; })
 			.attr('class', 'panel-collapse collapse')
 			.attr('role', 'tabpanel')
-			.attr('aria-labelledby', function (d) { return 'heading' + d.i; })
+			.attr('aria-labelledby', function (d) { return 'heading' + d.no; })
 			.append('div')
 			.attr('class', 'panel-body')
 			.html(function (d) {
