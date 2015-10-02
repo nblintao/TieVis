@@ -73,8 +73,9 @@ var InfoView = Backbone.View.extend({
 			.attr('class', 'panel-heading')
 			.attr('role', 'tab')
 			.attr('id', function (d) { return 'heading' + d.no; })
-			.append('h5')
+			.append('div')
 			.attr('class', 'panel-title')
+			
 			.append('a')
 			.attr('role', 'button')
 			.attr('data-toggle', 'collapse')
@@ -83,13 +84,32 @@ var InfoView = Backbone.View.extend({
 			.attr('aria-expanded', 'false')
 			.attr('class', 'collapsed')
 			.attr('aria-controls', function (d) { return '#collapse' + d.no; })
-			.html(function(d){
-				return d.s.name + 
-				// '<span class="label label-default">'+d.s.occu+'</span>'+
-				'&nbsp;<span class="glyphicon glyphicon-send" aria-hidden="true"></span>&nbsp;&nbsp;' + 
-				d.t.name;
-				// '<span class="label label-default">'+d.t.occu+'</span>';
-			});
+			
+			// .append('font')
+			// .attr('size','12px')
+			
+			.append('table')
+			.attr('width','100%')
+			.style('font-size','small')
+			.style('table-layout','fixed')
+			
+			.append('tbody')
+			
+			.append('tr')
+			
+			.selectAll('td')
+			.data(function(d){return [d.s.name,d.t.name];})
+			.enter()
+			.append('td')
+			.html(function(d){return d;});
+			// .html(function(d){
+			// 	return d.s.name + 
+			// 	// '<span class="label label-default">'+d.s.occu+'</span>'+
+			// 	'&nbsp;<span class="glyphicon glyphicon-send" aria-hidden="true"></span>&nbsp;&nbsp;' + 
+			// 	d.t.name;
+			// 	// '<span class="label label-default">'+d.t.occu+'</span>';
+				
+			// });
 		
 		var content = edge.append('div')
 			.attr('id', function (d) { return 'collapse' + d.no; })
@@ -97,7 +117,9 @@ var InfoView = Backbone.View.extend({
 			.attr('role', 'tabpanel')
 			.attr('aria-labelledby', function (d) { return 'heading' + d.no; })
 			.append('div')
-			.attr('class', 'panel-body')
+			.attr('class', 'panel-body');
+			
+		content
 			.html(function (d) {
 				return '<b>Sender: </b><br/>' +
 					d.s.name + //'<br/>' +
@@ -105,7 +127,25 @@ var InfoView = Backbone.View.extend({
 					'<b>Receiver: </b><br/>' +
 					d.t.name + //'<br/>' +
 					'<span class="label label-default">' + d.t.occu + '</span>';
-			});
+			});			
+			
+		content
+		.append('div')
+		.append('ul')
+		.selectAll('li')
+		.data(function(d){
+			return mailinfo[d.no].d.map(function (d) {
+				return mails[d];
+			}).slice(0, 10); // show 10 emails only
+		})
+		.enter()
+		.append('li')
+		.html(function(d){
+			return d.subject;
+		})
+		.on('click',function(d){
+			alert(d.body);	
+		});
 
 		// $('.panel-group').on('shown.bs.collapse', function (e) {
 		// 	var offset = $('.panel.panel-default > .panel-collapse.in').offset();
@@ -163,4 +203,4 @@ var InfoView = Backbone.View.extend({
 			});
 		});
 	}
-})
+});
