@@ -220,7 +220,9 @@ var BandView = Backbone.View.extend({
 			.append("rect")
 			.attr("width", width)
 			.attr("height", height);
-
+        
+        this.uncliped = this.bandView;
+        
 		this.bandView = this.bandView.append('g')
 			.attr("clip-path", "url(#clipBi)");
          
@@ -259,9 +261,36 @@ var BandView = Backbone.View.extend({
         this.inter.scaleBandBipa = this.scaleX;
         // console.log(this.inter.scaleBandBipa);
 
+        var xAxis = d3.svg.axis()
+            .scale(this.scaleX)
+            .orient("bottom")
+            .tickFormat(function(d){
+                return timelist[Math.floor(d)];
+            })
+            // .tickValues(
+            //     timelist.map(function (d, i) {
+            //         return i + 0.5;
+            //     })
+            //  )
+            .ticks(5);
+
+		this.uncliped.append("g")
+			.attr("class", "x axis")
+			.attr("transform", "translate(0," + height + ")")
+			.call(xAxis)
+			.append("text")
+			.attr("class", "label")
+			.attr("x", width)
+			.attr("y", -6)
+			.style("text-anchor", "end")
+			.text("Timeline");
+
+
+
         var zoom = d3.behavior.zoom()
             .on("zoom", function(){
                 Backbone.trigger('renderScale');
+                that.uncliped.select(".x.axis").call(xAxis);
             })
             .x(this.scaleX);
         this.inter.zoomBandBipa = zoom;
