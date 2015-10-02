@@ -135,7 +135,7 @@ var ProjectionView = Backbone.View.extend({
 		this.y = d3.scale.linear()
 			.range([height, 0]);
 
-		var color = d3.scale.category10();
+		// var color = d3.scale.category10();
 
 		var xAxis = d3.svg.axis()
 			.scale(that.x)
@@ -268,28 +268,28 @@ var ProjectionView = Backbone.View.extend({
 		
 		this.setAreaMode();
 		
-		var legend = svg.selectAll(".legend")
-			.data(color.domain())
-			.enter().append("g")
-			.attr("class", "legend")
-			.attr("transform", function(d, i) {
-				return "translate(0," + i * 20 + ")";
-			});
+		// var legend = svg.selectAll(".legend")
+		// 	.data(color.domain())
+		// 	.enter().append("g")
+		// 	.attr("class", "legend")
+		// 	.attr("transform", function(d, i) {
+		// 		return "translate(0," + i * 20 + ")";
+		// 	});
 
-		legend.append("rect")
-			.attr("x", width - 18)
-			.attr("width", 18)
-			.attr("height", 18)
-			.style("fill", color);
+		// legend.append("rect")
+		// 	.attr("x", width - 18)
+		// 	.attr("width", 18)
+		// 	.attr("height", 18)
+		// 	.style("fill", color);
 
-		legend.append("text")
-			.attr("x", width - 24)
-			.attr("y", 9)
-			.attr("dy", ".35em")
-			.style("text-anchor", "end")
-			.text(function(d) {
-				return d;
-			});
+		// legend.append("text")
+		// 	.attr("x", width - 24)
+		// 	.attr("y", 9)
+		// 	.attr("dy", ".35em")
+		// 	.style("text-anchor", "end")
+		// 	.text(function(d) {
+		// 		return d;
+		// 	});
 	},
 	renderSelectedEdges: function (idList) {
 		// console.log(selectedEdges);

@@ -102,8 +102,16 @@
 		}
 		.edge.hovered line {
 			stroke-width: 4px;
-		}		
-		#band path {
+		}
+		
+		.timeLine {
+			stroke: gray;
+			stroke-width: 4px;
+			opacity: 0.8;
+			stroke-dasharray: "5,5";
+		}
+		
+		#dendro path {
             stroke: #000;
             stroke-width: 1px;
             fill:none;
@@ -115,15 +123,20 @@
 			border-right:1px solid #f0f0f0;
 			box-shadow: 2px 2px 2px #f0f0f0;
 		}
+				
 	</style>
 <body>
-	<div class = "clearfix">
+	<!--<div class = "clearfix">-->
+	<div class = "container-fluid">
 		<!--<div class = "col-lg-1" id = "toolbox" style = "height:100%">			
 			
 		</div>-->
 		<div class = "col-lg-3" id = "panel">
+			<div class="row" style="background:#3a8edb">
+				<img src="Iconset/Title2.png" style="margin:15px"/>
+			</div>
 			<!--<div class = "row" id = "toolbox" style = "height:20%"></div>-->
-			<div class = "row" id = "info" style = "height:80%"></div>
+			<div class = "row" id = "info"></div>
 		</div>
 		<div class = "col-lg-4">
 			<div class = "row view" id = "band" style = "height:50%"></div>
