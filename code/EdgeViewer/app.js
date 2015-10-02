@@ -84,6 +84,7 @@ var tieVis = {
 		bipartite.render();
 		nodelink.render();
 		info.render();
+		$('.collapse').collapse();
 
 		d3.json(options.dataset + '/tieDataParallel.json', function(data1) {
 			tieData = data1;
