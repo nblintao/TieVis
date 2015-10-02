@@ -25,7 +25,7 @@ var InfoView = Backbone.View.extend({
 		// var info = edge.y + '(' + nodelist[edge.y] + ')' + '->' + edge.x + '(' + nodelist[edge.x] + ') ' + edge.d
 		// d3.select('#temp').html(info);
 		
-		$('.collapse').collapse('hide');		
+		$('.collapse').collapse('hide');
 		$('#collapse'+i).collapse('show');
 	},
 	render: function() {
@@ -59,7 +59,7 @@ var InfoView = Backbone.View.extend({
 				}
 			};
 		});
-		console.log(dat);
+		// console.log(dat);
 		
 		var accordion = d3.select('#accordion');
 		accordion.selectAll('div').remove();
@@ -90,8 +90,6 @@ var InfoView = Backbone.View.extend({
 				d.t.name;
 				// '<span class="label label-default">'+d.t.occu+'</span>';
 			});
-		//  <div id="collapseOne" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
-    //   <div class="panel-body">
 		
 		var content = edge.append('div')
 			.attr('id', function (d) { return 'collapse' + d.no; })
@@ -108,6 +106,16 @@ var InfoView = Backbone.View.extend({
 					d.t.name + //'<br/>' +
 					'<span class="label label-default">' + d.t.occu + '</span>';
 			});
+
+		// $('.panel-group').on('shown.bs.collapse', function (e) {
+		// 	var offset = $('.panel.panel-default > .panel-collapse.in').offset();
+		// 	if (offset) {
+		// 		$('#infopanel').animate({
+		// 			scrollTop: $('.panel-collapse.in').siblings('.panel-heading').offset().top
+		// 		}, 500);
+		// 	}
+		// });
+		
 	},
 	show_info: function(dat) {
 		var occupation = this.occupation;
