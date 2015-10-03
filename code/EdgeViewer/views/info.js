@@ -9,7 +9,7 @@ var InfoView = Backbone.View.extend({
 		// "<div id='subj'  style='width:50%;height:100%; overflow:auto; float:left;' ><form></form></div>";
 		Backbone.on("showInfo", this.showInfo, this);	
 		Backbone.on('hoverEdge', this.showEdgeInfo, this);
-		Backbone.on('selectTime',this.showTime, this);
+		// Backbone.on('selectTime',this.showTime, this);
 	},
 	showTime: function (t) {
 		var timeinfo;

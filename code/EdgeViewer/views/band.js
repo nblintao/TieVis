@@ -17,8 +17,18 @@ var BandView = Backbone.View.extend({
         Backbone.on('selectEdges',this.renderData,this);
         Backbone.on('hoverEdge', this.renderEdge, this);
         Backbone.on('renderScale',this.renderScaleEvent,this);
+        Backbone.on('selectTime', this.showTime, this);
         this.time = time;
     },
+	showTime: function (t) {
+		var timeinfo;
+		if (t >= timelist.length) {
+			timeinfo = 'Period Not Exist';
+		} else {
+			timeinfo = 'Period ' + t + ': ' + timelist[t];
+		}
+		this.timeText.text(timeinfo);
+	},    
     renderScaleEvent:function(){
         this.renderScale();
     },
@@ -274,7 +284,7 @@ var BandView = Backbone.View.extend({
             //  )
             .ticks(5);
 
-		this.uncliped.append("g")
+		this.timeText = this.uncliped.append("g")
 			.attr("class", "x axis")
 			.attr("transform", "translate(0," + height + ")")
 			.call(xAxis)
