@@ -9,7 +9,7 @@ var InfoView = Backbone.View.extend({
 		// "<div id='subj'  style='width:50%;height:100%; overflow:auto; float:left;' ><form></form></div>";
 		Backbone.on("showInfo", this.showInfo, this);	
 		Backbone.on('hoverEdge', this.showEdgeInfo, this);
-		// Backbone.on('selectTime',this.showTime, this);
+		Backbone.on('selectTime',this.showCollapse, this);
 	},
 	showTime: function (t) {
 		var timeinfo;
@@ -24,9 +24,20 @@ var InfoView = Backbone.View.extend({
 		// var edge = tieData[i];
 		// var info = edge.y + '(' + nodelist[edge.y] + ')' + '->' + edge.x + '(' + nodelist[edge.x] + ') ' + edge.d
 		// d3.select('#temp').html(info);
-		
+		this.hovered = i;
+		// $('.collapse').collapse('hide');
+		// $('#collapse'+i).collapse('show');
+		this.headings
+			.style('padding', '0px 5px')
+			.style('background-color','#f5f5f5');
+			
+		d3.select('#heading'+i)
+			.style('padding', '10px 5px')
+			.style('background-color','#ddd');
+	},
+	showCollapse: function(){
 		$('.collapse').collapse('hide');
-		$('#collapse'+i).collapse('show');
+		$('#collapse'+this.hovered).collapse('toggle');
 	},
 	render: function() {
 		// $(this.el).html(this.html);
@@ -69,10 +80,12 @@ var InfoView = Backbone.View.extend({
 			.append('div')
 			.attr('class','panel panel-default');
 
-		edge.append('div')
+		this.headings = edge.append('div')
 			.attr('class', 'panel-heading')
 			.attr('role', 'tab')
 			.attr('id', function (d) { return 'heading' + d.no; })
+		
+		this.headings
 			.append('div')
 			.attr('class', 'panel-title')
 			
