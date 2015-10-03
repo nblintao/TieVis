@@ -1,6 +1,11 @@
 \documentclass{article}
 \title{Part of the Paper}
 \author{Tao LIN}
+\usepackage{algorithm}
+\usepackage{algorithmicx}
+\usepackage{algpseudocode}
+\usepackage{amsmath}
+
 
 \begin{document}
 
@@ -24,7 +29,52 @@ The grouping is according to the connectivity of the vertices in the selected ti
 
 // TODO: inner-group alignment
 
+
+\begin{algorithm}[h]
+	\caption{Inner-group Alignment Algorithm}
+	\label{alg::innergroup}
+	\begin{algorithmic}[1]
+		\Require
+		$G = \{e_0, e_1, ..., e_{n-1}\}$: edges in the group $G$;
+		\Ensure
+		$G' = \{e_{k_0}, e_{k_1}, ..., e_{k_{n-1}}\}$: optimized alignment $G$;
+		\If {$n < 2$ }
+			\State $G' = G$
+		\Else
+				\State $minCross = $ maximum number
+				\State $perms = $ all permutations of $G$
+				\For {$t=0; t<Size(perms)-1; t++$}				
+					\State $perm = perms[t]$
+					\State $cross = 0$
+					\For {$i=0; i<n-1; i++$}
+						\For {$j=i+1; j<n; j++$}
+							\If {$e_i.source \neq e_j.source$ and $e_i.target \neq e_j.target$}
+								\State $ps = $ position of $e_i.source$ in $perm$ $>$ position of $e_j.source$ in $perm$
+								\State $pt = $ position of $e_i.target$ in $perm$ $>$ position of $e_j.target$ in $perm$
+								\If {$ps \neq pt$}
+									\State $cross = cross+1 $
+								\EndIf
+							\EndIf
+						\EndFor					
+					\EndFor
+					\If {$cross < minCross$}
+						\If {$cross == 0$}
+							\State break;
+						\EndIf
+						\State $G' = perm$
+						\State $minCross = cross$
+					\EndIf
+				\EndFor
+		\EndIf
+	\end{algorithmic}
+\end{algorithm}
+
+
+
 // TODO: inter-group alignment
+
+
+
 
 
 
