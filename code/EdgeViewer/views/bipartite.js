@@ -16,7 +16,7 @@ var BiPartiteView = Backbone.View.extend({
 		Backbone.on('selectTime', this.renderBipartiteGroup, this);
 		Backbone.on('renderScale', this.renderScaleEvent, this);
 		// 3 colors of d3.scale.category10 are too close to the original colors
-		var cat = ['#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f','#bcbd22'];
+		var cat = ['#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2','#bcbd22'];
 		this.colorCat = function(d){
 			return cat[d%7];
 		};
@@ -199,7 +199,12 @@ var BiPartiteView = Backbone.View.extend({
 					relatedGroups.push(px);
 				}
 				var count = e.d.filter(filterExist).length;
-				var item = '_' + py + '_' + px;
+				var item;
+				if(py<px){
+					item = '_' + py + '_' + px;
+				}else{
+					item = '_' + px + '_' + py;
+				}
 				transGroup[item] = (transGroup[item] || 0) + count;
 			}
 			// console.log(transGroup);
