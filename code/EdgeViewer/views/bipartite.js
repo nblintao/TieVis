@@ -550,7 +550,7 @@ var BiPartiteView = Backbone.View.extend({
 			.interpolate("basis");
 		var width = this.width;
 		var height = this.height;
-		var timeBar = svg.append("g")
+		var timeBar = cliped.append("g")
 			.datum(time)
 			.append("path")
 			.attr("id", "time")
