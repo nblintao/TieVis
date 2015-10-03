@@ -239,6 +239,8 @@ var BiPartiteView = Backbone.View.extend({
 					for (var b = a + 1; b < nG + 1; b++) {
 						var it = '_' + thePerm[a] + '_' + thePerm[b];
 						value += (transGroup[it] || 0) * (b - a);
+						it = '_' + thePerm[b] + '_' + thePerm[a];
+						value += (transGroup[it] || 0) * (b - a);
 					}
 				}
 				if (minValue === -1 || value < minValue) {
