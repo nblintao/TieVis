@@ -43,11 +43,10 @@ The grouping is according to the connectivity of the vertices in the selected ti
 		\Else
 				\State $minCross = $ maximum number
 				\State $perms = $ all permutations of $G$
-				\For {$t=0; t<Size(perms)-1; t++$}				
-					\State $perm = perms[t]$
+				\For {$perm$ in $perms$}
 					\State $cross = 0$
-					\For {$i=0; i<n-1; i++$}
-						\For {$j=i+1; j<n; j++$}
+					\For {$i=0; i<n-1; i=i+1$}
+						\For {$j=i+1; j<n; j=j+1$}
 							\If {$e_i.source \neq e_j.source$ and $e_i.target \neq e_j.target$}
 								\State $ps = $ position of $e_i.source$ in $perm$ $>$ position of $e_j.source$ in $perm$
 								\State $pt = $ position of $e_i.target$ in $perm$ $>$ position of $e_j.target$ in $perm$
@@ -58,13 +57,67 @@ The grouping is according to the connectivity of the vertices in the selected ti
 						\EndFor					
 					\EndFor
 					\If {$cross < minCross$}
-						\If {$cross == 0$}
+						\If {$cross = 0$}
 							\State break;
 						\EndIf
 						\State $G' = perm$
 						\State $minCross = cross$
 					\EndIf
 				\EndFor
+		\EndIf
+	\end{algorithmic}
+\end{algorithm}
+
+
+\begin{algorithm}[h]
+	\caption{Inter-group Alignment Algorithm}
+	\label{alg::intergroup}
+	\begin{algorithmic}[1]
+		\Require
+		$S = \{G_0, G_1, ..., G_{n-1}, H\}$: A set of edge groups $G_i$ and a group of other edges $H$;
+		
+		$E = {e_0, e_1, \dots, e_{w-1}}$: the set of all edges
+		\Ensure
+		$S' = \{e_{k_0}, e_{k_1}, ..., e_{k_{n-1}}, H\}$: optimized alignment $S$;
+		\If {$n<2$}
+			\State $S' = S$
+		\Else
+			\State $transGroup = []$
+			\State $relatedGroups = \{\}$
+			\For {$e$ in $E$}
+				\State $ps = $ the group contains $e.source$
+				\State $pt = $ the group contains $e.target$
+				\If {$ps = pt$}
+					\State continue
+				\EndIf
+				\If {$ps$ is not in $relatedGroups$}
+					\State add $ps$ into $relatedGroups$
+				\EndIf
+				\If {$pt$ is not in $relatedGroups$}
+					\State add $pt$ into $relatedGroups$
+				\EndIf
+				\State $transGroup[ps,pt] += $ number of times Edge $e$ exists
+			\EndFor
+			\State $frontPart = G - relatedGroups- \{H\}$
+			\State $middlePart = relatedGroups- \{H\}$
+			
+			
+\State $minCrossValue = $ maximum number
+\State $perms = $ all permutations of $middlePart$
+\For {$perm$ in $perms$}
+	\State $crossValue = 0$
+	\State $perm = frontPart + perm + {H}$
+	\For {$i=0; i<n; i=i+1$}
+		\For {$j=i+1; j<n+1; j=j+1$}
+			\State $crossValue += transGroup[perm[i],perm[j]] \cdot (j-i)$
+		\EndFor					
+	\EndFor
+	\If {$crossValue < minCrossValue$}
+		\State $G' = perm$
+		\State $minCrossValue = crossValue$
+	\EndIf
+\EndFor
+			
 		\EndIf
 	\end{algorithmic}
 \end{algorithm}
